@@ -12,10 +12,13 @@ import (
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/env"
 )
 
+// Handler holds all objects and configurations used across requests
 type Handler struct {
 	App *cfenv.App
 	S3  *S3Client
 }
+
+// S3Client is used interact with S3 storage
 type S3Client struct {
 	Client     *minio.Client
 	BucketName string
