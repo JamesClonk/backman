@@ -16,6 +16,15 @@ github.com/labstack/gommon/random
 github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.8
 github.com/mattn/go-isatty
+# github.com/minio/minio-go/v6 v6.0.33
+github.com/minio/minio-go/v6
+github.com/minio/minio-go/v6/pkg/credentials
+github.com/minio/minio-go/v6/pkg/encrypt
+github.com/minio/minio-go/v6/pkg/s3signer
+github.com/minio/minio-go/v6/pkg/s3utils
+github.com/minio/minio-go/v6/pkg/set
+# github.com/mitchellh/go-homedir v1.1.0
+github.com/mitchellh/go-homedir
 # github.com/mitchellh/mapstructure v1.1.2
 github.com/mitchellh/mapstructure
 # github.com/pmezard/go-difflib v1.0.0
@@ -29,12 +38,21 @@ github.com/valyala/fasttemplate
 # golang.org/x/crypto v0.0.0-20190605123033-f99c8df09eb5
 golang.org/x/crypto/acme
 golang.org/x/crypto/acme/autocert
+golang.org/x/crypto/argon2
+golang.org/x/crypto/blake2b
 # golang.org/x/net v0.0.0-20190607181551-461777fb6f67
+golang.org/x/net/http/httpguts
+golang.org/x/net/http2
+golang.org/x/net/publicsuffix
 golang.org/x/net/idna
+golang.org/x/net/http2/hpack
 # golang.org/x/sys v0.0.0-20190609082536-301114b31cce
 golang.org/x/sys/unix
+golang.org/x/sys/cpu
 # golang.org/x/text v0.3.2
 golang.org/x/text/secure/bidirule
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
 golang.org/x/text/transform
+# gopkg.in/ini.v1 v1.42.0
+gopkg.in/ini.v1
