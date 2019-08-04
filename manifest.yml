@@ -25,3 +25,5 @@ applications:
   env:
     USERNAME: ((username))
     PASSWORD: ((password))
+    S3_SERVICE_LABEL: dynstrg
+    # S3_BUCKET_NAME: my-backup-bucket # optional, using service-instance/binding-name if missing
