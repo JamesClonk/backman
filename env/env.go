@@ -1,8 +1,9 @@
 package env
 
 import (
-	"log"
 	"os"
+
+	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
 )
 
 func Get(key string, nvl string) string {
