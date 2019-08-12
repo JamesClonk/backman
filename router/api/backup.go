@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -51,6 +52,9 @@ func (h *Handler) ListBackups(c echo.Context) error {
 	}
 	backups := make([]Backup, 0)
 	for _, service := range services {
+		folderPath := fmt.Sprintf("%s/%s/", service.Label, service.Name)
+		h.S3.ListBackups(folderPath) // TODO: iterate over return result
+
 		backups = append(backups, Backup{
 			ServiceType: service.Label,
 			ServiceName: service.Name,

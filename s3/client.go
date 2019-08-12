@@ -61,3 +61,19 @@ func New(app *cfenv.App) *S3Client {
 		BucketName: bucketName,
 	}
 }
+
+func (s *S3Client) ListBackups(folderPath string) {
+	// read backups from S3
+	doneCh := make(chan struct{})
+	defer close(doneCh)
+
+	isRecursive := true
+	objectCh := s.Client.ListObjectsV2(s.BucketName, folderPath, isRecursive, doneCh)
+	for object := range objectCh {
+		if object.Err != nil {
+			log.Errorf("%v", object.Err)
+			return
+		}
+		log.Infof("%#v", object)
+	}
+}
