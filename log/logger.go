@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/sirupsen/logrus"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/env"
 )
 
 var (
@@ -18,7 +17,10 @@ func init() {
 }
 
 func newLogger(writer io.Writer) *logrus.Logger {
-	level := env.Get("LOG_LEVEL", "info")
+	level := os.Getenv("LOG_LEVEL")
+	if len(level) == 0 {
+		level = "info"
+	}
 	logLevel, err := logrus.ParseLevel(level)
 	if err != nil {
 		log.Fatal(err)

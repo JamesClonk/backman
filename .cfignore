@@ -1,4 +1,5 @@
 .env
+.env_*
 .git
 .gitmodules
 .gitignore
@@ -6,3 +7,5 @@ Makefile
 README.md
 gin-bin
 appcloud-backman-app
+backman-app
+backman

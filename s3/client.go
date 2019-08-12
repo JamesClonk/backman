@@ -39,6 +39,23 @@ func New(app *cfenv.App) *S3Client {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
+
+	// check if bucket exists and is accessible and if not create it, or fail
+	exists, errBucketExists := minioClient.BucketExists(bucketName)
+	if errBucketExists == nil && exists {
+		log.Infof("S3 bucket [%s] found", bucketName)
+	} else {
+		if err := minioClient.MakeBucket(bucketName, ""); err != nil {
+			log.Fatalf("S3 bucket [%s] could not be created: %v", bucketName, err)
+			exists, errBucketExists := minioClient.BucketExists(bucketName)
+			if errBucketExists != nil || exists {
+				log.Fatalf("S3 bucket [%s] is not accessible: %v", bucketName, err)
+			}
+		} else {
+			log.Infof("new S3 bucket [%s] was successfully created", bucketName)
+		}
+	}
+
 	return &S3Client{
 		Client:     minioClient,
 		BucketName: bucketName,

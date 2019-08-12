@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 
 	cfenv "github.com/cloudfoundry-community/go-cfenv"
@@ -8,6 +9,8 @@ import (
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/s3"
 )
+
+const version = "v1"
 
 // Handler holds all objects and configurations used across API requests
 type Handler struct {
@@ -27,6 +30,12 @@ func New() *Handler {
 		App: app,
 		S3:  s3.New(app),
 	}
+}
+
+func (h *Handler) RegisterRoutes(e *echo.Echo) {
+	e.GET(fmt.Sprintf("/api/%s/", version), h.HelloWorld)
+	e.GET(fmt.Sprintf("/api/%s/health", version), h.Health)
+	e.GET(fmt.Sprintf("/api/%s/backups", version), h.ListBackups)
 }
 
 func (h *Handler) HelloWorld(c echo.Context) error {

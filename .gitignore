@@ -32,3 +32,5 @@ _testmain.go
 # ---------
 .env_*
 appcloud-backman-app
+backman-app
+backman

@@ -45,15 +45,9 @@ func New() *Router {
 		api:  api.New(),
 	}
 	// setup API routes
-	r.setupAPI()
+	r.api.RegisterRoutes(r.echo)
 
 	return r
-}
-
-func (r *Router) setupAPI() {
-	r.echo.GET("/", r.api.HelloWorld)
-	r.echo.GET("/health", r.api.Health)
-	r.echo.GET("/backups", r.api.ListBackups)
 }
 
 func (r *Router) Start() error {
