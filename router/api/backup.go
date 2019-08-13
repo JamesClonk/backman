@@ -3,6 +3,8 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"path/filepath"
+	"strings"
 	"time"
 
 	cfenv "github.com/cloudfoundry-community/go-cfenv"
@@ -39,11 +41,12 @@ func (h *Handler) ListBackups(c echo.Context) error {
 		}
 	}
 
-	// TODO: collect backups on S3 for services here
 	type File struct {
-		Name      string
-		Size      int64
-		Timestamp time.Time
+		Key          string
+		Filepath     string
+		Filename     string
+		Size         int64
+		LastModified time.Time
 	}
 	type Backup struct {
 		ServiceType string
@@ -53,28 +56,30 @@ func (h *Handler) ListBackups(c echo.Context) error {
 	backups := make([]Backup, 0)
 	for _, service := range services {
 		folderPath := fmt.Sprintf("%s/%s/", service.Label, service.Name)
-		h.S3.ListBackups(folderPath) // TODO: iterate over return result
+		objects, err := h.S3.ListBackups(folderPath)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+
+		// collect backup files
+		files := make([]File, 0)
+		for _, obj := range objects {
+			// exclude "directories"
+			if obj.Key != folderPath && !strings.Contains(folderPath, filepath.Base(obj.Key)) {
+				files = append(files, File{
+					Key:          obj.Key,
+					Filepath:     filepath.Dir(obj.Key),
+					Filename:     filepath.Base(obj.Key),
+					Size:         obj.Size,
+					LastModified: obj.LastModified,
+				})
+			}
+		}
 
 		backups = append(backups, Backup{
 			ServiceType: service.Label,
 			ServiceName: service.Name,
-			Files: []File{
-				File{
-					Name:      "demo1.txt",
-					Size:      43256,
-					Timestamp: time.Now(),
-				},
-				File{
-					Name:      "demo2.log",
-					Size:      120230,
-					Timestamp: time.Now().AddDate(0, -1, -100),
-				},
-				File{
-					Name:      "db-dump.tar.gz",
-					Size:      68843256,
-					Timestamp: time.Now().AddDate(-1, -1, -1),
-				},
-			},
+			Files:       files,
 		})
 	}
 

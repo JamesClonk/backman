@@ -62,18 +62,20 @@ func New(app *cfenv.App) *S3Client {
 	}
 }
 
-func (s *S3Client) ListBackups(folderPath string) {
+func (s *S3Client) ListBackups(folderPath string) ([]minio.ObjectInfo, error) {
 	// read backups from S3
 	doneCh := make(chan struct{})
 	defer close(doneCh)
 
 	isRecursive := true
+	objects := make([]minio.ObjectInfo, 0)
 	objectCh := s.Client.ListObjectsV2(s.BucketName, folderPath, isRecursive, doneCh)
 	for object := range objectCh {
 		if object.Err != nil {
-			log.Errorf("%v", object.Err)
-			return
+			log.Errorf("could not read S3 object: %v", object.Err)
+			return nil, object.Err
 		}
-		log.Infof("%#v", object)
+		objects = append(objects, object)
 	}
+	return objects, nil
 }
