@@ -55,8 +55,8 @@ func (h *Handler) ListBackups(c echo.Context) error {
 	}
 	backups := make([]Backup, 0)
 	for _, service := range services {
-		folderPath := fmt.Sprintf("%s/%s/", service.Label, service.Name)
-		objects, err := h.S3.ListBackups(folderPath)
+		objectPath := fmt.Sprintf("%s/%s/", service.Label, service.Name)
+		objects, err := h.S3.ListObjects(objectPath)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
@@ -65,7 +65,7 @@ func (h *Handler) ListBackups(c echo.Context) error {
 		files := make([]File, 0)
 		for _, obj := range objects {
 			// exclude "directories"
-			if obj.Key != folderPath && !strings.Contains(folderPath, filepath.Base(obj.Key)) {
+			if obj.Key != objectPath && !strings.Contains(objectPath, filepath.Base(obj.Key)) {
 				files = append(files, File{
 					Key:          obj.Key,
 					Filepath:     filepath.Dir(obj.Key),
@@ -84,4 +84,16 @@ func (h *Handler) ListBackups(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, backups)
+}
+
+func (h *Handler) DeleteBackup(c echo.Context) error {
+	objectPath := c.Param("*")
+	if len(objectPath) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "no object path specified to be deleted")
+	}
+
+	if err := h.S3.DeleteObject(objectPath); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusNoContent, nil)
 }

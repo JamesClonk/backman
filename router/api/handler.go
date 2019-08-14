@@ -33,9 +33,13 @@ func New() *Handler {
 }
 
 func (h *Handler) RegisterRoutes(e *echo.Echo) {
-	e.GET(fmt.Sprintf("/api/%s/", version), h.HelloWorld)
-	e.GET(fmt.Sprintf("/api/%s/health", version), h.Health)
-	e.GET(fmt.Sprintf("/api/%s/backups", version), h.ListBackups)
+	// everything should be place under /api/$version/
+	g := e.Group(fmt.Sprintf("/api/%s", version))
+
+	g.GET("/", h.HelloWorld)
+	g.GET("/health", h.Health)
+	g.GET("/backups", h.ListBackups)
+	g.DELETE("/backup/*", h.DeleteBackup)
 }
 
 func (h *Handler) HelloWorld(c echo.Context) error {

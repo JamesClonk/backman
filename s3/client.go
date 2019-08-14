@@ -62,8 +62,8 @@ func New(app *cfenv.App) *S3Client {
 	}
 }
 
-func (s *S3Client) ListBackups(folderPath string) ([]minio.ObjectInfo, error) {
-	// read backups from S3
+func (s *S3Client) ListObjects(folderPath string) ([]minio.ObjectInfo, error) {
+	// read objects from S3
 	doneCh := make(chan struct{})
 	defer close(doneCh)
 
@@ -78,4 +78,13 @@ func (s *S3Client) ListBackups(folderPath string) ([]minio.ObjectInfo, error) {
 		objects = append(objects, object)
 	}
 	return objects, nil
+}
+
+func (s *S3Client) DeleteObject(object string) error {
+	// delete object from S3
+	if err := s.Client.RemoveObject(s.BucketName, object); err != nil {
+		log.Errorf("could not delete S3 object [%s]: %v", object, err)
+		return err
+	}
+	return nil
 }
