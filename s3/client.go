@@ -7,13 +7,13 @@ import (
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
 )
 
-// S3Client is used interact with S3 storage
-type S3Client struct {
+// Client is used interact with S3 storage
+type Client struct {
 	Client     *minio.Client
 	BucketName string
 }
 
-func New(app *cfenv.App) *S3Client {
+func New(app *cfenv.App) *Client {
 	// read env
 	s3ServiceLabel := env.Get("S3_SERVICE_LABEL", "dynstrg")
 
@@ -56,13 +56,13 @@ func New(app *cfenv.App) *S3Client {
 		}
 	}
 
-	return &S3Client{
+	return &Client{
 		Client:     minioClient,
 		BucketName: bucketName,
 	}
 }
 
-func (s *S3Client) ListObjects(folderPath string) ([]minio.ObjectInfo, error) {
+func (s *Client) ListObjects(folderPath string) ([]minio.ObjectInfo, error) {
 	// read objects from S3
 	doneCh := make(chan struct{})
 	defer close(doneCh)
@@ -80,7 +80,7 @@ func (s *S3Client) ListObjects(folderPath string) ([]minio.ObjectInfo, error) {
 	return objects, nil
 }
 
-func (s *S3Client) DeleteObject(object string) error {
+func (s *Client) DeleteObject(object string) error {
 	// delete object from S3
 	if err := s.Client.RemoveObject(s.BucketName, object); err != nil {
 		log.Errorf("could not delete S3 object [%s]: %v", object, err)

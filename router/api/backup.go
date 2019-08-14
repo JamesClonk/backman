@@ -92,16 +92,15 @@ func (h *Handler) CreateBackup(c echo.Context) error {
 	serviceType := c.Param("service_type")
 	serviceName := c.Param("service_name")
 	filename := c.Param("file")
-	objectPath := fmt.Sprintf("%s/%s/%s", serviceType, serviceName, filename)
 
 	if !util.IsValidServiceType(serviceType) {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("unsupported service type: %s", serviceType))
 	}
 
 	// TODO: call backup background goroutine
-	backup(serviceType, serviceName, filename)
+	h.Service.Backup(serviceType, serviceName, filename)
 
-	return c.JSON(http.StatusNoContent, nil)
+	return c.JSON(http.StatusAccepted, nil)
 }
 
 func (h *Handler) DeleteBackup(c echo.Context) error {
