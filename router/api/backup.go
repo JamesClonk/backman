@@ -12,6 +12,20 @@ import (
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/util"
 )
 
+type File struct {
+	Key          string
+	Filepath     string
+	Filename     string
+	Size         int64
+	LastModified time.Time
+}
+
+type Backup struct {
+	ServiceType string
+	ServiceName string
+	Files       []File
+}
+
 func (h *Handler) ListBackups(c echo.Context) error {
 	var services []cfenv.Service
 
@@ -41,18 +55,6 @@ func (h *Handler) ListBackups(c echo.Context) error {
 		}
 	}
 
-	type File struct {
-		Key          string
-		Filepath     string
-		Filename     string
-		Size         int64
-		LastModified time.Time
-	}
-	type Backup struct {
-		ServiceType string
-		ServiceName string
-		Files       []File
-	}
 	backups := make([]Backup, 0)
 	for _, service := range services {
 		objectPath := fmt.Sprintf("%s/%s/", service.Label, service.Name)
@@ -86,11 +88,27 @@ func (h *Handler) ListBackups(c echo.Context) error {
 	return c.JSON(http.StatusOK, backups)
 }
 
-func (h *Handler) DeleteBackup(c echo.Context) error {
-	objectPath := c.Param("*")
-	if len(objectPath) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "no object path specified to be deleted")
+func (h *Handler) CreateBackup(c echo.Context) error {
+	serviceType := c.Param("service_type")
+	serviceName := c.Param("service_name")
+	filename := c.Param("file")
+	objectPath := fmt.Sprintf("%s/%s/%s", serviceType, serviceName, filename)
+
+	if !util.IsValidServiceType(serviceType) {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("unsupported service type: %s", serviceType))
 	}
+
+	// TODO: call backup background goroutine
+	backup(serviceType, serviceName, filename)
+
+	return c.JSON(http.StatusNoContent, nil)
+}
+
+func (h *Handler) DeleteBackup(c echo.Context) error {
+	serviceType := c.Param("service_type")
+	serviceName := c.Param("service_name")
+	filename := c.Param("file")
+	objectPath := fmt.Sprintf("%s/%s/%s", serviceType, serviceName, filename)
 
 	if err := h.S3.DeleteObject(objectPath); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
