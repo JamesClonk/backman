@@ -29,6 +29,9 @@ func (h *Handler) GetBackup(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
+	if len(backup.Files) == 0 || len(backup.Files[0].Filename) == 0 {
+		return echo.NewHTTPError(http.StatusNotFound, fmt.Errorf("file not found"))
+	}
 	return c.JSON(http.StatusOK, backup)
 }
 
@@ -56,6 +59,7 @@ func (h *Handler) DownloadBackup(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+	c.Response().Header().Set(echo.HeaderContentDisposition, fmt.Sprintf(`attachment; filename="%s"`, filename))
 	return c.Stream(http.StatusOK, "application/gzip", reader)
 }
 
