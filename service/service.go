@@ -5,7 +5,7 @@ import (
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/s3"
 )
 
-// Service is used interact with Services and dump/restore backups
+// Service is used interact with services and dump/restore backups
 type Service struct {
 	App *cfenv.App
 	S3  *s3.Client
@@ -17,6 +17,3 @@ func New(app *cfenv.App, s3 *s3.Client) *Service {
 		S3:  s3,
 	}
 }
-
-// TODO: factor everything out into interfaces and subpackages that implement this???
-func (s *Service) Backup(serviceType, serviceName, filename string) {}
