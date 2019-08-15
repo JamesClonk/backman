@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -12,23 +13,31 @@ import (
 )
 
 func Backup(service *cfenv.Service, upload func(io.Reader)) error {
-	//host, _ := service.CredentialString("host")
-	//port, _ := service.CredentialString("port")
-	//database, _ := service.CredentialString("database")
-	//username, _ := service.CredentialString("username")
+	host, _ := service.CredentialString("host")
+	port, _ := service.CredentialString("port")
+	database, _ := service.CredentialString("database")
+	username, _ := service.CredentialString("username")
 	password, _ := service.CredentialString("password")
 
 	os.Setenv("MYSQL_PWD", password)
 
-	// var db string
-	// if len(database) > 0 {
-	// 	db = fmt.Sprintf("--databases %s", database)
-	// } else {
-	// 	db = "--all-databases"
-	// }
+	// prepare mysqldump command
+	var command []string
+	command = append(command, "mysqldump")
+	if len(database) > 0 {
+		command = append(command, "--databases")
+		command = append(command, database)
+	} else {
+		command = append(command, "--all-databases")
+	}
+	command = append(command, "-h")
+	command = append(command, host)
+	command = append(command, "P")
+	command = append(command, port)
+	command = append(command, "-u")
+	command = append(command, username)
 
-	//cmd := exec.Command("mysqldump", db, "-h", host, "-P", port, "-u", username)
-	cmd := exec.Command("cat", "testfile.dat")
+	cmd := exec.Command(command[0], command[1:]...)
 	// capture stdout for writer
 	outPipe, err := cmd.StdoutPipe()
 	if err != nil {
@@ -60,8 +69,7 @@ func Backup(service *cfenv.Service, upload func(io.Reader)) error {
 	}()
 	if err := cmd.Wait(); err != nil {
 		log.Errorln(strings.TrimRight(buf.String(), "\r\n"))
-		log.Errorf("mysqldump: %v", err)
-		return err
+		return fmt.Errorf("mysqldump: %v", err)
 	}
 	return nil
 }

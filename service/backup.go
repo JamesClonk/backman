@@ -41,6 +41,7 @@ func (s *Service) Backup(serviceType, serviceName, filename string) error {
 		return err
 	}
 
+	var uploadSize int64
 	var uploadError error
 	var uploadWait sync.WaitGroup
 	upload := func(input io.Reader) {
@@ -56,7 +57,7 @@ func (s *Service) Backup(serviceType, serviceName, filename string) error {
 			gw.Close()
 			pw.Close()
 		}()
-		uploadError = s.S3.Upload(objectPath, bufio.NewReader(pr), -1)
+		uploadSize, uploadError = s.S3.Upload(objectPath, bufio.NewReader(pr), -1)
 	}
 
 	switch serviceType {
@@ -72,11 +73,11 @@ func (s *Service) Backup(serviceType, serviceName, filename string) error {
 
 	uploadWait.Wait()
 	if uploadError != nil {
-		log.Errorf("could not upload service backup [%s]: %v", serviceName, err)
+		log.Errorf("could not upload service backup [%s] to S3: %v", serviceName, err)
 		return uploadError
 	}
 
-	log.Infof("successfully created backup [%s]", objectPath)
+	log.Infof("successfully created & uploaded backup [%s] of size [%d bytes] to S3", objectPath, uploadSize)
 	return nil
 }
 
@@ -110,6 +111,7 @@ func (s *Service) GetBackups(serviceType, serviceName string) ([]Backup, error) 
 		objectPath := fmt.Sprintf("%s/%s/", service.Label, service.Name)
 		objects, err := s.S3.List(objectPath)
 		if err != nil {
+			log.Errorf("could not list S3 objects: %v", err)
 			return nil, err
 		}
 
@@ -142,7 +144,7 @@ func (s *Service) GetBackup(serviceType, serviceName, filename string) (*Backup,
 
 	obj, err := s.S3.Stat(objectPath)
 	if err != nil {
-		log.Errorf("could not stat backup file [%s]: %v", filename, err)
+		log.Errorf("could not find backup file [%s]: %v", objectPath, err)
 		return nil, err
 	}
 	return &Backup{
@@ -173,7 +175,7 @@ func (s *Service) ReadBackup(serviceType, serviceName, filename string) (io.Read
 func (s *Service) DownloadBackup(serviceType, serviceName, filename string) (*os.File, error) {
 	object, err := s.ReadBackup(serviceType, serviceName, filename)
 	if err != nil {
-		log.Errorf("could not download backup file [%s]: %v", filename, err)
+		log.Errorf("could not download backup file [%s]: %v", object, err)
 		return nil, err
 	}
 
@@ -186,10 +188,16 @@ func (s *Service) DownloadBackup(serviceType, serviceName, filename string) (*os
 		log.Errorf("could not write backup file [%s]: %v", filename, err)
 		return nil, err
 	}
+	log.Debugf("successfully downloaded file [%s] from S3", filename)
 	return localFile, nil
 }
 
 func (s *Service) DeleteBackup(serviceType, serviceName, filename string) error {
 	objectPath := fmt.Sprintf("%s/%s/%s", serviceType, serviceName, filename)
-	return s.S3.Delete(objectPath)
+	if err := s.S3.Delete(objectPath); err != nil {
+		log.Errorf("could not delete S3 object [%s]: %v", objectPath, err)
+		return err
+	}
+	log.Debugf("successfully deleted S3 object [%s]", objectPath)
+	return nil
 }
