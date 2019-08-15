@@ -30,8 +30,10 @@ func newLogger(writer io.Writer) *logrus.Logger {
 	logger.SetOutput(writer)
 	logger.SetLevel(logLevel)
 	logger.SetFormatter(&logrus.TextFormatter{
-		DisableColors: true,
-		FullTimestamp: false,
+		QuoteEmptyFields: true,
+		DisableColors:    true,
+		FullTimestamp:    false,
+		DisableTimestamp: os.Getenv("ENABLE_LOGGING_TIMESTAMP") != "true",
 	})
 	return logger
 }

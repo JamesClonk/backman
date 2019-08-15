@@ -25,9 +25,21 @@ func New() *Router {
 	e.DisableHTTP2 = true
 	e.HideBanner = true
 	e.HidePort = true
+
+	// middlewares
 	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(middleware.Secure())
-	e.Use(middleware.Logger())
+
+	// don't show timestamp unless specifically configured
+	format := `remote_ip="${remote_ip}", host="${host}", method=${method}, uri=${uri}, user_agent="${user_agent}", ` +
+		`status=${status}, error="${error}", latency_human="${latency_human}", bytes_out=${bytes_out}` + "\n"
+	if env.Get("ENABLE_LOGGING_TIMESTAMP", "false") == "true" {
+		format = `time="${time_rfc3339}", ` + format
+	}
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: format,
+	}))
+
 	//e.Use(middleware.Recover()) // don't recover, let platform deal with panics
 	e.Use(middleware.Static("/static"))
 

@@ -35,7 +35,7 @@ func New(app *cfenv.App) *Client {
 	secretAccessKey, _ := s3Services[0].CredentialString("sharedSecret")
 	useSSL := true
 
-	minioClient, err := minio.New(endpoint, accessKeyID, secretAccessKey, useSSL)
+	minioClient, err := minio.NewV4(endpoint, accessKeyID, secretAccessKey, useSSL)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}

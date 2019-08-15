@@ -1,12 +1,17 @@
 package service
 
 import (
+	"bufio"
+	"compress/gzip"
 	"fmt"
+	"io"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/cloudfoundry-community/go-cfenv"
+	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/util"
 )
 
@@ -26,8 +31,24 @@ type Backup struct {
 
 // TODO: factor everything out into interfaces and subpackages that implement this???
 func (s *Service) Backup(serviceType, serviceName, filename string) error {
+	objectPath := fmt.Sprintf("%s/%s/%s.gz", serviceType, serviceName, filename)
+
 	// TODO: call backup background goroutine
-	return nil
+	file, _ := os.Open("testfile.dat")
+	defer file.Close()
+
+	// stream gzipping
+	pr, pw := io.Pipe()
+	gw := gzip.NewWriter(pw)
+	gw.Name = filename
+	gw.ModTime = time.Now()
+	go func() {
+		_, _ = io.Copy(gw, bufio.NewReader(file))
+		gw.Close()
+		pw.Close()
+	}()
+
+	return s.S3.Upload(objectPath, bufio.NewReader(pr), -1)
 }
 
 func (s *Service) GetBackups(serviceType, serviceName string) ([]Backup, error) {
@@ -58,7 +79,7 @@ func (s *Service) GetBackups(serviceType, serviceName string) ([]Backup, error) 
 	backups := make([]Backup, 0)
 	for _, service := range services {
 		objectPath := fmt.Sprintf("%s/%s/", service.Label, service.Name)
-		objects, err := s.S3.ListObjects(objectPath)
+		objects, err := s.S3.List(objectPath)
 		if err != nil {
 			return nil, err
 		}
@@ -87,7 +108,31 @@ func (s *Service) GetBackups(serviceType, serviceName string) ([]Backup, error) 
 	return backups, nil
 }
 
+func (s *Service) GetBackup(serviceType, serviceName, filename string) (io.Reader, error) {
+	objectPath := fmt.Sprintf("%s/%s/%s", serviceType, serviceName, filename)
+	return s.S3.Download(objectPath)
+}
+
+func (s *Service) DownloadBackup(serviceType, serviceName, filename string) (*os.File, error) {
+	object, err := s.GetBackup(serviceType, serviceName, filename)
+	if err != nil {
+		log.Errorf("could not download backup file [%s]: %v", filename, err)
+		return nil, err
+	}
+
+	localFile, err := os.Create(filename)
+	if err != nil {
+		log.Errorf("could not create backup file [%s]: %v", filename, err)
+		return nil, err
+	}
+	if _, err = io.Copy(localFile, object); err != nil {
+		log.Errorf("could not write backup file [%s]: %v", filename, err)
+		return nil, err
+	}
+	return localFile, nil
+}
+
 func (s *Service) DeleteBackup(serviceType, serviceName, filename string) error {
 	objectPath := fmt.Sprintf("%s/%s/%s", serviceType, serviceName, filename)
-	return s.S3.DeleteObject(objectPath)
+	return s.S3.Delete(objectPath)
 }

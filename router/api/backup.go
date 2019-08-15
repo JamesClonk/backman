@@ -35,6 +35,18 @@ func (h *Handler) CreateBackup(c echo.Context) error {
 	return c.JSON(http.StatusAccepted, nil)
 }
 
+func (h *Handler) DownloadBackup(c echo.Context) error {
+	serviceType := c.Param("service_type")
+	serviceName := c.Param("service_name")
+	filename := c.Param("file")
+
+	reader, err := h.Service.GetBackup(serviceType, serviceName, filename)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.Stream(http.StatusOK, "application/gzip", reader)
+}
+
 func (h *Handler) DeleteBackup(c echo.Context) error {
 	serviceType := c.Param("service_type")
 	serviceName := c.Param("service_name")
