@@ -8,10 +8,12 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/cloudfoundry-community/go-cfenv"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
+	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/mysql"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/util"
 )
 
@@ -33,22 +35,49 @@ type Backup struct {
 func (s *Service) Backup(serviceType, serviceName, filename string) error {
 	objectPath := fmt.Sprintf("%s/%s/%s.gz", serviceType, serviceName, filename)
 
-	// TODO: call backup background goroutine
-	file, _ := os.Open("testfile.dat")
-	defer file.Close()
+	service, err := s.App.Services.WithName(serviceName)
+	if err != nil {
+		log.Errorf("could not find service [%s] to backup: %v", serviceName, err)
+		return err
+	}
 
-	// stream gzipping
-	pr, pw := io.Pipe()
-	gw := gzip.NewWriter(pw)
-	gw.Name = filename
-	gw.ModTime = time.Now()
-	go func() {
-		_, _ = io.Copy(gw, bufio.NewReader(file))
-		gw.Close()
-		pw.Close()
-	}()
+	var uploadError error
+	var uploadWait sync.WaitGroup
+	upload := func(input io.Reader) {
+		uploadWait.Add(1)
+		defer uploadWait.Done()
+		// stream gzipping s3 uploader
+		pr, pw := io.Pipe()
+		gw := gzip.NewWriter(pw)
+		gw.Name = filename
+		gw.ModTime = time.Now()
+		go func() {
+			_, _ = io.Copy(gw, bufio.NewReader(input))
+			gw.Close()
+			pw.Close()
+		}()
+		uploadError = s.S3.Upload(objectPath, bufio.NewReader(pr), -1)
+	}
 
-	return s.S3.Upload(objectPath, bufio.NewReader(pr), -1)
+	switch serviceType {
+	case "mysql":
+		err = mysql.Backup(service, upload)
+	default:
+		err = fmt.Errorf("unsupported service type [%s]", serviceType)
+	}
+	if err != nil {
+		log.Errorf("could not backup service [%s]: %v", serviceName, err)
+		return err
+	}
+
+	uploadWait.Wait()
+	if uploadError != nil {
+		log.Errorf("could not upload service backup [%s]: %v", serviceName, err)
+		return uploadError
+	}
+
+	log.Infof("successfully created backup [%s]", objectPath)
+	return nil
 }
 
 func (s *Service) GetBackups(serviceType, serviceName string) ([]Backup, error) {
@@ -108,13 +137,41 @@ func (s *Service) GetBackups(serviceType, serviceName string) ([]Backup, error) 
 	return backups, nil
 }
 
-func (s *Service) GetBackup(serviceType, serviceName, filename string) (io.Reader, error) {
+func (s *Service) GetBackup(serviceType, serviceName, filename string) (*Backup, error) {
+	objectPath := fmt.Sprintf("%s/%s/%s", serviceType, serviceName, filename)
+
+	obj, err := s.S3.Stat(objectPath)
+	if err != nil {
+		log.Errorf("could not stat backup file [%s]: %v", filename, err)
+		return nil, err
+	}
+	return &Backup{
+		ServiceType: serviceType,
+		ServiceName: serviceName,
+		Files: []File{
+			File{
+				Key:          obj.Key,
+				Filepath:     filepath.Dir(obj.Key),
+				Filename:     filepath.Base(obj.Key),
+				Size:         obj.Size,
+				LastModified: obj.LastModified,
+			},
+		},
+	}, err
+}
+
+func (s *Service) BackupExists(serviceType, serviceName, filename string) bool {
+	b, _ := s.GetBackup(serviceType, serviceName, filename)
+	return b.Files[0].Size > 0
+}
+
+func (s *Service) ReadBackup(serviceType, serviceName, filename string) (io.Reader, error) {
 	objectPath := fmt.Sprintf("%s/%s/%s", serviceType, serviceName, filename)
 	return s.S3.Download(objectPath)
 }
 
 func (s *Service) DownloadBackup(serviceType, serviceName, filename string) (*os.File, error) {
-	object, err := s.GetBackup(serviceType, serviceName, filename)
+	object, err := s.ReadBackup(serviceType, serviceName, filename)
 	if err != nil {
 		log.Errorf("could not download backup file [%s]: %v", filename, err)
 		return nil, err

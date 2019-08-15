@@ -39,6 +39,15 @@ func (s *Client) Upload(object string, reader io.Reader, size int64) error {
 	return nil
 }
 
+func (s *Client) Stat(object string) (*minio.ObjectInfo, error) {
+	stat, err := s.Client.StatObject(s.BucketName, object, minio.StatObjectOptions{})
+	if err != nil {
+		log.Errorf("could not get S3 object [%s]: %v", object, err)
+		return nil, err
+	}
+	return &stat, nil
+}
+
 func (s *Client) Download(object string) (*minio.Object, error) {
 	obj, err := s.Client.GetObject(s.BucketName, object, minio.GetObjectOptions{})
 	if err != nil {

@@ -20,6 +20,18 @@ func (h *Handler) ListBackups(c echo.Context) error {
 	return c.JSON(http.StatusOK, backups)
 }
 
+func (h *Handler) GetBackup(c echo.Context) error {
+	serviceType := c.Param("service_type")
+	serviceName := c.Param("service_name")
+	filename := c.Param("file")
+
+	backup, err := h.Service.GetBackup(serviceType, serviceName, filename)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	return c.JSON(http.StatusOK, backup)
+}
+
 func (h *Handler) CreateBackup(c echo.Context) error {
 	serviceType := c.Param("service_type")
 	serviceName := c.Param("service_name")
@@ -29,9 +41,9 @@ func (h *Handler) CreateBackup(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("unsupported service type: %s", serviceType))
 	}
 
-	if err := h.Service.Backup(serviceType, serviceName, filename); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
+	go func() {
+		_ = h.Service.Backup(serviceType, serviceName, filename) // async
+	}()
 	return c.JSON(http.StatusAccepted, nil)
 }
 
@@ -40,7 +52,7 @@ func (h *Handler) DownloadBackup(c echo.Context) error {
 	serviceName := c.Param("service_name")
 	filename := c.Param("file")
 
-	reader, err := h.Service.GetBackup(serviceType, serviceName, filename)
+	reader, err := h.Service.ReadBackup(serviceType, serviceName, filename)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
