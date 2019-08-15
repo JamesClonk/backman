@@ -77,7 +77,7 @@ func (s *Service) Backup(serviceType, serviceName, filename string) error {
 		return uploadError
 	}
 
-	log.Infof("successfully created & uploaded backup [%s] of size [%d bytes] to S3", objectPath, uploadSize)
+	log.Infof("successfully created & uploaded backup [%s] of size [%d] bytes to S3", objectPath, uploadSize)
 	return nil
 }
 

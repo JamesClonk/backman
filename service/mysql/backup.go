@@ -32,7 +32,7 @@ func Backup(service *cfenv.Service, upload func(io.Reader)) error {
 	}
 	command = append(command, "-h")
 	command = append(command, host)
-	command = append(command, "P")
+	command = append(command, "-P")
 	command = append(command, port)
 	command = append(command, "-u")
 	command = append(command, username)
