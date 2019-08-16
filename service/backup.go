@@ -2,13 +2,11 @@ package service
 
 import (
 	"bufio"
-	"compress/gzip"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/cloudfoundry-community/go-cfenv"
@@ -42,30 +40,12 @@ func (s *Service) Backup(serviceType, serviceName, filename string) error {
 		return err
 	}
 
-	var uploadSize int64
-	var uploadError error
-	var uploadWait sync.WaitGroup
-	upload := func(input io.Reader) {
-		uploadWait.Add(1)
-		defer uploadWait.Done()
-		// stream gzipping s3 uploader
-		pr, pw := io.Pipe()
-		gw := gzip.NewWriter(pw)
-		gw.Name = filename
-		gw.ModTime = time.Now()
-		go func() {
-			_, _ = io.Copy(gw, bufio.NewReader(input))
-			gw.Close()
-			pw.Close()
-		}()
-		uploadSize, uploadError = s.S3.Upload(objectPath, bufio.NewReader(pr), -1)
-	}
-
+	var reader io.Reader
 	switch serviceType {
 	case "mysql", "mariadb", "mariadbent", "pxc":
-		err = mysql.Backup(service, upload)
+		reader, err = mysql.Backup(service)
 	case "postgres", "pg", "postgresql", "elephantsql", "citusdb":
-		err = postgres.Backup(service, upload)
+		reader, err = postgres.Backup(service)
 	default:
 		err = fmt.Errorf("unsupported service type [%s]", serviceType)
 	}
@@ -74,13 +54,12 @@ func (s *Service) Backup(serviceType, serviceName, filename string) error {
 		return err
 	}
 
-	uploadWait.Wait()
-	if uploadError != nil {
+	if err := s.S3.Upload(objectPath, bufio.NewReader(reader), -1); err != nil {
 		log.Errorf("could not upload service backup [%s] to S3: %v", serviceName, err)
-		return uploadError
+		return err
 	}
 
-	log.Infof("successfully created & uploaded backup [%s] of size [%d] bytes to S3", objectPath, uploadSize)
+	log.Infof("created and uploaded backup [%s]", objectPath)
 	return nil
 }
 
@@ -191,7 +170,7 @@ func (s *Service) DownloadBackup(serviceType, serviceName, filename string) (*os
 		log.Errorf("could not write backup file [%s]: %v", filename, err)
 		return nil, err
 	}
-	log.Debugf("successfully downloaded file [%s] from S3", filename)
+	log.Infof("downloaded file [%s]", filename)
 	return localFile, nil
 }
 
@@ -201,6 +180,6 @@ func (s *Service) DeleteBackup(serviceType, serviceName, filename string) error 
 		log.Errorf("could not delete S3 object [%s]: %v", objectPath, err)
 		return err
 	}
-	log.Debugf("successfully deleted S3 object [%s]", objectPath)
+	log.Infof("deleted file [%s]", objectPath)
 	return nil
 }

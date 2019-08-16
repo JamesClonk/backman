@@ -1,18 +1,21 @@
 package mysql
 
 import (
+	"bufio"
 	"bytes"
+	"compress/gzip"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/cloudfoundry-community/go-cfenv"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
 )
 
-func Backup(service *cfenv.Service, upload func(io.Reader)) error {
+func Backup(service *cfenv.Service) (io.Reader, error) {
 	host, _ := service.CredentialString("host")
 	port, _ := service.CredentialString("port")
 	database, _ := service.CredentialString("database")
@@ -32,7 +35,6 @@ func Backup(service *cfenv.Service, upload func(io.Reader)) error {
 	}
 	command = append(command, "--single-transaction")
 	command = append(command, "--quick")
-	command = append(command, "--skip-extended-insert")
 	command = append(command, "-h")
 	command = append(command, host)
 	command = append(command, "-P")
@@ -40,40 +42,37 @@ func Backup(service *cfenv.Service, upload func(io.Reader)) error {
 	command = append(command, "-u")
 	command = append(command, username)
 
+	log.Debugf("executing mysql backup command: %v", strings.Join(command, " "))
 	cmd := exec.Command(command[0], command[1:]...)
-	// capture stdout for writer
+
+	// capture stdout to pass to gzipping buffer
 	outPipe, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Errorf("could not get stdout pipe for mysqldump: %v", err)
-		return err
+		return nil, err
 	}
 
 	// capture and read stderr in case an error occurs
-	errPipe, err := cmd.StderrPipe()
-	if err != nil {
-		log.Errorf("could not get stderr pipe for mysqldump: %v", err)
-		return err
-	}
-	var buf bytes.Buffer
-	go func() {
-		defer errPipe.Close()
-		if _, err := io.Copy(&buf, errPipe); err != nil {
-			log.Errorf("could not read from stderr pipe for mysqldump: %v", err)
-		}
-	}()
+	var errBuf bytes.Buffer
+	cmd.Stderr = &errBuf
 
 	if err := cmd.Start(); err != nil {
 		log.Errorf("could not run mysqldump: %v", err)
-		return err
+		return nil, err
 	}
 
-	go func() {
-		defer outPipe.Close()
-		upload(outPipe)
-	}()
+	// gzipping stdout
+	var outBuf bytes.Buffer
+	gw := gzip.NewWriter(&outBuf)
+	//gw.Name = filename
+	gw.ModTime = time.Now()
+	defer outPipe.Close()
+	defer gw.Close()
+	_, _ = io.Copy(gw, bufio.NewReader(outPipe))
+
 	if err := cmd.Wait(); err != nil {
-		log.Errorln(strings.TrimRight(buf.String(), "\r\n"))
-		return fmt.Errorf("mysqldump: %v", err)
+		log.Errorln(strings.TrimRight(errBuf.String(), "\r\n"))
+		return nil, fmt.Errorf("mysqldump: %v", err)
 	}
-	return nil
+	return &outBuf, nil
 }

@@ -4,7 +4,7 @@
 
 applications:
 - name: appcloud-backman-app
-  memory: 256M
+  memory: 512M
   disk_quota: 256M
   instances: 1
   health-check-type: port

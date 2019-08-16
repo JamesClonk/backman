@@ -81,5 +81,5 @@ func (h *Handler) DeleteBackup(c echo.Context) error {
 	if err := h.Service.DeleteBackup(serviceType, serviceName, filename); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusNoContent, nil)
+	return c.NoContent(http.StatusNoContent)
 }
