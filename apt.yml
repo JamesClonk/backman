@@ -1,0 +1,4 @@
+---
+packages:
+- mysql-client
+- postgresql-client-common

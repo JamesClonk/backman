@@ -64,6 +64,7 @@ func Backup(service *cfenv.Service, upload func(io.Reader)) error {
 	}
 
 	go func() {
+		defer outPipe.Close()
 		upload(outPipe)
 	}()
 	if err := cmd.Wait(); err != nil {

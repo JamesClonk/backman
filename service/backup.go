@@ -34,7 +34,7 @@ type Backup struct {
 
 // TODO: factor everything out into interfaces and subpackages that implement this???
 func (s *Service) Backup(serviceType, serviceName, filename string) error {
-	objectPath := fmt.Sprintf("%s/%s/%s.gz", serviceType, serviceName, filename)
+	objectPath := fmt.Sprintf("%s/%s/%s", serviceType, serviceName, filename)
 
 	service, err := s.App.Services.WithName(serviceName)
 	if err != nil {

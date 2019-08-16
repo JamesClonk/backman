@@ -30,6 +30,9 @@ func Backup(service *cfenv.Service, upload func(io.Reader)) error {
 	} else {
 		command = append(command, "--all-databases")
 	}
+	command = append(command, "--single-transaction")
+	command = append(command, "--quick")
+	command = append(command, "--skip-extended-insert")
 	command = append(command, "-h")
 	command = append(command, host)
 	command = append(command, "-P")
@@ -65,6 +68,7 @@ func Backup(service *cfenv.Service, upload func(io.Reader)) error {
 	}
 
 	go func() {
+		defer outPipe.Close()
 		upload(outPipe)
 	}()
 	if err := cmd.Wait(); err != nil {
