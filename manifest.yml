@@ -5,25 +5,28 @@
 applications:
 - name: appcloud-backman-app
   memory: 64M
-  disk_quota: 2GB
+  disk_quota: 128M
   instances: 1
+  health-check-type: port
 
   routes:
   - route: appcloud-backman-app.scapp.io
   - route: appcloud-backman-app.applicationcloud.io
+
   services:
-  - my_s3_storage
-  - my_postgres_db
+  - backman-storage
+  # - my_mysql_db
+  # - my_postgres_db
 
   buildpacks:
   - go_buildpack
-  health-check-type: http
-  health-check-http-endpoint: /health
   command: appcloud-backman-app
   path: .
 
   env:
     USERNAME: ((username))
     PASSWORD: ((password))
+    LOG_LEVEL: debug
+    # ENABLE_LOGGING_TIMESTAMP: false # defaults to false for CF
     S3_SERVICE_LABEL: dynstrg
     # S3_BUCKET_NAME: my-backup-bucket # optional, using service-instance/binding-name if missing

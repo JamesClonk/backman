@@ -2,13 +2,11 @@ package util
 
 func IsValidServiceType(serviceType string) bool {
 	switch serviceType {
-	case "postgres":
+	case "postgres", "pg", "postgresql", "elephantsql", "citusdb":
 		return true
-	case "mariadb":
+	case "mysql", "mariadb", "mariadbent", "pxc":
 		return true
-	case "mysql":
-		return true
-	case "mongodb":
+	case "mongodb", "mangodb", "mongo":
 		return true
 	}
 	return false

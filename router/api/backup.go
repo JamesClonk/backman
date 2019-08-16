@@ -8,8 +8,18 @@ import (
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/util"
 )
 
+func (h *Handler) ListServices(c echo.Context) error {
+	serviceType := c.QueryParam("service_type")
+	serviceName := c.QueryParam("service_name")
+
+	services, err := h.Service.GetServices(serviceType, serviceName)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+	return c.JSON(http.StatusOK, services)
+}
+
 func (h *Handler) ListBackups(c echo.Context) error {
-	// get list of services to display backups for
 	serviceType := c.QueryParam("service_type")
 	serviceName := c.QueryParam("service_name")
 

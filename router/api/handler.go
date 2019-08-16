@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"net/http"
 
 	cfenv "github.com/cloudfoundry-community/go-cfenv"
 	echo "github.com/labstack/echo/v4"
@@ -39,18 +38,13 @@ func New() *Handler {
 }
 
 func (h *Handler) RegisterRoutes(e *echo.Echo) {
-	// everything should be place under /api/$version/
+	// everything should be placed under /api/$version/
 	g := e.Group(fmt.Sprintf("/api/%s", version))
 
-	g.GET("/", h.HelloWorld)
-	g.GET("/health", h.Health)
+	g.GET("/services", h.ListServices)
 	g.GET("/backups", h.ListBackups)
 	g.GET("/backup/:service_type/:service_name/:file", h.GetBackup)
 	g.GET("/backup/:service_type/:service_name/:file/download", h.DownloadBackup)
 	g.POST("/backup/:service_type/:service_name/:file", h.CreateBackup)
 	g.DELETE("/backup/:service_type/:service_name/:file", h.DeleteBackup)
-}
-
-func (h *Handler) HelloWorld(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
 }

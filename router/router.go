@@ -16,10 +16,6 @@ type Router struct {
 }
 
 func New() *Router {
-	// read env
-	username := env.MustGet("USERNAME")
-	password := env.MustGet("PASSWORD")
-
 	// setup basic echo configuration
 	e := echo.New()
 	e.DisableHTTP2 = true
@@ -44,6 +40,8 @@ func New() *Router {
 	e.Use(middleware.Static("/static"))
 
 	// secure whole app with HTTP BasicAuth
+	username := env.MustGet("USERNAME")
+	password := env.MustGet("PASSWORD")
 	e.Use(middleware.BasicAuth(func(u, p string, c echo.Context) (bool, error) {
 		if subtle.ConstantTimeCompare([]byte(u), []byte(username)) == 1 && subtle.ConstantTimeCompare([]byte(p), []byte(password)) == 1 {
 			return true, nil

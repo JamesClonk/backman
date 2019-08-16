@@ -14,6 +14,7 @@ import (
 	"github.com/cloudfoundry-community/go-cfenv"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/mysql"
+	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/postgres"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/util"
 )
 
@@ -61,8 +62,10 @@ func (s *Service) Backup(serviceType, serviceName, filename string) error {
 	}
 
 	switch serviceType {
-	case "mysql":
+	case "mysql", "mariadb", "mariadbent", "pxc":
 		err = mysql.Backup(service, upload)
+	case "postgres", "pg", "postgresql", "elephantsql", "citusdb":
+		err = postgres.Backup(service, upload)
 	default:
 		err = fmt.Errorf("unsupported service type [%s]", serviceType)
 	}
