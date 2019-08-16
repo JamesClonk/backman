@@ -4,8 +4,8 @@
 
 applications:
 - name: appcloud-backman-app
-  memory: 512M
-  disk_quota: 256M
+  memory: 1G
+  disk_quota: 1G
   instances: 1
   health-check-type: port
 
@@ -31,3 +31,4 @@ applications:
     # ENABLE_LOGGING_TIMESTAMP: false # defaults to false for CF
     S3_SERVICE_LABEL: dynstrg
     # S3_BUCKET_NAME: my-backup-bucket # optional, using service-instance/binding-name if missing
+    # IN_MEMORY_BACKUPS: false # optional, defaults to false, whether to temporarily store backups during creation in memory or on disk

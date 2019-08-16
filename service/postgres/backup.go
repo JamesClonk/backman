@@ -9,13 +9,20 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/cloudfoundry-community/go-cfenv"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
 )
 
+var pgMutex = &sync.Mutex{}
+
 func Backup(service *cfenv.Service) (io.Reader, error) {
+	// lock global postgres mutex, only 1 backup of this service-type is allowed to run in parallel
+	pgMutex.Lock()
+	defer pgMutex.Unlock()
+
 	host, _ := service.CredentialString("host")
 	port, _ := service.CredentialString("port")
 	database, _ := service.CredentialString("database")

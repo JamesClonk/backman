@@ -30,7 +30,6 @@ type Backup struct {
 	Files       []File
 }
 
-// TODO: factor everything out into interfaces and subpackages that implement this???
 func (s *Service) Backup(serviceType, serviceName, filename string) error {
 	objectPath := fmt.Sprintf("%s/%s/%s", serviceType, serviceName, filename)
 
