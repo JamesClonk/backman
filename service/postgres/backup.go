@@ -18,7 +18,7 @@ import (
 
 var pgMutex = &sync.Mutex{}
 
-func Backup(service *cfenv.Service) (io.Reader, error) {
+func Backup(service *cfenv.Service, file *os.File) (io.Reader, error) {
 	// lock global postgres mutex, only 1 backup of this service-type is allowed to run in parallel
 	pgMutex.Lock()
 	defer pgMutex.Unlock()
@@ -68,7 +68,10 @@ func Backup(service *cfenv.Service) (io.Reader, error) {
 	// gzipping stdout
 	var outBuf bytes.Buffer
 	gw := gzip.NewWriter(&outBuf)
-	//gw.Name = filename
+	// in-memory or file-based temporary backup storage
+	if file != nil {
+		gw = gzip.NewWriter(file)
+	}
 	gw.ModTime = time.Now()
 	defer outPipe.Close()
 	defer gw.Close()

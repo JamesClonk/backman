@@ -33,6 +33,27 @@ type Backup struct {
 func (s *Service) Backup(serviceType, serviceName, filename string) error {
 	objectPath := fmt.Sprintf("%s/%s/%s", serviceType, serviceName, filename)
 
+	// if file-based temporary backup storage
+	var file *os.File
+	if !s.InMemory {
+		// create temporary folders & file
+		backupFile := fmt.Sprintf("backups/%s", objectPath)
+		if err := os.MkdirAll(filepath.Dir(backupFile), 0750); err != nil {
+			log.Errorf("could not create backup directory [%s]: %v", filepath.Dir(backupFile), err)
+			return err
+		}
+
+		// open file for reading & writing to it
+		var err error
+		file, err = os.OpenFile(backupFile, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0660)
+		if err != nil {
+			log.Errorf("could not open backup file [%s]: %v", backupFile, err)
+			return err
+		}
+		defer file.Close()
+		defer os.Remove(backupFile) // delete temporary file afterwards
+	}
+
 	service, err := s.App.Services.WithName(serviceName)
 	if err != nil {
 		log.Errorf("could not find service [%s] to backup: %v", serviceName, err)
@@ -42,15 +63,25 @@ func (s *Service) Backup(serviceType, serviceName, filename string) error {
 	var reader io.Reader
 	switch serviceType {
 	case "mysql", "mariadb", "mariadbent", "pxc":
-		reader, err = mysql.Backup(service)
+		reader, err = mysql.Backup(service, file)
 	case "postgres", "pg", "postgresql", "elephantsql", "citusdb":
-		reader, err = postgres.Backup(service)
+		reader, err = postgres.Backup(service, file)
 	default:
 		err = fmt.Errorf("unsupported service type [%s]", serviceType)
 	}
 	if err != nil {
 		log.Errorf("could not backup service [%s]: %v", serviceName, err)
 		return err
+	}
+
+	// if file-based temporary backup storage
+	if !s.InMemory {
+		// reset to beginning of file
+		if _, err := file.Seek(0, 0); err != nil {
+			log.Errorf("could not reset backup file [%s]: %v", file.Name(), err)
+			return err
+		}
+		reader = file
 	}
 
 	if err := s.S3.Upload(objectPath, bufio.NewReader(reader), -1); err != nil {

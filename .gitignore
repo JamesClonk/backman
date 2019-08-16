@@ -30,6 +30,7 @@ _testmain.go
 .glide/
 
 # ---------
+backups/
 .env_*
 testfile.dat
 appcloud-backman-app

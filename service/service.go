@@ -8,8 +8,9 @@ import (
 
 // Service is used interact with services and dump/restore backups
 type Service struct {
-	App *cfenv.App
-	S3  *s3.Client
+	App      *cfenv.App
+	S3       *s3.Client
+	InMemory bool
 }
 
 type CFService struct {
@@ -19,10 +20,11 @@ type CFService struct {
 	Tags  []string
 }
 
-func New(app *cfenv.App, s3 *s3.Client) *Service {
+func New(app *cfenv.App, s3 *s3.Client, inMemory bool) *Service {
 	return &Service{
-		App: app,
-		S3:  s3,
+		App:      app,
+		S3:       s3,
+		InMemory: inMemory,
 	}
 }
 
