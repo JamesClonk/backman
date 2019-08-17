@@ -25,10 +25,17 @@ applications:
   path: .
 
   env:
-    USERNAME: ((username))
-    PASSWORD: ((password))
-    LOG_LEVEL: debug
-    # ENABLE_LOGGING_TIMESTAMP: false # defaults to false for CF
-    S3_SERVICE_LABEL: dynstrg
-    # S3_BUCKET_NAME: my-backup-bucket # optional, using service-instance/binding-name if missing
-    # IN_MEMORY_BACKUPS: false # optional, defaults to false, whether to temporarily store backups during creation in memory or on disk
+    BACKMAN_USERNAME: ((username))
+    BACKMAN_PASSWORD: ((password))
+
+    BACKMAN_LOG_LEVEL: debug
+    # BACKMAN_LOGGING_TIMESTAMP: false # defaults to false for CF
+
+    BACKMAN_S3_SERVICE_LABEL: dynstrg
+    # BACKMAN_S3_BUCKET_NAME: my-backup-bucket # optional, using service-instance/binding-name if missing
+
+    # BACKMAN_BACKUP_IN_MEMORY: false # optional, defaults to false, whether to temporarily store backups during creation in memory or on disk
+    # BACKMAN_BACKUP_TIMEOUTS: my_mysql_db:30m,other_postgres_db:2h # optional, defaults to 1h per service backup
+    # BACKMAN_BACKUP_SCHEDULES: my_postgres_db:13 37 0/6 * * * # optional, defaults to random daily backup schedule
+    # BACKMAN_BACKUP_RETENTION_DAYS: my_postgres_db:90 # optional, defaults to 31 days
+    # BACKMAN_BACKUP_RETENTION_FILES: my_postgres_db:250,other_postgres_db:500 # optional, defaults to 100 files

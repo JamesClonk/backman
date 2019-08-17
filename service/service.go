@@ -7,7 +7,7 @@ import (
 	"time"
 
 	cfenv "github.com/cloudfoundry-community/go-cfenv"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/env"
+	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/config"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/s3"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/util"
@@ -22,7 +22,6 @@ var (
 type Service struct {
 	App      *cfenv.App
 	S3       *s3.Client
-	InMemory bool
 	Services []CFService
 }
 type CFService struct {
@@ -42,11 +41,10 @@ func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 }
 
-func new(app *cfenv.App, s3 *s3.Client, inMemory bool) *Service {
+func new(app *cfenv.App, s3 *s3.Client) *Service {
 	return &Service{
-		App:      app,
-		S3:       s3,
-		InMemory: inMemory,
+		App: app,
+		S3:  s3,
 	}
 }
 
@@ -58,10 +56,7 @@ func Get() *Service {
 		}
 		s3 := s3.New(app)
 
-		service = new(
-			app, s3,
-			env.Get("IN_MEMORY_BACKUPS", "false") == "true",
-		)
+		service = new(app, s3)
 		service.parseServices()
 	})
 	return service
@@ -73,23 +68,38 @@ func (s *Service) parseServices() {
 	for label, services := range s.App.Services {
 		if util.IsValidServiceType(label) {
 			for _, service := range services {
-				// create a random schedule for daily backup
-				randomSchedule := fmt.Sprintf("%d %d %d * * *", rand.Intn(59), rand.Intn(59), rand.Intn(23))
+				// read crontab schedule for service
+				schedule := config.Get().Backup.Schedules[service.Name]
+				if len(schedule) == 0 {
+					// create a random schedule for daily backup as a fallback
+					schedule = fmt.Sprintf("%d %d %d * * *", rand.Intn(59), rand.Intn(59), rand.Intn(23))
+				}
+
+				// read retention days & files, with defaults as fallback
+				retentionDays := config.Get().Backup.Retention.Days[service.Name]
+				retentionFiles := config.Get().Backup.Retention.Files[service.Name]
+				if retentionDays <= 0 {
+					retentionDays = 31
+				}
+				if retentionFiles <= 0 {
+					retentionFiles = 100
+				}
 
 				s.Services = append(s.Services, CFService{
 					Name:     service.Name,
 					Label:    service.Label,
 					Plan:     service.Plan,
 					Tags:     service.Tags,
-					Schedule: randomSchedule, // TODO: check if service has custom backup schedule in ENV defined and use it if available
-					Retention: Retention{ // TODO: check if service has custom backup retention policy in ENV defined and use it if available
-						Days:  31,
-						Files: 100,
+					Schedule: schedule,
+					Retention: Retention{
+						Days:  retentionDays,
+						Files: retentionFiles,
 					},
 				})
 			}
 		}
 	}
+	log.Debugf("services loaded: %+v", s.Services)
 }
 
 func (s *Service) GetServices(serviceType, serviceName string) []CFService {

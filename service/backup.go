@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/config"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/mysql"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/postgres"
@@ -29,9 +30,11 @@ type File struct {
 func (s *Service) Backup(service CFService, filename string) error {
 	objectPath := fmt.Sprintf("%s/%s/%s", service.Label, service.Name, filename)
 
+	// TODO: abort if this takes longer than backup timeout
+
 	// if file-based temporary backup storage
 	var file *os.File
-	if !s.InMemory {
+	if !config.Get().Backup.InMemory {
 		// create temporary folders & file
 		backupFile := fmt.Sprintf("backups/%s", objectPath)
 		if err := os.MkdirAll(filepath.Dir(backupFile), 0750); err != nil {
@@ -71,7 +74,7 @@ func (s *Service) Backup(service CFService, filename string) error {
 	}
 
 	// if file-based temporary backup storage
-	if !s.InMemory {
+	if !config.Get().Backup.InMemory {
 		// reset to beginning of file
 		if _, err := file.Seek(0, 0); err != nil {
 			log.Errorf("could not reset backup file [%s]: %v", file.Name(), err)

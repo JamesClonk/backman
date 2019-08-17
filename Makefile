@@ -15,7 +15,7 @@ prepare-test:
 	ln -s $$(pwd) $$GOPATH/src/gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app
 
 test:
-	cd $$GOPATH/src/gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app && GOARCH=amd64 GOOS=linux go test $$(go list ./... | grep -v /vendor/)
+	cd $$GOPATH/src/gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app && source .env && GOARCH=amd64 GOOS=linux go test $$(go list ./... | grep -v /vendor/)
 
 mysql: mysql-network mysql-stop mysql-start
 	docker logs mysql -f

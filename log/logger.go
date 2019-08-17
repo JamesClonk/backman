@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/sirupsen/logrus"
+	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/config"
 )
 
 var (
@@ -17,11 +18,7 @@ func init() {
 }
 
 func newLogger(writer io.Writer) *logrus.Logger {
-	level := os.Getenv("LOG_LEVEL")
-	if len(level) == 0 {
-		level = "info"
-	}
-	logLevel, err := logrus.ParseLevel(level)
+	logLevel, err := logrus.ParseLevel(config.Get().LogLevel)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,7 +30,7 @@ func newLogger(writer io.Writer) *logrus.Logger {
 		QuoteEmptyFields: true,
 		DisableColors:    true,
 		FullTimestamp:    false,
-		DisableTimestamp: os.Getenv("ENABLE_LOGGING_TIMESTAMP") != "true",
+		DisableTimestamp: !config.Get().LoggingTimestamp,
 	})
 	return logger
 }
