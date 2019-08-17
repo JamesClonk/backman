@@ -5,8 +5,6 @@ import (
 
 	cfenv "github.com/cloudfoundry-community/go-cfenv"
 	echo "github.com/labstack/echo/v4"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/env"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/s3"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service"
 )
@@ -21,23 +19,10 @@ type Handler struct {
 }
 
 func New() *Handler {
-	// read CF env
-	app, err := cfenv.Current()
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
-
-	s3 := s3.New(app)
-	service := service.New(
-		app, s3,
-		env.Get("IN_MEMORY_BACKUPS", "false") == "true",
-	)
-
-	// setup handler
 	return &Handler{
-		App:     app,
-		S3:      s3,
-		Service: service,
+		App:     service.Get().App,
+		S3:      service.Get().S3,
+		Service: service.Get(),
 	}
 }
 

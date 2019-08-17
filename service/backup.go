@@ -9,13 +9,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cloudfoundry-community/go-cfenv"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/mysql"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/postgres"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/util"
 )
 
+type Backup struct {
+	Service CFService
+	Files   []File
+}
 type File struct {
 	Key          string
 	Filepath     string
@@ -24,14 +26,8 @@ type File struct {
 	LastModified time.Time
 }
 
-type Backup struct {
-	ServiceType string
-	ServiceName string
-	Files       []File
-}
-
-func (s *Service) Backup(serviceType, serviceName, filename string) error {
-	objectPath := fmt.Sprintf("%s/%s/%s", serviceType, serviceName, filename)
+func (s *Service) Backup(service CFService, filename string) error {
+	objectPath := fmt.Sprintf("%s/%s/%s", service.Label, service.Name, filename)
 
 	// if file-based temporary backup storage
 	var file *os.File
@@ -54,23 +50,23 @@ func (s *Service) Backup(serviceType, serviceName, filename string) error {
 		defer os.Remove(backupFile) // delete temporary file afterwards
 	}
 
-	service, err := s.App.Services.WithName(serviceName)
+	envService, err := s.App.Services.WithName(service.Name)
 	if err != nil {
-		log.Errorf("could not find service [%s] to backup: %v", serviceName, err)
+		log.Errorf("could not find service [%s] to backup: %v", service.Name, err)
 		return err
 	}
 
 	var reader io.Reader
-	switch serviceType {
+	switch service.Label {
 	case "mysql", "mariadb", "mariadbent", "pxc":
-		reader, err = mysql.Backup(service, file)
+		reader, err = mysql.Backup(envService, file)
 	case "postgres", "pg", "postgresql", "elephantsql", "citusdb":
-		reader, err = postgres.Backup(service, file)
+		reader, err = postgres.Backup(envService, file)
 	default:
-		err = fmt.Errorf("unsupported service type [%s]", serviceType)
+		err = fmt.Errorf("unsupported service type [%s]", service.Label)
 	}
 	if err != nil {
-		log.Errorf("could not backup service [%s]: %v", serviceName, err)
+		log.Errorf("could not backup service [%s]: %v", service.Name, err)
 		return err
 	}
 
@@ -85,7 +81,7 @@ func (s *Service) Backup(serviceType, serviceName, filename string) error {
 	}
 
 	if err := s.S3.Upload(objectPath, bufio.NewReader(reader), -1); err != nil {
-		log.Errorf("could not upload service backup [%s] to S3: %v", serviceName, err)
+		log.Errorf("could not upload service backup [%s] to S3: %v", service.Name, err)
 		return err
 	}
 
@@ -94,32 +90,9 @@ func (s *Service) Backup(serviceType, serviceName, filename string) error {
 }
 
 func (s *Service) GetBackups(serviceType, serviceName string) ([]Backup, error) {
-	var services []cfenv.Service
-	if len(serviceName) > 0 {
-		// list backups only for a specific service binding
-		service, err := s.App.Services.WithName(serviceName)
-		if err != nil {
-			return nil, err
-		}
-		services = append(services, *service)
-	} else if len(serviceType) > 0 {
-		// list backups only for a specific service type
-		var err error
-		services, err = s.App.Services.WithLabel(serviceType)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		// list backups for all services
-		for label, s := range s.App.Services {
-			if util.IsValidServiceType(label) {
-				services = append(services, s...)
-			}
-		}
-	}
-
 	backups := make([]Backup, 0)
-	for _, service := range services {
+
+	for _, service := range s.GetServices(serviceType, serviceName) {
 		objectPath := fmt.Sprintf("%s/%s/", service.Label, service.Name)
 		objects, err := s.S3.List(objectPath)
 		if err != nil {
@@ -143,9 +116,8 @@ func (s *Service) GetBackups(serviceType, serviceName string) ([]Backup, error) 
 		}
 
 		backups = append(backups, Backup{
-			ServiceType: service.Label,
-			ServiceName: service.Name,
-			Files:       files,
+			Service: service,
+			Files:   files,
 		})
 	}
 	return backups, nil
@@ -160,8 +132,7 @@ func (s *Service) GetBackup(serviceType, serviceName, filename string) (*Backup,
 		return nil, err
 	}
 	return &Backup{
-		ServiceType: serviceType,
-		ServiceName: serviceName,
+		Service: s.GetService(serviceType, serviceName),
 		Files: []File{
 			File{
 				Key:          obj.Key,

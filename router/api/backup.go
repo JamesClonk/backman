@@ -5,18 +5,14 @@ import (
 	"net/http"
 
 	echo "github.com/labstack/echo/v4"
+	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/util"
 )
 
 func (h *Handler) ListServices(c echo.Context) error {
 	serviceType := c.QueryParam("service_type")
 	serviceName := c.QueryParam("service_name")
-
-	services, err := h.Service.GetServices(serviceType, serviceName)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, err.Error())
-	}
-	return c.JSON(http.StatusOK, services)
+	return c.JSON(http.StatusOK, h.Service.GetServices(serviceType, serviceName))
 }
 
 func (h *Handler) ListBackups(c echo.Context) error {
@@ -54,8 +50,9 @@ func (h *Handler) CreateBackup(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("unsupported service type: %s", serviceType))
 	}
 
+	cfService := service.Get().GetService(serviceType, serviceName)
 	go func() {
-		_ = h.Service.Backup(serviceType, serviceName, filename) // async
+		_ = h.Service.Backup(cfService, filename) // async
 	}()
 	return c.JSON(http.StatusAccepted, nil)
 }
