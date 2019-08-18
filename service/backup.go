@@ -89,6 +89,13 @@ func (s *Service) Backup(service CFService, filename string) error {
 	}
 
 	log.Infof("created and uploaded backup [%s]", objectPath)
+
+	// cleanup files according to retention policy of service
+	go func() {
+		if err := s.RetentionCleanup(service); err != nil {
+			log.Errorf("could not cleanup S3 storage for service [%s]: %v", service.Name, err)
+		}
+	}()
 	return nil
 }
 

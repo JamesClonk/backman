@@ -9,12 +9,13 @@ import (
 
 func (s *Client) List(folderPath string) ([]minio.ObjectInfo, error) {
 	log.Debugf("list S3 object [%s]", folderPath)
-	doneCh := make(chan struct{})
-	defer close(doneCh)
+
+	objects := make([]minio.ObjectInfo, 0)
+	done := make(chan struct{})
+	defer close(done)
 
 	isRecursive := true
-	objects := make([]minio.ObjectInfo, 0)
-	objectCh := s.Client.ListObjectsV2(s.BucketName, folderPath, isRecursive, doneCh)
+	objectCh := s.Client.ListObjectsV2(s.BucketName, folderPath, isRecursive, done)
 	for object := range objectCh {
 		if object.Err != nil {
 			return nil, object.Err
