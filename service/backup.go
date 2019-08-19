@@ -2,6 +2,7 @@ package service
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -30,8 +31,6 @@ type File struct {
 func (s *Service) Backup(service CFService, filename string) error {
 	objectPath := fmt.Sprintf("%s/%s/%s", service.Label, service.Name, filename)
 
-	// TODO: abort if this takes longer than backup timeout
-
 	// if file-based temporary backup storage
 	var file *os.File
 	if !config.Get().Backup.InMemory {
@@ -59,12 +58,16 @@ func (s *Service) Backup(service CFService, filename string) error {
 		return err
 	}
 
+	// ctx to abort backup if this takes longer than defined timeout
+	ctx, cancel := context.WithTimeout(context.Background(), service.Timeout)
+	defer cancel()
+
 	var reader io.Reader
 	switch service.Label {
 	case "mysql", "mariadb", "mariadbent", "pxc":
-		reader, err = mysql.Backup(envService, file)
+		reader, err = mysql.Backup(ctx, envService, file)
 	case "postgres", "pg", "postgresql", "elephantsql", "citusdb":
-		reader, err = postgres.Backup(envService, file)
+		reader, err = postgres.Backup(ctx, envService, file)
 	default:
 		err = fmt.Errorf("unsupported service type [%s]", service.Label)
 	}
@@ -96,7 +99,7 @@ func (s *Service) Backup(service CFService, filename string) error {
 			log.Errorf("could not cleanup S3 storage for service [%s]: %v", service.Name, err)
 		}
 	}()
-	return nil
+	return err
 }
 
 func (s *Service) GetBackups(serviceType, serviceName string) ([]Backup, error) {

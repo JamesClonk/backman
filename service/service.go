@@ -29,6 +29,7 @@ type CFService struct {
 	Label     string
 	Plan      string
 	Tags      []string
+	Timeout   time.Duration
 	Schedule  string
 	Retention Retention
 }
@@ -68,6 +69,12 @@ func (s *Service) parseServices() {
 	for label, services := range s.App.Services {
 		if util.IsValidServiceType(label) {
 			for _, service := range services {
+				// read timeout for service
+				timeout := config.Get().Backup.Timeouts[service.Name]
+				if timeout.Seconds() <= 1 {
+					timeout = 1 * time.Hour // default
+				}
+
 				// read crontab schedule for service
 				schedule := config.Get().Backup.Schedules[service.Name]
 				if len(schedule) == 0 {
@@ -90,6 +97,7 @@ func (s *Service) parseServices() {
 					Label:    service.Label,
 					Plan:     service.Plan,
 					Tags:     service.Tags,
+					Timeout:  timeout,
 					Schedule: schedule,
 					Retention: Retention{
 						Days:  retentionDays,

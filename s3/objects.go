@@ -2,6 +2,7 @@ package s3
 
 import (
 	"io"
+	"sort"
 
 	"github.com/minio/minio-go/v6"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
@@ -22,6 +23,10 @@ func (s *Client) List(folderPath string) ([]minio.ObjectInfo, error) {
 		}
 		objects = append(objects, object)
 	}
+
+	sort.Slice(objects, func(i, j int) bool {
+		return objects[i].LastModified.Before(objects[j].LastModified)
+	})
 	return objects, nil
 }
 

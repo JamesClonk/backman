@@ -25,8 +25,10 @@ func RegisterBackups() {
 	for _, s := range service.Get().Services {
 		sCopy := s
 		fn := func() { Run(sCopy) }
-		c.AddFunc(s.Schedule, fn)
-		log.Infof("service backup for [%s/%s] with schedule [%s] registered", s.Label, s.Name, s.Schedule)
+		if err := c.AddFunc(s.Schedule, fn); err != nil {
+			log.Fatalf("could not register service backup [%s] in scheduler: %v", s.Name, err)
+		}
+		log.Infof("service backup for [%s/%s] with schedule [%s] and timeout [%s] registered", s.Label, s.Name, s.Schedule, s.Timeout)
 	}
 	StartScheduler()
 }

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"compress/gzip"
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -18,7 +19,7 @@ import (
 
 var pgMutex = &sync.Mutex{}
 
-func Backup(service *cfenv.Service, file *os.File) (io.Reader, error) {
+func Backup(ctx context.Context, service *cfenv.Service, file *os.File) (io.Reader, error) {
 	// lock global postgres mutex, only 1 backup of this service-type is allowed to run in parallel
 	pgMutex.Lock()
 	defer pgMutex.Unlock()
@@ -47,7 +48,7 @@ func Backup(service *cfenv.Service, file *os.File) (io.Reader, error) {
 	command = append(command, "--no-password")
 
 	log.Debugf("executing postgres backup command: %v", strings.Join(command, " "))
-	cmd := exec.Command(command[0], command[1:]...)
+	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
 
 	// capture stdout to pass to gzipping buffer
 	outPipe, err := cmd.StdoutPipe()
@@ -78,6 +79,11 @@ func Backup(service *cfenv.Service, file *os.File) (io.Reader, error) {
 	_, _ = io.Copy(gw, bufio.NewReader(outPipe))
 
 	if err := cmd.Wait(); err != nil {
+		// check for timeout error
+		if ctx.Err() == context.DeadlineExceeded {
+			return nil, fmt.Errorf("postgres dump: timeout: %v", ctx.Err())
+		}
+
 		log.Errorln(strings.TrimRight(errBuf.String(), "\r\n"))
 		return nil, fmt.Errorf("postgres dump: %v", err)
 	}
