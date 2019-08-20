@@ -1,29 +1,25 @@
-package postgres
+package mongodb
 
 import (
 	"bytes"
-	"compress/gzip"
 	"context"
 	"fmt"
-	"io"
-	"os"
 	"os/exec"
 	"strings"
 	"sync"
-	"time"
 
-	"github.com/cloudfoundry-community/go-cfenv"
+	cfenv "github.com/cloudfoundry-community/go-cfenv"
+
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/s3"
 )
 
-var pgMutex = &sync.Mutex{}
+var mongoMutex = &sync.Mutex{}
 
 func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename string) error {
-	// lock global postgres mutex, only 1 backup of this service-type is allowed to run in parallel
-	// to avoid issues with setting PG* environment variables and memory consumption
-	pgMutex.Lock()
-	defer pgMutex.Unlock()
+	// lock global mongodb mutex, only 1 backup of this service-type is allowed to run in parallel
+	mongoMutex.Lock()
+	defer mongoMutex.Unlock()
 
 	host, _ := binding.CredentialString("host")
 	port, _ := binding.CredentialString("port")
@@ -31,40 +27,38 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 	username, _ := binding.CredentialString("username")
 	password, _ := binding.CredentialString("password")
 
-	os.Setenv("PGUSER", username)
-	os.Setenv("PGPASSWORD", password)
-	os.Setenv("PGHOST", host)
-	os.Setenv("PGPORT", port)
-
-	// prepare postgres dump command
+	// prepare mongodump command
 	var command []string
-	if len(database) > 0 {
-		command = append(command, "pg_dump")
-		command = append(command, database)
-		command = append(command, "-C")
-	} else {
-		command = append(command, "pg_dumpall")
-	}
-	command = append(command, "-c")
-	command = append(command, "--no-password")
+	command = append(command, "mongodump")
+	command = append(command, "--host")
+	command = append(command, fmt.Sprintf("%s:%s", host, port))
+	command = append(command, "--authenticationDatabase")
+	command = append(command, database)
+	command = append(command, "-d")
+	command = append(command, database)
+	command = append(command, "-u")
+	command = append(command, username)
+	command = append(command, "-p")
+	command = append(command, password)
+	command = append(command, "--gzip")
+	command = append(command, "--archive")
 
-	log.Debugf("executing postgres backup command: %v", strings.Join(command, " "))
+	log.Debugf("executing mongodb backup command: %v", strings.Join(command, " "))
 	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
 
 	// capture stdout to pass to gzipping buffer
 	outPipe, err := cmd.StdoutPipe()
 	if err != nil {
-		log.Errorf("could not get stdout pipe for postgres dump: %v", err)
+		log.Errorf("could not get stdout pipe for mongodump: %v", err)
 		return err
 	}
-	defer outPipe.Close()
 
 	// capture and read stderr in case an error occurs
 	var errBuf bytes.Buffer
 	cmd.Stderr = &errBuf
 
 	if err := cmd.Start(); err != nil {
-		log.Errorf("could not run postgres dump: %v", err)
+		log.Errorf("could not run mongodump: %v", err)
 		return err
 	}
 
@@ -75,19 +69,8 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 		uploadWait.Add(1)
 		defer uploadWait.Done()
 
-		// gzipping stdout
-		pr, pw := io.Pipe()
-		gw := gzip.NewWriter(pw)
-		gw.Name = filename
-		gw.ModTime = time.Now()
-		go func() {
-			defer pw.Close()
-			defer gw.Close()
-			_, _ = io.Copy(gw, outPipe)
-		}()
-
 		objectPath := fmt.Sprintf("%s/%s/%s", binding.Label, binding.Name, filename)
-		err = s3.UploadWithContext(uploadCtx, objectPath, pr, -1)
+		err = s3.UploadWithContext(uploadCtx, objectPath, outPipe, -1)
 		if err != nil {
 			log.Errorf("could not upload service backup [%s] to S3: %v", binding.Name, err)
 		}
@@ -96,11 +79,11 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 	if err := cmd.Wait(); err != nil {
 		// check for timeout error
 		if ctx.Err() == context.DeadlineExceeded {
-			return fmt.Errorf("postgres dump: timeout: %v", ctx.Err())
+			return fmt.Errorf("mongodump: timeout: %v", ctx.Err())
 		}
 
 		log.Errorln(strings.TrimRight(errBuf.String(), "\r\n"))
-		return fmt.Errorf("postgres dump: %v", err)
+		return fmt.Errorf("mongodump: %v", err)
 	}
 
 	uploadWait.Wait() // wait for upload to have finished

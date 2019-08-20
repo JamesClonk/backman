@@ -10,7 +10,6 @@ import (
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/config"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/s3"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/util"
 )
 
 var (
@@ -67,7 +66,7 @@ func (s *Service) parseServices() {
 	s.Services = make([]CFService, 0)
 
 	for label, services := range s.App.Services {
-		if util.IsValidServiceType(label) {
+		if IsValidServiceType(label) {
 			for _, service := range services {
 				// read timeout for service
 				timeout := config.Get().Backup.Timeouts[service.Name]

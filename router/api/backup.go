@@ -6,7 +6,7 @@ import (
 
 	echo "github.com/labstack/echo/v4"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/util"
+	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service"
 )
 
 func (h *Handler) ListServices(c echo.Context) error {
@@ -46,7 +46,7 @@ func (h *Handler) CreateBackup(c echo.Context) error {
 	serviceName := c.Param("service_name")
 	filename := c.Param("file")
 
-	if !util.IsValidServiceType(serviceType) {
+	if !service.IsValidServiceType(serviceType) {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("unsupported service type: %s", serviceType))
 	}
 

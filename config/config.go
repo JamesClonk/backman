@@ -23,7 +23,6 @@ type Config struct {
 		BucketName   string `split_words:"true"`
 	}
 	Backup struct {
-		InMemory  bool `split_words:"true"`
 		Schedules map[string]string
 		Timeouts  map[string]time.Duration
 		Retention struct {

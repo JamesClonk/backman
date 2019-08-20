@@ -1,4 +1,4 @@
-.PHONY: run build prepare-test test mysql mysql-network mysql-stop mysql-start mysql-client postgres postgres-network postgres-stop postgres-start postgres-client cleanup
+.PHONY: run build prepare-test test mysql mysql-network mysql-stop mysql-start mysql-client postgres postgres-network postgres-stop postgres-start postgres-client mongodb mongodb-network mongodb-stop mongodb-start mongodb-client cleanup
 SHELL := /bin/bash
 
 all: run
@@ -28,15 +28,15 @@ mysql-stop:
 
 mysql-start:
 	docker run -d -p 3306:3306 \
-	  -e MYSQL_ROOT_PASSWORD='my-secret-pw' \
-	  --network mysql-network \
-	  --name mysql mysql
+		-e MYSQL_ROOT_PASSWORD='my-secret-pw' \
+		--network mysql-network \
+		--name mysql mysql
 
 mysql-client:
 	docker run -it --rm \
-	  -e MYSQL_PWD='my-secret-pw' \
-	  --network mysql-network \
-	  --name mysql-client mysql mysql -hmysql -uroot
+		-e MYSQL_PWD='my-secret-pw' \
+		--network mysql-network \
+		--name mysql-client mysql mysql -hmysql -uroot
 
 postgres: postgres-network postgres-stop postgres-start
 	docker logs postgres -f
@@ -53,13 +53,41 @@ postgres-start:
 		-e POSTGRES_USER='dev-user' \
 		-e POSTGRES_PASSWORD='dev-secret' \
 		-e POSTGRES_DB='my_postgres_db' \
-		-p "5432:5432" \
+		-p 5432:5432 \
 		-d postgres:9-alpine
 
 postgres-client:
 	docker exec -it \
-	    -e PGPASSWORD='dev-secret' \
-	    postgres psql -U 'dev-user' -d 'my_postgres_db'
+		-e PGPASSWORD='dev-secret' \
+		postgres psql -U 'dev-user' -d 'my_postgres_db'
+
+mongodb: mongodb-network mongodb-stop mongodb-start
+	docker logs mongodb -f
+
+mongodb-network:
+	docker network create mongodb-network --driver bridge || true
+
+mongodb-stop:
+	docker rm -f mongodb || true
+
+mongodb-start:
+	docker run --name mongodb \
+		--network mongodb-network \
+		-e MONGO_INITDB_ROOT_USERNAME='mongoadmin' \
+		-e MONGO_INITDB_ROOT_PASSWORD='super-secret' \
+		-e MONGO_INITDB_DATABASE='my-db' \
+		-p 27017:27017 \
+		-d mongo:3.6
+
+mongodb-client:
+	docker run -it --rm \
+		--network mongodb-network \
+		--name mongodb-client mongo mongo \
+			--host mongodb \
+        	-u 'mongoadmin' \
+        	-p 'super-secret' \
+        	--authenticationDatabase admin \
+        	'my-db'
 
 cleanup:
 	docker system prune --volumes -a

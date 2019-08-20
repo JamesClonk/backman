@@ -2,3 +2,4 @@
 packages:
 - mysql-client
 - postgresql-client-common
+- mongo-tools

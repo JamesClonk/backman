@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
+	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/mongodb"
+	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/mysql"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/postgres"
 )
 
@@ -36,10 +38,12 @@ func (s *Service) Backup(service CFService, filename string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), service.Timeout)
 	defer cancel()
 
-	switch service.Label {
-	// case "mysql", "mariadb", "mariadbent", "pxc":
-	// 	err = mysql.Backup(ctx, s.S3, envService, filename)
-	case "postgres", "pg", "postgresql", "elephantsql", "citusdb":
+	switch ParseServiceType(service.Label) {
+	case MongoDB:
+		err = mongodb.Backup(ctx, s.S3, envService, filename)
+	case MySQL:
+		err = mysql.Backup(ctx, s.S3, envService, filename)
+	case Postgres:
 		err = postgres.Backup(ctx, s.S3, envService, filename)
 	default:
 		err = fmt.Errorf("unsupported service type [%s]", service.Label)

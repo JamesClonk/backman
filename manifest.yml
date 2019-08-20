@@ -5,7 +5,7 @@
 applications:
 - name: appcloud-backman-app
   memory: 1G # mysqldump consumes a lot of memory, no matter how small the database is
-  disk_quota: 1G
+  disk_quota: 512M
   instances: 1
   health-check-type: port
 
@@ -34,7 +34,6 @@ applications:
     BACKMAN_S3_SERVICE_LABEL: dynstrg
     # BACKMAN_S3_BUCKET_NAME: my-backup-bucket # optional, using service-instance/binding-name if missing
 
-    # BACKMAN_BACKUP_IN_MEMORY: false # optional, defaults to false, whether to temporarily store backups during creation in memory or on disk
     # BACKMAN_BACKUP_TIMEOUTS: my_mysql_db:30m,other_postgres_db:2h # optional, defaults to 1h per service backup
     # BACKMAN_BACKUP_SCHEDULES: my_postgres_db:13 37 0/6 * * * # optional, defaults to random daily backup schedule
     # BACKMAN_BACKUP_RETENTION_DAYS: my_postgres_db:90 # optional, defaults to 31 days
