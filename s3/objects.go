@@ -1,6 +1,7 @@
 package s3
 
 import (
+	"context"
 	"io"
 	"sort"
 
@@ -31,11 +32,15 @@ func (s *Client) List(folderPath string) ([]minio.ObjectInfo, error) {
 }
 
 func (s *Client) Upload(object string, reader io.Reader, size int64) error {
+	return s.UploadWithContext(context.Background(), object, reader, size)
+}
+
+func (s *Client) UploadWithContext(ctx context.Context, object string, reader io.Reader, size int64) error {
 	log.Debugf("upload S3 object [%s]", object)
 	if size <= 0 {
 		size = -1
 	}
-	n, err := s.Client.PutObject(s.BucketName, object, reader, size, minio.PutObjectOptions{ContentType: "application/gzip"})
+	n, err := s.Client.PutObjectWithContext(ctx, s.BucketName, object, reader, size, minio.PutObjectOptions{ContentType: "application/gzip"})
 	if err != nil {
 		return err
 	}

@@ -1,7 +1,6 @@
 package service
 
 import (
-	"bufio"
 	"context"
 	"fmt"
 	"io"
@@ -10,9 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/config"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/mysql"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/postgres"
 )
 
@@ -29,29 +26,6 @@ type File struct {
 }
 
 func (s *Service) Backup(service CFService, filename string) error {
-	objectPath := fmt.Sprintf("%s/%s/%s", service.Label, service.Name, filename)
-
-	// if file-based temporary backup storage
-	var file *os.File
-	if !config.Get().Backup.InMemory {
-		// create temporary folders & file
-		backupFile := fmt.Sprintf("backups/%s", objectPath)
-		if err := os.MkdirAll(filepath.Dir(backupFile), 0750); err != nil {
-			log.Errorf("could not create backup directory [%s]: %v", filepath.Dir(backupFile), err)
-			return err
-		}
-
-		// open file for reading & writing to it
-		var err error
-		file, err = os.OpenFile(backupFile, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0660)
-		if err != nil {
-			log.Errorf("could not open backup file [%s]: %v", backupFile, err)
-			return err
-		}
-		defer file.Close()
-		defer os.Remove(backupFile) // delete temporary file afterwards
-	}
-
 	envService, err := s.App.Services.WithName(service.Name)
 	if err != nil {
 		log.Errorf("could not find service [%s] to backup: %v", service.Name, err)
@@ -62,12 +36,11 @@ func (s *Service) Backup(service CFService, filename string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), service.Timeout)
 	defer cancel()
 
-	var reader io.Reader
 	switch service.Label {
-	case "mysql", "mariadb", "mariadbent", "pxc":
-		reader, err = mysql.Backup(ctx, envService, file)
+	// case "mysql", "mariadb", "mariadbent", "pxc":
+	// 	err = mysql.Backup(ctx, s.S3, envService, filename)
 	case "postgres", "pg", "postgresql", "elephantsql", "citusdb":
-		reader, err = postgres.Backup(ctx, envService, file)
+		err = postgres.Backup(ctx, s.S3, envService, filename)
 	default:
 		err = fmt.Errorf("unsupported service type [%s]", service.Label)
 	}
@@ -75,23 +48,7 @@ func (s *Service) Backup(service CFService, filename string) error {
 		log.Errorf("could not backup service [%s]: %v", service.Name, err)
 		return err
 	}
-
-	// if file-based temporary backup storage
-	if !config.Get().Backup.InMemory {
-		// reset to beginning of file
-		if _, err := file.Seek(0, 0); err != nil {
-			log.Errorf("could not reset backup file [%s]: %v", file.Name(), err)
-			return err
-		}
-		reader = file
-	}
-
-	if err := s.S3.Upload(objectPath, bufio.NewReader(reader), -1); err != nil {
-		log.Errorf("could not upload service backup [%s] to S3: %v", service.Name, err)
-		return err
-	}
-
-	log.Infof("created and uploaded backup [%s]", objectPath)
+	log.Infof("created and uploaded backup [%s] for service [%s]", filename, service.Name)
 
 	// cleanup files according to retention policy of service
 	go func() {
