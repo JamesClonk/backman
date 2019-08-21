@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"bufio"
 	"bytes"
 	"compress/gzip"
 	"context"
@@ -91,7 +92,7 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 		gw.Name = filename
 		gw.ModTime = time.Now()
 		go func() {
-			_, _ = io.Copy(gw, outPipe)
+			_, _ = io.Copy(gw, bufio.NewReader(outPipe))
 			if err := gw.Flush(); err != nil {
 				log.Errorf("%v", err)
 			}

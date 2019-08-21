@@ -61,6 +61,7 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 		log.Errorf("could not get stdout pipe for mongodump: %v", err)
 		return err
 	}
+	defer outPipe.Close()
 
 	// capture and read stderr in case an error occurs
 	var errBuf bytes.Buffer
