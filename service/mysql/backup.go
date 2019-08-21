@@ -45,12 +45,6 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 	// prepare mysqldump command
 	var command []string
 	command = append(command, "mysqldump")
-	if len(database) > 0 {
-		command = append(command, "--databases")
-		command = append(command, database)
-	} else {
-		command = append(command, "--all-databases")
-	}
 	command = append(command, "--single-transaction")
 	command = append(command, "--quick")
 	command = append(command, "-h")
@@ -59,6 +53,12 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 	command = append(command, port)
 	command = append(command, "-u")
 	command = append(command, username)
+	if len(database) > 0 {
+		command = append(command, "--databases")
+		command = append(command, database)
+	} else {
+		command = append(command, "--all-databases")
+	}
 
 	log.Debugf("executing mysql backup command: %v", strings.Join(command, " "))
 	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
@@ -92,10 +92,12 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 		gw := gzip.NewWriter(pw)
 		gw.Name = filename
 		gw.ModTime = time.Now()
+
 		go func() {
 			defer pw.Close()
 			defer gw.Close()
 			_, _ = io.Copy(gw, outPipe)
+			gw.Flush()
 		}()
 
 		objectPath := fmt.Sprintf("%s/%s/%s", binding.Label, binding.Name, filename)

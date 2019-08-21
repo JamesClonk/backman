@@ -1,5 +1,9 @@
 ---
+keys:
+- https://www.mongodb.org/static/pgp/server-4.2.asc
+repos:
+- deb https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse
 packages:
 - mysql-client
 - postgresql-client-common
-- mongo-tools
+- mongodb-org-tools=4.2.0
