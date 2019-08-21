@@ -51,9 +51,15 @@ func (h *Handler) CreateBackup(c echo.Context) error {
 	}
 
 	cfService := h.Service.GetService(serviceType, serviceName)
+	if len(cfService.Name) == 0 {
+		err := fmt.Errorf("could not find service [%s] to backup", serviceName)
+		log.Errorf("%v", err)
+		return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("%v", err))
+	}
+
 	go func() { // async
 		if err := h.Service.Backup(cfService, filename); err != nil {
-			log.Errorf("requested backup for service [%s] failed: %v", cfService.Name, err)
+			log.Errorf("requested backup for service [%s] failed: %v", serviceName, err)
 		}
 	}()
 	return c.JSON(http.StatusAccepted, nil)

@@ -14,7 +14,7 @@ func ParseServiceType(serviceType string) ServiceType {
 		return Postgres
 	case "mysql", "mariadb", "mariadbent", "pxc":
 		return MySQL
-	case "mongo", "mongodb", "mongodbent", "mangodb":
+	case "mongo", "mongodb", "mongodb-2", "mongodbent", "mangodb":
 		return MongoDB
 	}
 	return -1

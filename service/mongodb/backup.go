@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -22,10 +23,18 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 	defer mongoMutex.Unlock()
 
 	host, _ := binding.CredentialString("host")
-	port, _ := binding.CredentialString("port")
 	database, _ := binding.CredentialString("database")
 	username, _ := binding.CredentialString("username")
 	password, _ := binding.CredentialString("password")
+	port, _ := binding.CredentialString("port")
+	if len(port) == 0 {
+		switch p := binding.Credentials["port"].(type) {
+		case float64:
+			port = strconv.Itoa(int(p))
+		case int, int32, int64:
+			port = strconv.Itoa(p.(int))
+		}
+	}
 
 	// prepare mongodump command
 	var command []string
@@ -65,8 +74,9 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 	var uploadWait sync.WaitGroup
 	uploadCtx, uploadCancel := context.WithCancel(context.Background()) // allows upload to be cancelable, in case backup times out
 	defer uploadCancel()                                                // cancel upload in case Backup() exits before uploadWait is done
+
+	uploadWait.Add(1)
 	go func() {
-		uploadWait.Add(1)
 		defer uploadWait.Done()
 
 		objectPath := fmt.Sprintf("%s/%s/%s", binding.Label, binding.Name, filename)
