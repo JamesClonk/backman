@@ -91,9 +91,16 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 		gw.Name = filename
 		gw.ModTime = time.Now()
 		go func() {
-			defer pw.Close()
-			defer gw.Close()
 			_, _ = io.Copy(gw, outPipe)
+			if err := gw.Flush(); err != nil {
+				log.Errorf("%v", err)
+			}
+			if err := gw.Close(); err != nil {
+				log.Errorf("%v", err)
+			}
+			if err := pw.Close(); err != nil {
+				log.Errorf("%v", err)
+			}
 		}()
 
 		objectPath := fmt.Sprintf("%s/%s/%s", binding.Label, binding.Name, filename)
