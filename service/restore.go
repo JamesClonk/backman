@@ -6,6 +6,7 @@ import (
 
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/mysql"
+	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/postgres"
 )
 
 func (s *Service) Restore(service CFService, filename string) error {
@@ -25,8 +26,8 @@ func (s *Service) Restore(service CFService, filename string) error {
 	// 	err = mongodb.Restore(ctx, s.S3, envService, objectPath)
 	case MySQL:
 		err = mysql.Restore(ctx, s.S3, envService, objectPath)
-	// case Postgres:
-	// 	err = postgres.Restore(ctx, s.S3, envService, objectPath)
+	case Postgres:
+		err = postgres.Restore(ctx, s.S3, envService, objectPath)
 	default:
 		err = fmt.Errorf("unsupported service type [%s]", service.Label)
 	}
