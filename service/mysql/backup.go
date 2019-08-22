@@ -22,7 +22,7 @@ import (
 var mysqlMutex = &sync.Mutex{}
 
 func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename string) error {
-	// lock global mysql mutex, only 1 backup of this service-type is allowed to run in parallel
+	// lock global mysql mutex, only 1 backup/restore operation of this service-type is allowed to run in parallel
 	// to avoid issues with setting MYSQL* environment variables and memory consumption
 	mysqlMutex.Lock()
 	defer mysqlMutex.Unlock()

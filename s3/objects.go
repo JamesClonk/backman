@@ -58,8 +58,12 @@ func (s *Client) Stat(object string) (*minio.ObjectInfo, error) {
 }
 
 func (s *Client) Download(object string) (*minio.Object, error) {
+	return s.DownloadWithContext(context.Background(), object)
+}
+
+func (s *Client) DownloadWithContext(ctx context.Context, object string) (*minio.Object, error) {
 	log.Debugf("download S3 object [%s]", object)
-	obj, err := s.Client.GetObject(s.BucketName, object, minio.GetObjectOptions{})
+	obj, err := s.Client.GetObjectWithContext(ctx, s.BucketName, object, minio.GetObjectOptions{})
 	if err != nil {
 		return nil, err
 	}

@@ -35,5 +35,6 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	g.GET("/backup/:service_type/:service_name/:file", h.GetBackup)
 	g.GET("/backup/:service_type/:service_name/:file/download", h.DownloadBackup)
 	g.POST("/backup/:service_type/:service_name/:file", h.CreateBackup)
+	g.PUT("/backup/:service_type/:service_name/:file", h.RestoreBackup) // shouldn't this be "restore" instead of "backup"?
 	g.DELETE("/backup/:service_type/:service_name/:file", h.DeleteBackup)
 }
