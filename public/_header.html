@@ -5,14 +5,12 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
 		<meta http-equiv="x-ua-compatible" content="ie=edge">
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-
-		<title>{{ .Title }}</title>
-
+		<title>Backman - {{ .Title }}</title>
 		<link rel="stylesheet" href="/css/sdx.min.css">
 		<script src="/js/webcomponents/webcomponents.js"></script>
 	</head>
 	<body>
-		<header id="header">
+		<header>
 			<div class="nav" data-init="auto">
 				<nav class="nav__level0" role="navigation">
 					<div class="nav__mainnav">
@@ -23,7 +21,6 @@
 									<div class="arrow-icon"></div></a></li>
 								</ul>
 							</div>
-
 							<div class="nav__secondary">
 								<span class="sr-only">Secondary Navigation</span>
 								<ul class="nav-items">
@@ -47,29 +44,23 @@
 							</div>
 						</div>
 					</div>
-
 					<div class="nav__subnav">
 						<div class="container">
 							<div class="nav-section" id="navpoint-1">
+								{{ range $name, $services := .Services }}
 								<div class="nav-col">
-									<div class="nav-title">MongoDB</div>
+									<div class="nav-title">{{ $name }}</div>
 									<ul class="nav-items">
-										<li class="nav-item"><a class="nav-link" href="javascript:void(0);">Cum sociis natoque penatibus</a></li>
-										<li class="nav-item"><a class="nav-link" href="javascript:void(0);">Maecenas enim</a></li>
-										<li class="nav-item"><a class="nav-link" href="javascript:void(0);">Consectetuer adipiscing</a></li>
+										{{ range $service := $services }}
+										<li class="nav-item"><a class="nav-link" href="/service/{{ $service.Name }}">{{ $service.Name }}</a></li>
+										{{ end }}
 									</ul>
 								</div>
-								<div class="nav-col">
-									<div class="nav-title">MySQL</div>
-									<ul class="nav-items">
-										<li class="nav-item"><a class="nav-link" href="javascript:void(0);">Cum sociis natoque penatibus</a></li>
-									</ul>
-								</div>
+								{{ end }}
 							</div>
 						</div>
 					</div>
 				</nav>
-
 				<nav class="nav__level1" role="navigation">
 					<div class="container">
 						<a href="/" class="logo" tabindex="-1">
@@ -78,46 +69,47 @@
 								<img src="/images/svgs/swisscom-logo-type.svg">
 							</span>
 						</a>
-
 						<div class="nav__mainnav">
 							<div class="nav__primary">
 								<ul class="nav-items">
+									{{ if gt (len .Service.Name) 0 }}
 									<li class="nav-item menu-item menu-item-type-post_type menu-item-object-page">
-										<a href="/services" class="nav-link nav-link--header">
-											<span class="nav-link__text">Service</span>
+										<a href="/service/{{ .Service.Name }}" class="nav-link nav-link--header">
+											<span class="nav-link__text">{{ .Service.Name }}</span>
 										</a>
 									</li>
 									<li class="nav-item menu-item menu-item-type-post_type menu-item-object-page">
-										<a href="/backups" class="nav-link nav-link--header">
+										<a href="/backups/{{ .Service.Name }}" class="nav-link nav-link--header">
 											<span class="nav-link__text">Backups</span>
 										</a>
 									</li>
+									{{ else }}
+									<li class="nav-item menu-item menu-item-type-post_type menu-item-object-page">
+										<a href="/services" class="nav-link nav-link--header">
+											<span class="nav-link__text">Services</span>
+										</a>
+									</li>
+									{{ end }}
 								</ul>
-
 								<div class="nav__level0-mobile">
 									<div class="nav__primary">
 										<ul class="nav-items">
 											<li class="nav-item js-subnav">
 												<a class="nav-link nav-link--header" href="javascript:void(0);"><span class="text-underline">Services</span>
 												<div class="arrow-icon"></div></a>
-
 												<div class="nav__subnav">
 													<div class="nav-body">
 														<div class="nav-section">
+															{{ range $name, $services := .Services }}
 															<div class="nav-col">
-																<div class="nav-title">MongoDB</div>
+																<div class="nav-title">{{ $name }}</div>
 																<ul class="nav-items">
-																	<li class="nav-item"><a class="nav-link" href="javascript:void(0);">Cum sociis natoque penatibus</a></li>
-																	<li class="nav-item"><a class="nav-link" href="javascript:void(0);">Maecenas enim</a></li>
-																	<li class="nav-item"><a class="nav-link" href="javascript:void(0);">Consectetuer adipiscing</a></li>
+																	{{ range $service := $services }}
+																	<li class="nav-item"><a class="nav-link" href="/service/{{ $service.Name }}">{{ $service.Name }}</a></li>
+																	{{ end }}
 																</ul>
 															</div>
-															<div class="nav-col">
-																<div class="nav-title">MySQL</div>
-																<ul class="nav-items">
-																	<li class="nav-item"><a class="nav-link" href="javascript:void(0);">Cum sociis natoque penatibus</a></li>
-																</ul>
-															</div>
+															{{ end }}
 														</div>
 													</div>
 												</div>
@@ -162,3 +154,5 @@
 				</nav>
 			</div>
 		</header>
+
+		<div class="container">

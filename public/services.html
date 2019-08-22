@@ -1,5 +1,35 @@
 {{ template "_header.html" . }}
 
-{{ .Content }}
+{{ range $name, $services := .Services }}
+<br/>
+<div class="table table--responsive table--highlight">
+	<h2 class="table__title">{{ $name }}</h2>
+	<div class="table__wrapper">
+		<table data-init="auto">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Plan</th>
+					<th>Schedule</th>
+					<th>Retention Policy</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				{{ range $service := $services }}
+				<tr>
+					<td><a class="link" href="/service/{{ $service.Name }}">{{ $service.Name }}</a></td>
+					<td>{{ $service.Plan }}</td>
+					<td>{{ $service.Schedule }}</td>
+					<td>{{ $service.Retention.Days }} days / {{ $service.Retention.Files }} files</td>
+					<td><a class="link" href="/backups/{{ $service.Name }}"><i class="icon icon-folder icon--s4" aria-hidden="true"></i></a></td>
+				</tr>
+				{{ end }}
+			</tbody>
+		</table>
+	</div>
+</div>
+<br/>
+{{ end }}
 
 {{ template "_footer.html" . }}
