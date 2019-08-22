@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
+	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/mongodb"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/mysql"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/postgres"
 )
@@ -22,8 +23,8 @@ func (s *Service) Restore(service CFService, filename string) error {
 
 	objectPath := fmt.Sprintf("%s/%s/%s", service.Label, service.Name, filename)
 	switch ParseServiceType(service.Label) {
-	// case MongoDB:
-	// 	err = mongodb.Restore(ctx, s.S3, envService, objectPath)
+	case MongoDB:
+		err = mongodb.Restore(ctx, s.S3, envService, objectPath)
 	case MySQL:
 		err = mysql.Restore(ctx, s.S3, envService, objectPath)
 	case Postgres:
