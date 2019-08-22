@@ -1,0 +1,25 @@
+@import "stylesheets/sdx/variables/sizes";
+@import "stylesheets/sdx/variables/typography";
+@import "stylesheets/sdx/variables/grid";
+@import "stylesheets/sdx/mixins";
+
+:host {
+  > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .count {
+      margin-right: $baseline-3;
+    }
+
+    @include bp-desktop-max {
+      flex-flow: column;
+
+      .count {
+        margin-bottom: $baseline;
+        margin-right: 0;
+      }
+    }
+  }
+}

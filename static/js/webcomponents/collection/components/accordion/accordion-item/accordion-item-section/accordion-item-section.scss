@@ -1,0 +1,9 @@
+@import "stylesheets/sdx/variables/sizes";
+:host {
+  padding-top: $accordion-padding-vertical;
+  padding-bottom: $accordion-padding-vertical;
+  padding-left: $accordion-padding-horizontal;
+  padding-right: $accordion-padding-horizontal;
+  display: inline-block;
+  position: relative;
+}

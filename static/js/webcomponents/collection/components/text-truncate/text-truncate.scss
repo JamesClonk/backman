@@ -1,0 +1,12 @@
+@import "stylesheets/sdx/mixins/text";
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.component.ellipsis {
+  .slot {
+    @include text-truncate;
+  }
+}

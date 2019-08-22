@@ -1,0 +1,12 @@
+:host {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+:host {
+  display: block;
+  border-bottom: 1px solid #d6d6d6;
+}

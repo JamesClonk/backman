@@ -1,0 +1,132 @@
+@import "stylesheets/sdx/variables/global";
+@import "stylesheets/sdx/variables/colors";
+@import "stylesheets/sdx/variables/grid";
+@import "stylesheets/sdx/mixins/mediaqueries";
+@import "stylesheets/sdx/mixins/breakpoints";
+@import "stylesheets/sdx/mixins/typography";
+@import "stylesheets/sdx/mixins/arrow";
+
+:host {
+  @include font-smoothing;
+
+  position: relative;
+  width: 100%;
+
+  padding: 24px 0;
+
+  text-align: center;
+
+  // overflow: hidden;
+  display: inline-block;
+
+  min-width: 240px;
+
+  @include bp-tablet {
+    padding: 32px 0;
+  }
+
+  outline: none;
+  font-size: 0;
+  overflow: hidden;
+  white-space: nowrap;
+
+  .info-content {
+    padding-bottom: 14px;
+    line-height: 24px;
+    letter-spacing: .1px;
+    font-size: 10px;
+    font-weight: 400;
+  }
+}
+
+:host(.hide-steps-label) {
+  .info-content {
+    display: none;
+  }
+
+  .left-arrow, .right-arrow {
+    top: -5px;
+  }
+
+  @include bp-tablet {
+    .left-arrow, .right-arrow {
+      top: 3px;
+    }
+  }
+}
+
+:host(.hide-arrows) {
+  .left-arrow, .right-arrow {
+    display: none;
+  }
+}
+
+:host {
+  .left-arrow, .right-arrow {
+    top: 33px;
+  }
+
+  @include bp-tablet {
+    .left-arrow, .right-arrow {
+      top: 41px;
+    }
+  }
+}
+
+.left-arrow, .right-arrow {
+  position: absolute;
+  height: 80px;
+  cursor: pointer;
+
+  .arrow {
+    @include arrow-flat($color-int-blue);
+
+    transform: rotate(90deg);
+    top: calc(50% - 16px);
+    height: 20px;
+    width: 20px;
+
+    transition: background 200ms $button-easing;
+  }
+}
+
+.left-arrow.arrow--hidden, .right-arrow.arrow--hidden {
+  cursor: default;
+
+  .arrow {
+    display: none;
+  }
+}
+
+.left-arrow:hover, .right-arrow:hover {
+  .arrow::before, .arrow::after {
+    background: $color-int-blue--active;
+  }
+}
+
+.left-arrow {
+  left: 0;
+  background: linear-gradient(to right, white 0%, white 30%, rgba(255, 255, 255, 0) 100%);
+
+  .arrow {
+    @include arrow--down;
+  }
+}
+
+.right-arrow {
+  right: 0;
+  background: linear-gradient(to left, white 0%, white 30%, rgba(255, 255, 255, 0) 100%);
+
+  .arrow {
+    @include arrow--up;
+    float: right;
+  }
+}
+
+.left-arrow .arrow::before, .right-arrow .arrow::before {
+  left: 1px;
+}
+
+.left-arrow .arrow::after, .right-arrow .arrow::after {
+  left: 14px;
+}

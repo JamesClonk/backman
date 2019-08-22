@@ -1,0 +1,48 @@
+:host {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+:host .header {
+  width: 100%;
+}
+:host .content {
+  color: #333;
+  display: block;
+  margin: 0;
+  padding: 13px 13px 14px 19px;
+  border: 0;
+  width: 100%;
+  cursor: pointer;
+  outline: none;
+}
+:host button {
+  font-family: inherit;
+  margin: 0;
+  background: transparent;
+  text-align: left;
+}
+
+:host([arrow-position=left]) .header {
+  padding-left: 10px;
+}
+
+:host([arrow-position=left]) .header,
+:host([arrow-position=right]) .header {
+  width: calc(100% - 35px);
+  margin: 0px;
+  display: inline-block;
+  position: relative;
+}
+
+:host([arrow-position=center]) .header {
+  display: none;
+}
+:host([arrow-position=center]) .content {
+  width: 100%;
+  min-height: 32px;
+  border-top: 1px solid #d6d6d6;
+}

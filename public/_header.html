@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+		<meta http-equiv="x-ua-compatible" content="ie=edge">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+		<title>{{ .Title }}</title>
+
+		<link rel="stylesheet" href="/css/sdx.min.css">
+		<script src="/js/webcomponents/webcomponents.js"></script>
+	</head>
+	<body>
+		<header id="header">
+			<div class="nav" data-init="auto">
+				<nav class="nav__level0" role="navigation">
+					<div class="nav__mainnav">
+						<div class="container">
+							<div class="nav__secondary">
+								<span class="sr-only">Secondary Navigation</span>
+								<ul class="nav-items">
+									<li class="nav-item hidden-md-down">
+										<a class="bugreport nav-link tooltip tooltip--bottom"
+											href="https://github.com/swisscom/backman/issues"
+											aria-label="Open a GitHub issue">
+											<i class="icon icon-282_bug" aria-hidden="true"></i>
+											Report a Bug
+										</a>
+									</li>
+									<li class="nav-item hidden-md-down">
+										<a class="nav-link tooltip tooltip--bottom"
+											aria-label="Have a look at this app on GitHub"
+											href="https://github.com/swisscom/backman" target="_blank">
+											<i class="icon icon-jelly-fish" aria-hidden="true"></i>
+											GitHub
+										</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</nav>
+
+				<nav class="nav__level1" role="navigation">
+			        <div class="container">
+			            <a href="https://digitalexperience.swisscom.ch" class="logo" tabindex="-1">
+		                    <span class="logo-lifeform" aria-label="Swisscom Logo"></span>
+		                    <span class="logo-type">
+		                    	<img src="/images/svgs/swisscom-logo-type.svg">
+		                    </span>
+			            </a>
+
+			            <div class="nav__mainnav">
+			                <div class="nav__primary">
+			                    <ul class="nav-items">
+                                	<li class="nav-item menu-item menu-item-type-post_type menu-item-object-page">
+		                                <a href="/services" class="nav-link nav-link--header">
+		                                    <span class="nav-link__text">Services</span>
+		                                </a>
+                            		</li>
+                                    <li class="nav-item menu-item menu-item-type-post_type menu-item-object-page current-menu-item">
+		                                <a href="/backups" class="nav-link nav-link--header">
+		                                    <span class="nav-link__text">Backups</span>
+		                                </a>
+		                            </li>
+		                        </ul>
+                			</div>
+			                <div class="nav__secondary">
+			                    <ul class="nav-items">
+			                        <li class="nav-item hidden-tablet-up">
+			                            <a href="javascript:void(0);" class="nav-icon nav-hamburger" aria-label="Menu">
+			                                <span></span>
+			                                <span></span>
+			                                <span></span>
+			                            </a>
+			                        </li>
+			                    </ul>
+			                </div>
+            			</div>
+        			</div>
+    			</nav>
+			</div>
+        </header>

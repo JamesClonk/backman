@@ -1,0 +1,73 @@
+@import "stylesheets/sdx/variables/global";
+@import "stylesheets/sdx/variables/colors";
+@import "stylesheets/sdx/variables/sizes";
+
+:host {
+  .header {
+    width: 100%;
+  }
+
+  .content {
+    color: $color-gray;
+    display: block;
+    margin: 0;
+    padding: 13px 13px 14px 19px;
+    border: 0;
+    width: 100%;
+    cursor: pointer;
+    outline: none; // TMP Fix until SDX-486
+  }
+
+  button {
+    font-family: inherit;
+    margin: 0;
+    background: transparent;
+    text-align: left;
+
+    // TMP Fix until SDX-486
+    // &:active {
+    //   outline: none;
+    // }
+
+    // &:focus {
+    //   outline: none;
+    //   box-shadow: 0 0 1px 1px $color-int-gray--active;
+    //   -webkit-box-shadow: 0 0 1px 1px $color-int-gray--active;
+    // }
+
+    // &::-moz-focus-inner,
+    // &:-moz-focusring {
+    //   box-shadow: 0 0 1px 1px $color-int-gray--active;
+    //   border: 0 !important;
+    //   outline: 0 none;
+    // }
+  }
+}
+
+:host([arrow-position="left"]) {
+  .header {
+    padding-left: 10px;
+  }
+}
+
+:host([arrow-position="left"]),
+:host([arrow-position="right"]) {
+  .header {
+    width: calc(100% - 35px);
+    margin: 0px;
+    display: inline-block;
+    position: relative;
+  }
+}
+
+:host([arrow-position="center"]) {
+  .header {
+    display: none;
+  }
+
+  .content {
+    width: 100%;
+    min-height: 32px;
+    border-top: 1px solid $color-accordion-border;
+  }
+}

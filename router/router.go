@@ -8,11 +8,13 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/config"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/router/api"
+	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/router/ui"
 )
 
 type Router struct {
 	echo *echo.Echo
 	api  *api.Handler
+	ui   *ui.Handler
 }
 
 func New() *Router {
@@ -37,7 +39,7 @@ func New() *Router {
 	}))
 
 	//e.Use(middleware.Recover()) // don't recover, let platform deal with panics
-	e.Use(middleware.Static("/static"))
+	e.Use(middleware.Static("static"))
 
 	// secure whole app with HTTP BasicAuth
 	username := config.Get().Username
@@ -53,9 +55,14 @@ func New() *Router {
 	r := &Router{
 		echo: e,
 		api:  api.New(),
+		ui:   ui.New(),
 	}
 	// setup API routes
 	r.api.RegisterRoutes(r.echo)
+	// setup Web-UI routes
+	r.ui.RegisterRoutes(r.echo)
+	// setup Web-UI rendering
+	r.ui.RegisterRenderer(r.echo)
 
 	return r
 }

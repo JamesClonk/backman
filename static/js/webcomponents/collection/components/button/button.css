@@ -1,0 +1,195 @@
+@charset "UTF-8";
+:host {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+/*doc
+---
+title: Screen Readers
+name: 05-utilities-screenreaders-01
+category: Dev Utilities - Screen Readers
+---
+
+<p>Hide an element to all devices except screen readers with <code>.sr-only</code>.
+Combine <code>.sr-only</code> with <code>.sr-only-focusable</code> to show the element again when it’s focused (e.g. by a keyboard-only user).</p>
+
+```htmlmixed_no_preview
+<a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+```
+
+<p>Can also be used as a mixin.</p>
+
+```css_no_preview
+// Usage as a mixin
+.skip-navigation {
+  @include sr-only;
+  @include sr-only-focusable;
+}
+```
+
+*/
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.sr-only-focusable:active, .sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+}
+
+button {
+  font-family: "TheSans", sans-serif;
+  line-height: 24px;
+  letter-spacing: -0.1px;
+  font-size: 18px;
+  overflow: hidden;
+  white-space: nowrap;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: inline-block;
+  position: relative;
+  transition: all 70ms cubic-bezier(0.4, 0, 0.6, 1);
+  margin: 0;
+  outline: none;
+  border: 0;
+  border-bottom-style: none;
+  border-radius: 5px;
+  background: none;
+  cursor: pointer;
+  vertical-align: middle;
+  text-align: center;
+  text-decoration: none;
+  text-shadow: 0 0 0;
+  transform-origin: 50% 50%;
+  user-select: none;
+  border-color: #1781e3;
+  background-color: #1781e3;
+  color: #fff;
+}
+button:active {
+  transform: scale(0.98);
+}
+button:hover, button:focus, button:active {
+  border: 0;
+  border-bottom-style: none;
+}
+button.disabled, button:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+button:hover, button:focus, button:active {
+  border-color: #0851da;
+  background-color: #0851da;
+  color: #fff;
+}
+button.disabled, button:disabled {
+  border-color: rgba(23, 129, 227, 0.4);
+  background-color: rgba(23, 129, 227, 0.4);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+:host {
+  display: block;
+}
+
+:host(.primary) button {
+  border-color: #1781e3;
+  background-color: #1781e3;
+  color: #fff;
+}
+:host(.primary) button:hover, :host(.primary) button:focus, :host(.primary) button:active {
+  border-color: #0851da;
+  background-color: #0851da;
+  color: #fff;
+}
+:host(.primary) button.disabled, :host(.primary) button:disabled {
+  border-color: rgba(23, 129, 227, 0.4);
+  background-color: rgba(23, 129, 227, 0.4);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+:host(.secondary) button {
+  border-color: #cfd5d9;
+  background-color: #cfd5d9;
+  color: #333;
+}
+:host(.secondary) button:hover, :host(.secondary) button:focus, :host(.secondary) button:active {
+  border-color: #b1b9be;
+  background-color: #b1b9be;
+  color: #333;
+}
+:host(.secondary) button.disabled, :host(.secondary) button:disabled {
+  border-color: rgba(207, 213, 217, 0.4);
+  background-color: rgba(207, 213, 217, 0.4);
+  color: rgba(51, 51, 51, 0.4);
+}
+
+:host(.confirm) button {
+  border-color: #25b252;
+  background-color: #25b252;
+  color: #fff;
+}
+:host(.confirm) button:hover, :host(.confirm) button:focus, :host(.confirm) button:active {
+  border-color: #008236;
+  background-color: #008236;
+  color: #fff;
+}
+:host(.confirm) button.disabled, :host(.confirm) button:disabled {
+  border-color: rgba(37, 178, 82, 0.4);
+  background-color: rgba(37, 178, 82, 0.4);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+:host(.transparent) button {
+  border-color: transparent;
+  background-color: transparent;
+  color: #333;
+}
+:host(.transparent) button:hover, :host(.transparent) button:focus, :host(.transparent) button:active {
+  border-color: transparent;
+  background-color: transparent;
+  color: #333;
+}
+:host(.transparent) button.disabled, :host(.transparent) button:disabled {
+  border-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.4);
+  color: rgba(51, 51, 51, 0.6);
+}
+:host(.transparent) button:focus, :host(.transparent) button:active, :host(.transparent) button:hover {
+  color: #0851da;
+}
+:host(.transparent) button:active {
+  transform: scale(1);
+}
+
+:host(.standard) button {
+  min-width: 160px;
+  padding: 12px 24px;
+}
+
+:host(.icon) button {
+  width: 48px;
+  height: 48px;
+  padding: 12px;
+}
+
+:host(.transparent) button {
+  min-width: auto;
+  padding: 0;
+  margin: 0;
+}

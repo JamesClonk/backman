@@ -1,0 +1,149 @@
+@import "stylesheets/sdx/variables/global";
+@import "stylesheets/sdx/variables/colors";
+@import "stylesheets/sdx/variables/typography";
+@import "stylesheets/sdx/mixins/typography";
+
+:host {
+  .step-container {
+    position: relative;
+  }
+}
+
+:host([position="first"]), :host([position^="middle"]) {
+  .progress-line-right {
+    transition: all 200ms ease;
+    width: 35%;
+    height: 1px;
+    position: absolute;
+    top: 12px;
+    right: 0;
+  }
+}
+
+:host([position="last"]), :host([position^="middle"]) {
+  .progress-line-left {
+    transition: all 200ms ease;
+    width: 35%;
+    height: 1px;
+    position: absolute;
+    top: 12px;
+    left: 0;
+  }
+}
+
+:host {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+
+  br.br-hide {
+    visibility: hidden;
+  }
+
+  button {
+    border: 1px solid $color-blue;
+    color: $color-blue;
+    border-radius: 100%;
+    width: 24px;
+    height: 24px;
+    outline: none;
+    background-color: transparent;
+    align-items: center;
+    justify-content: center;
+    line-height: normal;
+    font-family: inherit;
+  }
+
+  button, .progress-content {
+    cursor: default;
+    letter-spacing: normal;
+    text-align: center;
+    transition: all 150ms ease-in-out;
+  }
+
+  .progress-content {
+    @include font-semi-light;
+    font-size: 16px;
+    word-wrap: break-word;
+    white-space: normal;
+  }
+
+  .button-container {
+    button {
+      @include font-semi-bold;
+      display: inline-flex;
+      font-size: 14px;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+  }
+}
+
+:host([status="active"]) {
+  button {
+    color: $color-white;
+    border-color: $color-blue;
+    background-color: $color-blue;
+
+    &:hover {
+      color: $color-white;
+      border-color: $color-int-blue--active;
+      background-color: $color-int-blue--active;
+    }
+  }
+}
+
+:host([status="completed"]) {
+  button, .progress-content {
+    cursor: pointer;
+  }
+
+  button {
+    color: $color-white;
+    border-color: $color-int-green;
+    background-color: $color-int-green;
+
+    &:hover {
+      color: $color-white;
+      border-color: $color-int-green--active;
+      background-color: $color-int-green--active;
+    }
+  }
+}
+
+/**
+ * progress-line color
+ */
+
+:host {
+  .progress-line-left, .progress-line-right {
+    background: $color-gray-tint-6;
+  }
+}
+
+:host([position="first"]) {
+  .progress-line-left {
+    background: none;
+  }
+}
+
+:host([position="last"]) {
+  .progress-line-right {
+    background: none;
+  }
+}
+
+:host([status="active"]),
+:host([status="completed"]) {
+  .progress-line-left {
+    background: $color-int-green;
+  }
+}
+
+:host([status="completed"]) {
+  .progress-line-right {
+    background: $color-int-green;
+  }
+}

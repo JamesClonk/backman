@@ -1,0 +1,31 @@
+:host {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+:host {
+  position: relative;
+  overflow: hidden;
+  display: none;
+  height: 0;
+  opacity: 0;
+  padding: 0 13px 14px 19px;
+}
+
+:host(.open) {
+  display: block;
+  height: auto;
+  opacity: 1;
+}
+
+:host([arrow-position=center]) {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+:host([arrow-position=center].open) {
+  padding-bottom: 16px;
+}

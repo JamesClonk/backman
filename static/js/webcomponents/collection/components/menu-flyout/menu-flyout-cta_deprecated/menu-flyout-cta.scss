@@ -1,0 +1,99 @@
+// WARNING
+// This component has been deprecated in favor of <menu-flyout-content />.
+// Do not make change in this file - it only exists for backwards compatibility.
+
+@import "stylesheets/sdx/variables/global";
+@import "stylesheets/sdx/variables/colors";
+@import "../arrow";
+
+$width-small: 254px;
+$width-medium: 480px;
+$width-large: 850px;
+
+:host {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: $zindex-menu;
+  box-shadow: 0 0 4px 0 rgba($color-black, .2);
+  min-width: $width-small;
+  max-width: $width-large;
+
+  >.item {
+    >.body {
+      position: relative;
+      background-color: $color-white;
+      padding: 12px 24px;
+      transition: border-bottom 200ms $button-easing, color 200ms $button-easing;
+    }
+  }
+}
+
+:host(:not(:last-of-type)) {
+  >.item {
+    >.body {
+      border-bottom: 1px solid $color-aluminum-tint-2;
+    }
+  }
+}
+
+:host(.bottom-right), :host(.bottom-left) {
+  >.item {
+    >.arrow {
+      display: block;
+      top: -($arrow-size / 2);
+      box-shadow: -1px -1px 2px 0 rgba($color-black, .15);
+    }
+  }
+}
+
+:host(.top-right), :host(.top-left) {
+  >.item {
+    >.arrow {
+      display: block;
+      bottom: -($arrow-size / 2);
+      box-shadow: 1px 1px 2px 0 rgba($color-black, .15);
+    }
+  }
+}
+
+:host(.bottom-left), :host(.top-left) {
+  >.item {
+    >.arrow {
+      right: $arrow-offset;
+    }
+  }
+}
+
+:host(.bottom-right), :host(.top-right) {
+  >.item {
+    >.arrow {
+      left: $arrow-offset;
+    }
+  }
+}
+
+:host(.small) {
+  >.item {
+    >.body {
+      width: $width-small;
+    }
+  }
+}
+
+:host(.medium) {
+  >.item {
+    >.body {
+      width: $width-medium;
+    }
+  }
+}
+
+:host(.large) {
+  >.item {
+    >.body {
+      width: $width-large;
+    }
+  }
+}

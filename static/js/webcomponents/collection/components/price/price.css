@@ -1,0 +1,620 @@
+@charset "UTF-8";
+:host {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+/*doc
+---
+title: Typography
+name: 01-foundation-05-typography-01-typography
+category: Foundation - Typography
+---
+
+<p>For each typeface there are specific type size rules in place to help to maintain contrast and hierarchy between content. The guidance below shows the typesize, leading and weights that can be used. Limiting the number of different styles used will help to keep products clean and simple.</p>
+
+<section class="live-example">
+  <div class="section-inner">
+    <div class="resizerExample">
+      <img class="img-responsive img-retina margin-bottom-4" src="./theme-build/img/design/typo/resources-type-resizer@2x-1.jpg" style="width:https://digitalexperience.swisscom.ch/files/2016/09/Reduce-Effort.gifpx;">
+      <div class="button-group button-group--responsive">
+        <button class="button button--primary modal-trigger" href="modalResizer"><i class="icon icon-114-computer" aria-hidden="true"></i> View Breakpoints</button>
+      </div>
+    </div>
+    <div style="" class="modal modal-resizer" role="dialog" tabindex="-1" data-init="auto" id="modalResizer">
+      <div class="modal__container">
+        <div class="modal__content">
+          <div class="resizer sc-resizer" init="auto" sizes="sizes">
+            <div class="resizer__header">
+               <div class="resizer__toolbar"></div>
+               <button class="modal__close modal-cancel">
+                    <i class="icon icon-022-close" aria-hidden="true"></i>
+               </button>
+            </div>
+            <div class="resizer__container">
+              <div class="resizer__dimension">
+                <div class="dimension__bar"></div>
+                <div class="dimension__value"></div>
+              </div>
+              <div class="resizer__innercontainer">
+                <div class="dimension__dragbar">
+                  <div class="dimension__thumb"></div>
+                </div>
+                <iframe style="min-height: 1000px;" src="./theme-build/img/design/typo/typography-6.html" scrolling="no" frameborder="0"></iframe>
+              </div>
+            </div>
+          </div>
+          <datalist id="sizes">
+            <option value="320"><i class="icon icon-111-smartphone icon--s3 resizer__icon" aria-hidden="true"></i><div class="resizer__label">320px</div></option>
+            <option value="480"><i class="icon icon-111-smartphone icon--s3 resizer__icon resizer__icon--rotate" aria-hidden="true"></i><div class="resizer__label">480px</div></option>
+            <option value="768"><i class="icon icon-112-tablet icon--s3 resizer__icon resizer__icon--rotate" aria-hidden="true"></i><div class="resizer__label">768px</div></option>
+            <option value="1024"><i class="icon icon-112-tablet icon--s3 resizer__icon" aria-hidden="true"></i><div class="resizer__label">1024px</div></option>
+            <option value="1280"><i class="icon icon-113-laptop icon--s3 resizer__icon" aria-hidden="true"></i><div class="resizer__label">1280px</div></option>
+            <option value="1440"><i class="icon icon-113-laptop icon--s3 resizer__icon" aria-hidden="true"></i><div class="resizer__label">1440px</div></option>
+          </datalist>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="margin-top-4">As a guidance we strongly recommend to optimize the solid centre width of your body text to a maximum of 700 pixels. Because having the right amount of characters on each line is key to the readability of your text.</p>
+</section>
+
+<a name="design" tabindex="-1"></a>
+
+<div class="row sc-navy cortana-navigation-sections padding-v-2">
+  <div class="col-xs-7 col-lg-9">Designers section</div>
+  <div class="col-xs-5 col-lg-3">
+    <ul class="list icon top single-line">
+      <li><a href="#top">Back to top</a></li>
+    </ul>
+  </div>
+</div>
+
+<div class="content-design">
+  <h2>Rules</h2>
+
+  <h3>Typefaces</h3>
+
+  <p>When designing for SDX, there are two typefaces to choose from – the Sans and the Serif – each of which are available in semi-light and semi-bold. The Sans is our primary typeface and is used across all applications. The Serif is Swisscom’s voice, and is only used in small select cases, such as pull quotes and editorial style headings.</p>
+
+  <div class="row">
+      <div class="col-xs-12 col-lg-12">
+        <img class="img-responsive" src="./theme-build/img/design/typo/type-the-sans@2x.jpg">
+        <span class="fig-caption">The Sans</span>
+      </div>
+  </div>
+
+  <div class="row">
+      <div class="col-xs-12 col-lg-12">
+        <img class="img-responsive" src="./theme-build/img/design/typo/type-the-serif@2x.jpg">
+        <span class="fig-caption">The Serif</span>
+      </div>
+  </div>
+
+  <h3>Using colour and typography</h3>
+
+  <p>Typography itself should only ever appear in the core and interaction color palettes. Content colours should never be used for typography. When using color backgrounds, white should be used for typography</p>
+
+  <div class="row">
+      <div class="col-xs-12 col-lg-12">
+        <img class="img-responsive" src="./theme-build/img/design/typo/type-and-color-accessibility@2x.jpg">
+        <span class="fig-caption">colour and typography</span>
+      </div>
+  </div>
+
+  <div style="" class="modal modal-gallery" role="dialog" tabindex="-1" data-init="auto">
+    <div class="modal__container">
+      <div class="modal__header">
+        <div class="modal-spacer"></div>
+        <div class="container">
+          <button class="modal__close modal-cancel">
+            <i class="icon icon-022-close" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+      <div class="modal__content">
+        <div class="container">
+          <div class="slider-wrapper">
+            <div class="scrollbar-blocker scrollbar-blocker-left"></div>
+            <div class="slider-gallery-off" data-max-height="85">
+              <div class="slide">
+                <img class="img-responsive" style="margin: 0 auto;" src="./theme-build/img/design/typo/type-and-color-accessibility@2x.jpg">
+              </div>
+            </div>
+            <div class="scrollbar-blocker scrollbar-blocker-right"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p>The colour matrix demonstrates the accessibility of typefaces across the entire colour palette, at all specified sizes. Use the matrix to ensure your color choices are at least AA compliant.</p>
+
+  <h3>Type hierachy and color</h3>
+
+  <p>When creating layouts using typography, colour from the primary colour palette should be used to help give content hierachy. Content colours should never be used for typography.</p>
+
+  <div class="row">
+      <div class="col-xs-12 col-lg-12">
+        <img class="img-responsive" src="./theme-build/img/design/typo/type-color-light@2x.jpg">
+        <span class="fig-caption">Type hierachy colour guidance on light</span>
+      </div>
+  </div>
+
+  <div class="row">
+      <div class="col-xs-12 col-lg-12">
+        <img class="img-responsive"  src="./theme-build/img/design/typo/type-color-dark@2x.jpg">
+        <span class="fig-caption">Type hierachy colour guidance on dark</span>
+      </div>
+  </div>
+
+  <h3>Minimum type padding</h3>
+
+  <p>Each type size has a minimum padding that makes sure there is adequate space around text.</p>
+
+  <div class="row">
+      <div class="col-xs-12 col-lg-12">
+        <img class="img-responsive" src="./theme-build/img/design/typo/type-padding@2x.jpg">
+        <span class="fig-caption">Minimum type padding</span>
+      </div>
+  </div>
+
+  <h3>Letter-spacing</h3>
+
+  <p>The letter spacing guide should be used to support the consistent application of type and to ensure that legibility is maintained at all sizes in all contexts. Smaller text should use increased letter-spacing to aid legibility, and larger text should use tighter letterspacing.</p>
+
+  <div class="row">
+      <div class="col-xs-12 col-lg-12">
+        <img class="img-responsive" src="./theme-build/img/design/typo/type-letter-spacing-large@2x.jpg">
+        <span class="fig-caption">Letter-spacing</span>
+      </div>
+  </div>
+
+  <p>Similarly to letter-spacing, to aid legibility, a scaled system for selecting the weight of typography should be used. Smaller typography should be semi-light or semi-bold, while larger type should be semi-light at all times.</p>
+
+  <div class="row">
+      <div class="col-xs-12 col-lg-12">
+        <img class="img-responsive" src="./theme-build/img/design/typo/type-letter-spacing-small@2x.jpg">
+        <span class="fig-caption">Letter-spacing</span>
+      </div>
+  </div>
+</div>
+
+<a name="develop" tabindex="-1"></a>
+
+<div class="row sc-navy cortana-navigation-sections padding-v-2">
+   <div class="col-xs-7 col-lg-9">Developers section</div>
+  <div class="col-xs-5 col-lg-3">
+    <ul class="list icon top single-line">
+        <li><a href="#top">Back to top</a></li>
+    </ul>
+  </div>
+</div>
+
+<p>The SDX Library includes the two standard fonts <b>TheSans</b> and <b>TheSerif</b>. It uses it's responsiveness to automatically adjust the font-size and properties depending on a series of media queries.</p>
+
+<h3>Font Type Sans</h3>
+
+<p>The default style uses the <b>TheSans</b> font.</p>
+
+```htmlmixed
+<h4>Headline 4: Swisscom intends to continue reducing roaming prices</h4>
+<p>Swisscom intends to continue reducing roaming prices</p>
+```
+
+<h3>Font Type Serif</h3>
+
+<p>To change the font to <b>TheSerif</b> font-face add the class <code>serif</code> to any element that should be serif.</p>
+
+```htmlmixed
+<h4 class="font font--serif">Headline 4: Swisscom intends to continue reducing roaming prices</h4>
+<p class="font font--serif">Swisscom intends to continue reducing roaming prices</p>
+```
+
+<h3>Font Weight</h3>
+
+<p>To change the font weight form the default weight <b>Light</b> to a different weight add the classes <code>font--light</code>, <code>font--semi-light</code> or <code>font--semi-bold</code> to the element.</p>
+
+```htmlmixed
+<p class="font font--light">Swisscom intends to continue reducing roaming prices</p>
+<p class="font font--semi-light">Swisscom intends to continue reducing roaming prices</p>
+<p class="font font--semi-bold">Swisscom intends to continue reducing roaming prices</p>
+```
+
+<h2>Headings</h2>
+
+<p>All HTML headings, from <code>&lt;h1&gt;</code> to <code>&lt;h6&gt;</code>, should be used to structure the page semantically correct. Make sure to use just a single one <code>&lt;h1 class="text-h1"&gt;</code> on the entire page and do not skip a heading only for design matters. Instead, use classes like <code>class="text-h1"</code> to make your heading look the way you want it.</p>
+
+```htmlmixed
+<h1 class="text-h1">I’m a H1</h1>
+<h2 class="text-h2">I’m a H2</h2>
+<h3 class="text-h3">I’m a H3</h3>
+<!-- ...etc. -->
+
+<h4 class="text-h1">I’m semantically a H4 but I look like a H1</h4>
+<h5 class="text-h2">I’m semantically a H5 but I look like a H2</h5>
+<h6 class="text-h3">I’m semantically a H6 but I look like a H3</h6>
+<!-- ...etc. -->
+```
+
+<h2>Display Headings</h2>
+
+<p>Traditional heading elements are designed to work best in the meat of your page content. When you need a heading to stand out, consider using a display heading, a larger slightly more opinionated heading style.<br/>
+To add a display heading add one of the following classes <code>text-d1</code>, <code>text-d2</code> or <code>text-d3</code> to the element.</p>
+
+```htmlmixed
+<h1 class="text-d1">Display 1: Swisscom intends to continue reducing roaming prices</h1>
+<h1 class="text-d2">Display 2: Swisscom intends to continue reducing roaming prices</h1>
+<h1 class="text-d3">Display 3: Swisscom intends to continue reducing roaming prices</h1>
+```
+<h2>Inline text elements</h2>
+
+<p>Texts are written in paragraphs <code>&lt;p&gt;</code>. The standard style in the <code>&lt;p&gt;</code> element is <code>text-b1</code>.<br/>
+The following classes are available for changing the font-size: <code>text-b1</code>, <code>text-b2</code> or <code>text-sm</code></p>
+
+```htmlmixed
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+<p class="text-b1">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+<p class="text-b2">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+<p class="text-sm">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+```
+
+<p>Styling for common inline HTML5 elements.</p>
+
+```htmlmixed
+<p>You can use the mark tag to <mark>highlight</mark> text.</p>
+<p><del>This line of text is meant to be treated as deleted text.</del></p>
+<p><s>This line of text is meant to be treated as no longer accurate.</s></p>
+<p><ins>This line of text is meant to be treated as an addition to the document.</ins></p>
+<p><u>This line of text will render as underlined</u></p>
+<p><small>This line of text is meant to be treated as fine print.</small></p>
+<p><strong>This line rendered as bold text.</strong></p>
+<p><em>This line rendered as italicized text.</em></p>
+```
+
+<p>While not shown above, feel free to use <code>&lt;b&gt;</code> and <code>&lt;i&gt;</code> in HTML5. <code>&lt;b&gt;</code> is meant to highlight words or phrases without conveying additional importance while <code>&lt;i&gt;</code> is mostly for voice, technical terms, etc.</p>
+
+<h2>Text on light, gray and dark backgrounds</h2>
+
+<h4>Light Background (Standard)</h4>
+
+```htmlmixed
+<div class="bg bg--light">
+  <h1 class="text-d1 navy">Display 1: Swisscom intends to continue reducing roaming prices</h1>
+  <h1 class="text-h1">H1: Swisscom intends to continue reducing roaming prices</h1>
+  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+</div>
+```
+
+<h4>Gray Background</h4>
+
+```htmlmixed
+<div class="bg bg--gray">
+  <h1 class="text-d1 navy">Display 1: Swisscom intends to continue reducing roaming prices</h1>
+  <h1 class="text-h1">H1: Swisscom intends to continue reducing roaming prices</h1>
+  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+</div>
+```
+
+<h4>Dark Background</h4>
+
+```htmlmixed
+<div class="bg bg--dark">
+  <h1 class="text-d1">Display 1: Swisscom intends to continue reducing roaming prices</h1>
+  <h1 class="text-h1">H1: Swisscom intends to continue reducing roaming prices</h1>
+  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+</div>
+```
+*/
+.text-body-1 {
+  line-height: 24px;
+  letter-spacing: -0.1px;
+  font-size: 18px;
+}
+
+.text-body-2 {
+  line-height: 24px;
+  letter-spacing: 0;
+  font-size: 16px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  font-family: "TheSans", sans-serif;
+  margin: 0;
+  margin-bottom: 32px;
+  padding: 0;
+  text-align: left;
+  word-wrap: break-word;
+}
+h1:last-child,
+h2:last-child,
+h3:last-child,
+h4:last-child,
+h5:last-child,
+h6:last-child,
+p:last-child {
+  margin-bottom: 0;
+}
+
+.text-compact {
+  line-height: 21px;
+}
+
+h1,
+.text-h1 {
+  line-height: 48px;
+  letter-spacing: -1.2px;
+  font-size: 40px;
+  font-weight: 300;
+}
+
+h2,
+.text-h2 {
+  line-height: 40px;
+  letter-spacing: -1px;
+  font-size: 32px;
+  font-weight: 300;
+}
+
+h3,
+.text-h3 {
+  line-height: 32px;
+  letter-spacing: -0.75px;
+  font-size: 28px;
+}
+h3, h3--light,
+.text-h3,
+.text-h3--light {
+  font-weight: 300;
+}
+h3--semi-light,
+.text-h3--semi-light {
+  font-weight: 400;
+}
+h3--semi-bold,
+.text-h3--semi-bold {
+  font-weight: 600;
+}
+h3.text-compact,
+.text-h3.text-compact {
+  line-height: 31px;
+}
+
+h4,
+.text-h4 {
+  line-height: 32px;
+  letter-spacing: -0.35px;
+  font-size: 24px;
+}
+h4, h4--light,
+.text-h4,
+.text-h4--light {
+  font-weight: 300;
+}
+h4--semi-light,
+.text-h4--semi-light {
+  font-weight: 400;
+}
+h4--semi-bold,
+.text-h4--semi-bold {
+  font-weight: 600;
+}
+h4.text-compact,
+.text-h4.text-compact {
+  line-height: 27px;
+}
+
+h5,
+.text-h5 {
+  line-height: 24px;
+  letter-spacing: -0.1px;
+  font-size: 18px;
+  font-weight: 400;
+}
+h5, h5--semi-light,
+.text-h5,
+.text-h5--semi-light {
+  font-weight: 400;
+}
+h5--semi-bold,
+.text-h5--semi-bold {
+  font-weight: 600;
+}
+
+h6,
+.text-h6 {
+  line-height: 24px;
+  letter-spacing: -0.1px;
+  font-size: 16px;
+  font-weight: 400;
+}
+h6, h6--semi-light,
+.text-h6,
+.text-h6--semi-light {
+  font-weight: 400;
+}
+h6--semi-bold,
+.text-h6--semi-bold {
+  font-weight: 600;
+}
+
+.d1,
+.text-d1 {
+  line-height: 48px;
+  letter-spacing: -1.2px;
+  font-size: 40px;
+  font-weight: 300;
+}
+@media (min-width: 1024px) {
+  .d1,
+.text-d1 {
+    line-height: 80px;
+    letter-spacing: -1.75px;
+    font-size: 70px;
+  }
+}
+
+.d2,
+.text-d2 {
+  line-height: 40px;
+  letter-spacing: -1px;
+  font-size: 32px;
+  font-weight: 300;
+}
+@media (min-width: 1024px) {
+  .d2,
+.text-d2 {
+    line-height: 64px;
+    letter-spacing: -1.35px;
+    font-size: 54px;
+  }
+}
+
+.d3,
+.text-d3 {
+  line-height: 32px;
+  letter-spacing: -0.75px;
+  font-size: 28px;
+  font-weight: 300;
+}
+@media (min-width: 1024px) {
+  .d3,
+.text-d3 {
+    line-height: 56px;
+    letter-spacing: -1.2px;
+    font-size: 48px;
+  }
+}
+
+p {
+  line-height: 24px;
+  letter-spacing: -0.1px;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.text-b1 {
+  line-height: 24px;
+  letter-spacing: -0.1px;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.text-b2 {
+  line-height: 24px;
+  letter-spacing: 0;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.text-sm {
+  line-height: 24px;
+  letter-spacing: 0.1px;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+address {
+  font-style: normal;
+}
+
+strong {
+  font-weight: 600;
+}
+
+em {
+  font-style: italic;
+}
+
+.font {
+  font-family: "TheSans", sans-serif;
+}
+.font--sans {
+  font-family: "TheSans", sans-serif;
+}
+.font--serif {
+  font-family: "TheSerif", serif;
+}
+.font--light {
+  font-weight: 300;
+}
+.font--semi-light {
+  font-weight: 400;
+}
+.font--semi-bold {
+  font-weight: 600;
+}
+
+/*doc
+---
+title: Screen Readers
+name: 05-utilities-screenreaders-01
+category: Dev Utilities - Screen Readers
+---
+
+<p>Hide an element to all devices except screen readers with <code>.sr-only</code>.
+Combine <code>.sr-only</code> with <code>.sr-only-focusable</code> to show the element again when it’s focused (e.g. by a keyboard-only user).</p>
+
+```htmlmixed_no_preview
+<a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+```
+
+<p>Can also be used as a mixin.</p>
+
+```css_no_preview
+// Usage as a mixin
+.skip-navigation {
+  @include sr-only;
+  @include sr-only-focusable;
+}
+```
+
+*/
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.sr-only-focusable:active, .sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+}
+
+.period {
+  font-size: 50%;
+  letter-spacing: 0;
+}
+
+.integer .period {
+  font-size: 26%;
+  position: absolute;
+  margin-left: -2em;
+  margin-top: -0.8em;
+}
+.integer.text-d1 .period, .integer.text-d2 .period, .integer.text-d3 .period {
+  margin-top: 0.55em;
+}
+
+.text-d1, .text-d2, .text-d3 {
+  line-height: 1;
+}

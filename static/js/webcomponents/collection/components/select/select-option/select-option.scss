@@ -1,0 +1,53 @@
+@import "stylesheets/sdx/variables/sizes";
+@import "stylesheets/sdx/variables/colors";
+@import "stylesheets/sdx/mixins/text";
+
+:host {
+  display: flex;
+  border: $border-width solid $color-gray-tint-8;
+  height: $select-height;
+  cursor: pointer;
+  color: $color-gray;
+
+  .component {
+    height: 100%;
+    width: 100%;
+
+    .option {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      padding: 0 $select-inner-margin;
+      max-width: 100%;
+    }
+  }
+}
+
+:host(:hover:not(.disabled)), :host(.focus:not(.disabled)) {
+  background-color: $color-horizon;
+}
+
+:host(.selected:not(.multiple)) {
+  border-color: $color-int-blue;
+  background-color: $color-int-blue;
+  color: $color-white;
+}
+
+:host(.selected:not(.multiple):hover), :host(.selected.focus:not(.multiple)) {
+  border-color: $color-int-blue--active;
+  background-color: $color-int-blue--active;
+}
+
+:host(.top) {
+  border-top: none;
+}
+
+:host(.bottom) {
+  border-bottom: none;
+}
+
+:host(.disabled) {
+  cursor: not-allowed;
+  color: $color-disabled;
+}

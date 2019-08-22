@@ -1,0 +1,2 @@
+/*! Built with http://stenciljs.com */
+import{h}from"../webcomponents.core.js";var Dummy=function(){function e(){}return e.prototype.render=function(){return h("slot",null)},Object.defineProperty(e,"is",{get:function(){return"sdx-dummy"},enumerable:!0,configurable:!0}),Object.defineProperty(e,"encapsulation",{get:function(){return"shadow"},enumerable:!0,configurable:!0}),e}();export{Dummy as SdxDummy};

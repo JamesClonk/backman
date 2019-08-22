@@ -1,0 +1,15 @@
+@import "stylesheets/sdx/variables/global";
+@import "stylesheets/sdx/variables/colors";
+@import "stylesheets/sdx/variables/sizes";
+@import "stylesheets/sdx/utilities/screenreaders";
+
+.wrapper {
+  position: relative;
+
+  > sdx-button {
+    padding: 6px; // easier to click
+    position: absolute;
+    right: 5px;
+    top: 2px;
+  }
+}

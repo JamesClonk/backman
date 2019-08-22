@@ -1,0 +1,2 @@
+/*! Built with http://stenciljs.com */
+const{h:t}=window.webcomponents;class s{render(){return t("slot",null)}static get is(){return"sdx-dummy"}static get encapsulation(){return"shadow"}}export{s as SdxDummy};

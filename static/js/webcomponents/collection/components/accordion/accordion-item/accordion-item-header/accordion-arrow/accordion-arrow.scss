@@ -1,0 +1,54 @@
+@import "stylesheets/sdx/mixins/arrow";
+@import "stylesheets/sdx/variables/global";
+@import "stylesheets/sdx/variables/colors";
+
+:host {
+  display: none;
+}
+
+:host([hover="true"]) {
+  @include arrow($color-accordion--active);
+}
+
+:host([arrow-position="right"]),
+:host([arrow-position="left"]),
+:host([arrow-position="center"]) {
+  @include arrow-flat($color-accordion);
+  @include arrow-flat--down;
+  top: 4px;
+  left: 0;
+  width: 35px;
+  height: 16px;
+  -webkit-transform: scale(.68);
+  transform: scale(.68);
+  pointer-events: none;
+  transform-origin: 50% 50%;
+}
+
+:host([hover="true"][arrow-position="right"]),
+:host([hover="true"][arrow-position="left"]),
+:host([hover="true"][arrow-position="center"]) {
+  @include arrow-flat($color-accordion--active);
+}
+
+:host([direction="up"][arrow-position="right"]),
+:host([direction="up"][arrow-position="left"]),
+:host([direction="up"][arrow-position="center"]) {
+  @include arrow-flat--up;
+}
+
+:host([arrow-position="right"]) {
+  display: inline-block;
+  float: right;
+}
+
+:host([arrow-position="left"]) {
+  display: inline-block;
+  float: left;
+}
+
+:host([arrow-position="center"]) {
+  display: table;
+  margin: -13px auto 0 auto;
+  float: none;
+}

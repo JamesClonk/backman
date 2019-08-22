@@ -1,0 +1,2 @@
+/*! Built with http://stenciljs.com */
+webcomponents.loadBundle("kbfumsrw",["exports"],function(e){var n=window.webcomponents.h,t=function(){function e(){}return e.prototype.render=function(){return n("slot",null)},Object.defineProperty(e,"is",{get:function(){return"sdx-dummy"},enumerable:!0,configurable:!0}),Object.defineProperty(e,"encapsulation",{get:function(){return"shadow"},enumerable:!0,configurable:!0}),e}();e.SdxDummy=t,Object.defineProperty(e,"__esModule",{value:!0})});

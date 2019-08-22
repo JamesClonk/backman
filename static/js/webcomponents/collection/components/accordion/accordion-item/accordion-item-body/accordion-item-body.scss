@@ -1,0 +1,24 @@
+@import "stylesheets/sdx/variables/sizes";
+:host {
+  position: relative;
+  overflow: hidden;
+  display: none;
+  height: 0;
+  opacity: 0;
+  padding: 0 13px 14px 19px;
+}
+
+:host(.open) {
+  display: block;
+  height: auto;
+  opacity: 1;
+}
+
+:host([arrow-position="center"]) {
+  padding-left: $accordion-padding-horizontal;
+  padding-right: $accordion-padding-horizontal;
+}
+
+:host([arrow-position="center"].open) {
+  padding-bottom: $accordion-padding-vertical;
+}

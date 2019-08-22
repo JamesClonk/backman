@@ -1,0 +1,1639 @@
+{
+  "components": [
+    {
+      "tag": "sdx-accordion",
+      "dependencies": [],
+      "componentClass": "Accordion",
+      "componentPath": "components/accordion/accordion.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/accordion/accordion.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "arrowPosition",
+          "type": "String",
+          "attr": "arrow-position",
+          "watch": [
+            "arrowPropertyChanged"
+          ]
+        },
+        {
+          "name": "keepOpen",
+          "type": "Boolean",
+          "attr": "keep-open",
+          "watch": [
+            "arrowPropertyChanged"
+          ]
+        }
+      ],
+      "methods": [
+        {
+          "name": "close"
+        },
+        {
+          "name": "closeAll"
+        },
+        {
+          "name": "open"
+        },
+        {
+          "name": "openAll"
+        },
+        {
+          "name": "toggle"
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-accordion-arrow",
+      "dependencies": [],
+      "componentClass": "Arrow",
+      "componentPath": "components/accordion/accordion-item/accordion-item-header/accordion-arrow/accordion-arrow.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/accordion/accordion-item/accordion-item-header/accordion-arrow/accordion-arrow.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "arrowPosition",
+          "type": "String",
+          "attr": "arrow-position"
+        },
+        {
+          "name": "direction",
+          "type": "String",
+          "attr": "direction"
+        },
+        {
+          "name": "hover",
+          "type": "Boolean",
+          "attr": "hover"
+        }
+      ],
+      "shadow": true
+    },
+    {
+      "tag": "sdx-accordion-item",
+      "dependencies": [],
+      "componentClass": "Item",
+      "componentPath": "components/accordion/accordion-item/accordion-item.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/accordion/accordion-item/accordion-item.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "open",
+          "type": "Boolean",
+          "attr": "open",
+          "watch": [
+            "activeItemChanged"
+          ]
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-accordion-item-body",
+      "dependencies": [],
+      "componentClass": "Body",
+      "componentPath": "components/accordion/accordion-item/accordion-item-body/accordion-item-body.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/accordion/accordion-item/accordion-item-body/accordion-item-body.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "arrowPosition",
+          "type": "String",
+          "attr": "arrow-position"
+        }
+      ],
+      "methods": [
+        {
+          "name": "toggle"
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-accordion-item-header",
+      "dependencies": [
+        "sdx-accordion-arrow"
+      ],
+      "componentClass": "Header",
+      "componentPath": "components/accordion/accordion-item/accordion-item-header/accordion-item-header.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/accordion/accordion-item/accordion-item-header/accordion-item-header.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "arrowPosition",
+          "type": "String",
+          "attr": "arrow-position",
+          "watch": [
+            "arrowPositionChanged"
+          ]
+        },
+        {
+          "name": "expand",
+          "type": "Boolean",
+          "attr": "expand",
+          "watch": [
+            "activeItemChanged"
+          ]
+        },
+        {
+          "name": "toggle",
+          "attr": "toggle"
+        }
+      ],
+      "listeners": [
+        {
+          "event": "click",
+          "method": "onClick",
+          "passive": false,
+          "capture": false
+        },
+        {
+          "event": "mouseout",
+          "method": "onMouseOut",
+          "capture": false
+        },
+        {
+          "event": "mouseover",
+          "method": "onMouseOver",
+          "capture": false
+        }
+      ],
+      "methods": [
+        {
+          "name": "closeItem"
+        },
+        {
+          "name": "openItem"
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-accordion-item-section",
+      "dependencies": [],
+      "componentClass": "Section",
+      "componentPath": "components/accordion/accordion-item/accordion-item-section/accordion-item-section.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/accordion/accordion-item/accordion-item-section/accordion-item-section.scss"
+          ]
+        }
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-button",
+      "dependencies": [],
+      "componentClass": "Button",
+      "componentPath": "components/button/button.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/button/button.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "size",
+          "type": "String",
+          "attr": "size"
+        },
+        {
+          "name": "srHint",
+          "type": "String",
+          "attr": "sr-hint"
+        },
+        {
+          "name": "theme",
+          "type": "String",
+          "attr": "theme"
+        }
+      ],
+      "shadow": true
+    },
+    {
+      "tag": "sdx-dummy",
+      "dependencies": [],
+      "componentClass": "Dummy",
+      "componentPath": "components/dummy/dummy.js",
+      "styles": {},
+      "shadow": true
+    },
+    {
+      "tag": "sdx-icon",
+      "dependencies": [],
+      "componentClass": "Icon",
+      "componentPath": "components/icon/icon.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/icon/icon.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "colorClass",
+          "type": "String",
+          "attr": "color-class"
+        },
+        {
+          "name": "flip",
+          "type": "String",
+          "attr": "flip"
+        },
+        {
+          "name": "hidden",
+          "type": "Boolean",
+          "attr": "hidden",
+          "watch": [
+            "hiddenChanged"
+          ]
+        },
+        {
+          "name": "iconName",
+          "type": "String",
+          "attr": "icon-name"
+        },
+        {
+          "name": "size",
+          "type": "Number",
+          "attr": "size"
+        },
+        {
+          "name": "srHint",
+          "type": "String",
+          "attr": "sr-hint"
+        }
+      ],
+      "shadow": true
+    },
+    {
+      "tag": "sdx-input",
+      "dependencies": [
+        "sdx-icon",
+        "sdx-text-truncate"
+      ],
+      "componentClass": "Input",
+      "componentPath": "components/input/input.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/input/input.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "autocomplete",
+          "type": "Boolean",
+          "attr": "autocomplete"
+        },
+        {
+          "name": "blurCallback",
+          "type": "String",
+          "attr": "blur-callback",
+          "watch": [
+            "blurCallbackChanged"
+          ]
+        },
+        {
+          "name": "changeCallback",
+          "type": "String",
+          "attr": "change-callback",
+          "watch": [
+            "changeCallbackChanged"
+          ]
+        },
+        {
+          "name": "clearable",
+          "type": "Boolean",
+          "attr": "clearable"
+        },
+        {
+          "name": "editable",
+          "type": "Boolean",
+          "attr": "editable"
+        },
+        {
+          "name": "focusCallback",
+          "type": "String",
+          "attr": "focus-callback",
+          "watch": [
+            "focusCallbackChanged"
+          ]
+        },
+        {
+          "name": "hitEnterCallback",
+          "type": "String",
+          "attr": "hit-enter-callback",
+          "watch": [
+            "hitEnterCallbackChanged"
+          ]
+        },
+        {
+          "name": "id",
+          "type": "String",
+          "attr": "id"
+        },
+        {
+          "name": "inputCallback",
+          "type": "String",
+          "attr": "input-callback",
+          "watch": [
+            "inputCallbackChanged"
+          ]
+        },
+        {
+          "name": "inputStyle",
+          "attr": "input-style"
+        },
+        {
+          "name": "placeholder",
+          "type": "String",
+          "attr": "placeholder"
+        },
+        {
+          "name": "selectTextOnFocus",
+          "type": "Boolean",
+          "attr": "select-text-on-focus"
+        },
+        {
+          "name": "srHint",
+          "type": "String",
+          "attr": "sr-hint"
+        },
+        {
+          "name": "type",
+          "type": "String",
+          "attr": "type"
+        },
+        {
+          "name": "value",
+          "type": "String",
+          "attr": "value",
+          "watch": [
+            "valueChanged"
+          ]
+        }
+      ],
+      "states": [
+        {
+          "name": "valueState"
+        }
+      ],
+      "listeners": [
+        {
+          "event": "focus",
+          "method": "onFocus",
+          "passive": false
+        }
+      ],
+      "methods": [
+        {
+          "name": "getValue"
+        },
+        {
+          "name": "setFocus"
+        },
+        {
+          "name": "unsetFocus"
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-input-group",
+      "dependencies": [],
+      "componentClass": "InputGroup",
+      "componentPath": "components/input-item/input-group.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/input-item/input-group.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "changeCallback",
+          "type": "String",
+          "attr": "change-callback",
+          "watch": [
+            "changeCallbackChanged"
+          ]
+        },
+        {
+          "name": "inline",
+          "type": "Boolean",
+          "attr": "inline",
+          "watch": [
+            "inlineChanged"
+          ]
+        },
+        {
+          "name": "label",
+          "type": "String",
+          "attr": "label"
+        },
+        {
+          "name": "name",
+          "type": "String",
+          "attr": "name",
+          "watch": [
+            "nameChanged"
+          ]
+        },
+        {
+          "name": "type",
+          "type": "String",
+          "attr": "type",
+          "watch": [
+            "typeChanged"
+          ]
+        }
+      ],
+      "states": [
+        {
+          "name": "inputItemElsSorted"
+        },
+        {
+          "name": "nameState"
+        },
+        {
+          "name": "selectedInputItemEls"
+        },
+        {
+          "name": "selectNextInputItemElFrom"
+        },
+        {
+          "name": "selectPreviousInputItemElFrom"
+        },
+        {
+          "name": "typeState"
+        }
+      ],
+      "methods": [
+        {
+          "name": "getSelection"
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-input-item",
+      "dependencies": [
+        "sdx-icon"
+      ],
+      "componentClass": "InputItem",
+      "componentPath": "components/input-item/input-item.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/input-item/input-item.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "changeCallback",
+          "type": "String",
+          "attr": "change-callback",
+          "watch": [
+            "changeCallbackChanged"
+          ]
+        },
+        {
+          "name": "checked",
+          "type": "Boolean",
+          "mutable": true,
+          "attr": "checked",
+          "watch": [
+            "checkedChanged"
+          ]
+        },
+        {
+          "name": "disabled",
+          "type": "Boolean",
+          "attr": "disabled"
+        },
+        {
+          "name": "disableFocus",
+          "type": "Boolean",
+          "attr": "disable-focus"
+        },
+        {
+          "name": "name",
+          "type": "String",
+          "attr": "name",
+          "watch": [
+            "nameChanged"
+          ]
+        },
+        {
+          "name": "type",
+          "type": "String",
+          "attr": "type"
+        },
+        {
+          "name": "value",
+          "type": "Any",
+          "attr": "value",
+          "watch": [
+            "valueChanged"
+          ]
+        }
+      ],
+      "states": [
+        {
+          "name": "inline"
+        },
+        {
+          "name": "nameState"
+        },
+        {
+          "name": "selectedInputItemEls"
+        },
+        {
+          "name": "typeState"
+        }
+      ],
+      "listeners": [
+        {
+          "event": "click",
+          "method": "onClick",
+          "passive": false,
+          "capture": false
+        },
+        {
+          "event": "keydown",
+          "method": "handleKeyDown",
+          "passive": false,
+          "capture": false
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-itunes-autocomplete",
+      "dependencies": [
+        "sdx-select",
+        "sdx-select-option"
+      ],
+      "componentClass": "ItunesAutocomplete",
+      "componentPath": "examples/itunes-autocomplete/itunes-autocomplete.js",
+      "styles": {},
+      "states": [
+        {
+          "name": "artists"
+        },
+        {
+          "name": "loading"
+        }
+      ],
+      "shadow": true
+    },
+    {
+      "tag": "sdx-loading-spinner",
+      "dependencies": [],
+      "componentClass": "LoadingSpinner",
+      "componentPath": "components/loading-spinner/loading-spinner.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/loading-spinner/loading-spinner.scss"
+          ]
+        }
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-menu-flyout",
+      "dependencies": [],
+      "componentClass": "MenuFlyout",
+      "componentPath": "components/menu-flyout/menu-flyout.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/menu-flyout/menu-flyout.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "closeOnClick",
+          "type": "Boolean",
+          "attr": "close-on-click"
+        },
+        {
+          "name": "direction",
+          "type": "String",
+          "attr": "direction",
+          "watch": [
+            "directionChanged"
+          ]
+        },
+        {
+          "name": "displayChangeCallback",
+          "type": "String",
+          "attr": "display-change-callback",
+          "watch": [
+            "displayChangeCallbackChanged"
+          ]
+        }
+      ],
+      "states": [
+        {
+          "name": "arrowEls"
+        },
+        {
+          "name": "contentEl"
+        },
+        {
+          "name": "directionState"
+        },
+        {
+          "name": "display"
+        },
+        {
+          "name": "toggleEl"
+        }
+      ],
+      "listeners": [
+        {
+          "event": "click",
+          "method": "onClick",
+          "passive": false,
+          "capture": false
+        },
+        {
+          "event": "mouseenter",
+          "method": "onMouseEnter",
+          "capture": false
+        },
+        {
+          "event": "mouseleave",
+          "method": "onMouseLeave",
+          "capture": false
+        },
+        {
+          "event": "touchend",
+          "method": "onClick",
+          "capture": false
+        },
+        {
+          "event": "window:click",
+          "method": "onWindowClick",
+          "passive": false,
+          "capture": false
+        },
+        {
+          "event": "window:touchend",
+          "method": "onWindowClick",
+          "capture": false
+        }
+      ],
+      "methods": [
+        {
+          "name": "close"
+        },
+        {
+          "name": "open"
+        },
+        {
+          "name": "toggle"
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-menu-flyout-content",
+      "dependencies": [],
+      "componentClass": "MenuFlyoutContent",
+      "componentPath": "components/menu-flyout/menu-flyout-content/menu-flyout-content.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/menu-flyout/menu-flyout-content/menu-flyout-content.scss"
+          ]
+        }
+      },
+      "states": [
+        {
+          "name": "directionState"
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-menu-flyout-cta",
+      "dependencies": [],
+      "componentClass": "MenuFlyoutCta",
+      "componentPath": "components/menu-flyout/menu-flyout-cta_deprecated/menu-flyout-cta.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/menu-flyout/menu-flyout-cta_deprecated/menu-flyout-cta.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "size",
+          "type": "String",
+          "attr": "size"
+        }
+      ],
+      "states": [
+        {
+          "name": "directionState"
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-menu-flyout-list",
+      "dependencies": [],
+      "componentClass": "MenuFlyoutList",
+      "componentPath": "components/menu-flyout/menu-flyout-list/menu-flyout-list.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/menu-flyout/menu-flyout-list/menu-flyout-list.scss"
+          ]
+        }
+      },
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-menu-flyout-list-item",
+      "dependencies": [],
+      "componentClass": "MenuFlyoutListItem",
+      "componentPath": "components/menu-flyout/menu-flyout-list/menu-flyout-list-item/menu-flyout-list-item.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/menu-flyout/menu-flyout-list/menu-flyout-list-item/menu-flyout-list-item.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "disabled",
+          "type": "Boolean",
+          "attr": "disabled"
+        },
+        {
+          "name": "href",
+          "type": "String",
+          "attr": "href"
+        },
+        {
+          "name": "selectable",
+          "type": "Boolean",
+          "attr": "selectable"
+        }
+      ],
+      "states": [
+        {
+          "name": "directionState"
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-menu-flyout-toggle",
+      "dependencies": [
+        "sdx-button"
+      ],
+      "componentClass": "MenuFlyoutToggle",
+      "componentPath": "components/menu-flyout/menu-flyout-toggle/menu-flyout-toggle.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/menu-flyout/menu-flyout-toggle/menu-flyout-toggle.scss"
+          ]
+        }
+      },
+      "states": [
+        {
+          "name": "display"
+        },
+        {
+          "name": "toggle"
+        }
+      ],
+      "listeners": [
+        {
+          "event": "click",
+          "method": "onClick",
+          "passive": false,
+          "capture": false
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-price",
+      "dependencies": [],
+      "componentClass": "Price",
+      "componentPath": "components/price/price.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/price/price.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "amount",
+          "type": "Number",
+          "attr": "amount"
+        },
+        {
+          "name": "period",
+          "type": "String",
+          "attr": "period"
+        },
+        {
+          "name": "size",
+          "type": "Number",
+          "attr": "size"
+        },
+        {
+          "name": "srHint",
+          "type": "String",
+          "attr": "sr-hint"
+        }
+      ],
+      "shadow": true
+    },
+    {
+      "tag": "sdx-progress-full",
+      "dependencies": [],
+      "componentClass": "ProgressFull",
+      "componentPath": "components/progress-full/progress-full.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/progress-full/progress-full.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "animated",
+          "type": "Boolean",
+          "attr": "animated"
+        },
+        {
+          "name": "step",
+          "type": "Number",
+          "attr": "step",
+          "watch": [
+            "stepChanged"
+          ]
+        },
+        {
+          "name": "stepChangeCallback",
+          "type": "String",
+          "attr": "step-change-callback",
+          "watch": [
+            "stepChangeCallbackChanged"
+          ]
+        },
+        {
+          "name": "stepsLabel",
+          "type": "String",
+          "attr": "steps-label",
+          "watch": [
+            "stepChanged"
+          ]
+        }
+      ],
+      "states": [
+        {
+          "name": "activeStep"
+        },
+        {
+          "name": "previousActiveStep"
+        }
+      ],
+      "listeners": [
+        {
+          "event": "window:resize",
+          "method": "onWindowResizeThrottled",
+          "capture": false
+        }
+      ],
+      "methods": [
+        {
+          "name": "getActiveStep"
+        },
+        {
+          "name": "nextStep"
+        },
+        {
+          "name": "previousStep"
+        },
+        {
+          "name": "setActiveStep"
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-progress-full-step",
+      "dependencies": [],
+      "componentClass": "ProgressFullStep",
+      "componentPath": "components/progress-full/progress-full-step/progress-full-step.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/progress-full/progress-full-step/progress-full-step.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "position",
+          "type": "String",
+          "attr": "position"
+        },
+        {
+          "name": "status",
+          "type": "String",
+          "attr": "status"
+        },
+        {
+          "name": "stepClickCallback",
+          "type": "String",
+          "attr": "step-click-callback",
+          "watch": [
+            "stepClickCallbackChanged"
+          ]
+        },
+        {
+          "name": "value",
+          "type": "Number",
+          "attr": "value"
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-ribbon",
+      "dependencies": [],
+      "componentClass": "Ribbon",
+      "componentPath": "components/ribbon/ribbon.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/ribbon/ribbon.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "design",
+          "type": "String",
+          "attr": "design"
+        },
+        {
+          "name": "label",
+          "type": "String",
+          "attr": "label"
+        },
+        {
+          "name": "position",
+          "type": "String",
+          "attr": "position"
+        },
+        {
+          "name": "size",
+          "type": "String",
+          "attr": "size"
+        }
+      ],
+      "shadow": true
+    },
+    {
+      "tag": "sdx-search",
+      "dependencies": [
+        "sdx-button",
+        "sdx-icon",
+        "sdx-input"
+      ],
+      "componentClass": "Search",
+      "componentPath": "components/search/search.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/search/search.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "changeCallback",
+          "type": "String",
+          "attr": "change-callback",
+          "watch": [
+            "changeCallbackChanged"
+          ]
+        },
+        {
+          "name": "placeholder",
+          "type": "String",
+          "attr": "placeholder"
+        },
+        {
+          "name": "searchSubmitCallback",
+          "type": "String",
+          "attr": "search-submit-callback",
+          "watch": [
+            "searchSubmitCallbackChanged"
+          ]
+        },
+        {
+          "name": "srHint",
+          "type": "String",
+          "attr": "sr-hint"
+        },
+        {
+          "name": "srHintForButton",
+          "type": "String",
+          "attr": "sr-hint-for-button"
+        },
+        {
+          "name": "valueChangeCallback",
+          "type": "String",
+          "attr": "value-change-callback",
+          "watch": [
+            "valueChangeCallbackChanged"
+          ]
+        }
+      ],
+      "states": [
+        {
+          "name": "inputValue"
+        }
+      ],
+      "listeners": [
+        {
+          "event": "window:resize",
+          "method": "onWindowResizeThrottled",
+          "capture": false
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-select",
+      "dependencies": [
+        "sdx-input",
+        "sdx-loading-spinner",
+        "sdx-select-option"
+      ],
+      "componentClass": "Select",
+      "componentPath": "components/select/select.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/select/select.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "animated",
+          "type": "Boolean",
+          "attr": "animated"
+        },
+        {
+          "name": "backgroundTheme",
+          "type": "String",
+          "attr": "background-theme"
+        },
+        {
+          "name": "changeCallback",
+          "type": "String",
+          "attr": "change-callback",
+          "watch": [
+            "changeCallbackChanged"
+          ]
+        },
+        {
+          "name": "disabled",
+          "type": "Boolean",
+          "attr": "disabled"
+        },
+        {
+          "name": "filterable",
+          "type": "Boolean",
+          "attr": "filterable"
+        },
+        {
+          "name": "filterFunction",
+          "type": "String",
+          "attr": "filter-function",
+          "watch": [
+            "filterFunctionChanged"
+          ]
+        },
+        {
+          "name": "keyboardBehavior",
+          "type": "String",
+          "attr": "keyboard-behavior"
+        },
+        {
+          "name": "label",
+          "type": "String",
+          "attr": "label"
+        },
+        {
+          "name": "loading",
+          "type": "Boolean",
+          "attr": "loading"
+        },
+        {
+          "name": "maxHeight",
+          "type": "Number",
+          "attr": "max-height"
+        },
+        {
+          "name": "multiple",
+          "type": "Boolean",
+          "attr": "multiple"
+        },
+        {
+          "name": "name",
+          "type": "String",
+          "attr": "name",
+          "watch": [
+            "nameChanged"
+          ]
+        },
+        {
+          "name": "noMatchesFoundLabel",
+          "type": "String",
+          "attr": "no-matches-found-label"
+        },
+        {
+          "name": "placeholder",
+          "type": "String",
+          "attr": "placeholder",
+          "watch": [
+            "placeholderChanged"
+          ]
+        },
+        {
+          "name": "selectCallback",
+          "type": "String",
+          "attr": "select-callback",
+          "watch": [
+            "selectCallbackChanged"
+          ]
+        },
+        {
+          "name": "value",
+          "mutable": true,
+          "attr": "value",
+          "watch": [
+            "valueChanged"
+          ]
+        }
+      ],
+      "states": [
+        {
+          "name": "animationDuration"
+        },
+        {
+          "name": "display"
+        },
+        {
+          "name": "filter"
+        },
+        {
+          "name": "filterInputFieldElValue"
+        },
+        {
+          "name": "focussed"
+        },
+        {
+          "name": "foundMatches"
+        },
+        {
+          "name": "optgroupEls"
+        },
+        {
+          "name": "optionElsSorted"
+        },
+        {
+          "name": "selectionBatch"
+        },
+        {
+          "name": "selectionSorted"
+        }
+      ],
+      "listeners": [
+        {
+          "event": "blur",
+          "method": "onBlur",
+          "passive": false
+        },
+        {
+          "event": "focus",
+          "method": "onFocus",
+          "passive": false
+        },
+        {
+          "event": "mousedown",
+          "method": "onMouseDown",
+          "capture": false
+        },
+        {
+          "event": "mouseup",
+          "method": "onMouseUp",
+          "capture": false
+        },
+        {
+          "event": "window:click",
+          "method": "onWindowClick",
+          "passive": false,
+          "capture": false
+        },
+        {
+          "event": "window:keydown",
+          "method": "onKeyDown",
+          "passive": false,
+          "capture": false
+        },
+        {
+          "event": "window:touchend",
+          "method": "onWindowClick",
+          "capture": false
+        }
+      ],
+      "methods": [
+        {
+          "name": "close"
+        },
+        {
+          "name": "getSelection"
+        },
+        {
+          "name": "open"
+        },
+        {
+          "name": "toggle"
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-select-optgroup",
+      "dependencies": [],
+      "componentClass": "SelectOptGroup",
+      "componentPath": "components/select/select-optgroup/select-optgroup.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/select/select-optgroup/select-optgroup.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "name",
+          "type": "String",
+          "attr": "name"
+        }
+      ],
+      "states": [
+        {
+          "name": "direction"
+        },
+        {
+          "name": "filter"
+        },
+        {
+          "name": "filterFunction"
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-select-option",
+      "dependencies": [
+        "sdx-input-item",
+        "sdx-text-truncate"
+      ],
+      "componentClass": "SelectOption",
+      "componentPath": "components/select/select-option/select-option.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/select/select-option/select-option.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "disabled",
+          "type": "Boolean",
+          "attr": "disabled"
+        },
+        {
+          "name": "placeholder",
+          "type": "Boolean",
+          "attr": "placeholder"
+        },
+        {
+          "name": "selected",
+          "type": "Boolean",
+          "attr": "selected",
+          "watch": [
+            "selectedChanged"
+          ]
+        },
+        {
+          "name": "value",
+          "type": "Any",
+          "attr": "value"
+        }
+      ],
+      "states": [
+        {
+          "name": "direction"
+        },
+        {
+          "name": "filter"
+        },
+        {
+          "name": "filterFunction"
+        },
+        {
+          "name": "multiple"
+        },
+        {
+          "name": "select"
+        },
+        {
+          "name": "selectionSorted"
+        }
+      ],
+      "listeners": [
+        {
+          "event": "click",
+          "method": "onClick",
+          "passive": false,
+          "capture": false
+        }
+      ],
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    },
+    {
+      "tag": "sdx-show-more",
+      "dependencies": [
+        "sdx-button"
+      ],
+      "componentClass": "ShowMore",
+      "componentPath": "components/show-more/show-more.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/show-more/show-more.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "buttonTheme",
+          "type": "String",
+          "attr": "button-theme"
+        },
+        {
+          "name": "fromLabel",
+          "type": "String",
+          "attr": "from-label"
+        },
+        {
+          "name": "incrementBy",
+          "type": "Number",
+          "attr": "increment-by"
+        },
+        {
+          "name": "incrementCallback",
+          "type": "String",
+          "attr": "increment-callback",
+          "watch": [
+            "incrementCallbackChanged"
+          ]
+        },
+        {
+          "name": "initialItems",
+          "type": "Number",
+          "attr": "initial-items"
+        },
+        {
+          "name": "moreLabel",
+          "type": "String",
+          "attr": "more-label"
+        },
+        {
+          "name": "totalItems",
+          "type": "Number",
+          "attr": "total-items",
+          "watch": [
+            "totalItemsChanged"
+          ]
+        }
+      ],
+      "states": [
+        {
+          "name": "currentlyDisplayedItems"
+        }
+      ],
+      "shadow": true
+    },
+    {
+      "tag": "sdx-sticker-circle",
+      "dependencies": [],
+      "componentClass": "StickerCircle",
+      "componentPath": "components/sticker-circle/sticker-circle.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/sticker-circle/sticker-circle.scss"
+          ]
+        }
+      },
+      "props": [
+        {
+          "name": "bgColorClass",
+          "type": "String",
+          "attr": "bg-color-class"
+        },
+        {
+          "name": "bottom",
+          "type": "Number",
+          "attr": "bottom"
+        },
+        {
+          "name": "colorClass",
+          "type": "String",
+          "attr": "color-class"
+        },
+        {
+          "name": "contentWidth",
+          "type": "Number",
+          "attr": "content-width"
+        },
+        {
+          "name": "left",
+          "type": "Number",
+          "attr": "left"
+        },
+        {
+          "name": "right",
+          "type": "Number",
+          "attr": "right"
+        },
+        {
+          "name": "size",
+          "type": "Number",
+          "attr": "size"
+        },
+        {
+          "name": "srHint",
+          "type": "String",
+          "attr": "sr-hint"
+        },
+        {
+          "name": "top",
+          "type": "Number",
+          "attr": "top"
+        }
+      ],
+      "listeners": [
+        {
+          "event": "window:resize",
+          "method": "onWindowResizeThrottled",
+          "capture": false
+        }
+      ],
+      "shadow": true
+    },
+    {
+      "tag": "sdx-text-truncate",
+      "dependencies": [],
+      "componentClass": "TextTruncate",
+      "componentPath": "components/text-truncate/text-truncate.js",
+      "styles": {
+        "$": {
+          "stylePaths": [
+            "components/text-truncate/text-truncate.scss"
+          ]
+        }
+      },
+      "hostElement": {
+        "name": "el"
+      },
+      "shadow": true
+    }
+  ],
+  "collections": [],
+  "compiler": {
+    "name": "@stencil/core",
+    "version": "0.15.1",
+    "typescriptVersion": "2.9.2"
+  },
+  "bundles": []
+}

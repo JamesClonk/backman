@@ -1,0 +1,50 @@
+@import "stylesheets/sdx/variables/global";
+@import "stylesheets/sdx/variables/sizes";
+@import "stylesheets/sdx/variables/colors";
+@import "../arrow";
+
+:host {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: $zindex-menu;
+  box-shadow: 0 0 4px 0 rgba($color-black, .2);
+
+  >.item {
+    >.body {
+      position: relative;
+      background-color: $color-white;
+      padding: $baseline-3;
+      transition: border-bottom 200ms $button-easing, color 200ms $button-easing;
+    }
+  }
+}
+
+:host(:not(:last-of-type)) {
+  >.item {
+    >.body {
+      border-bottom: 1px solid $color-aluminum-tint-2;
+    }
+  }
+}
+
+:host(.bottom-right), :host(.bottom-left) {
+  >.item {
+    >.arrow {
+      display: block;
+      top: -($arrow-size / 2);
+      box-shadow: -1px -1px 2px 0 rgba($color-black, .15);
+    }
+  }
+}
+
+:host(.top-right), :host(.top-left) {
+  >.item {
+    >.arrow {
+      display: block;
+      bottom: -($arrow-size / 2);
+      box-shadow: 1px 1px 2px 0 rgba($color-black, .15);
+    }
+  }
+}

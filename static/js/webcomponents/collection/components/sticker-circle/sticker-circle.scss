@@ -1,0 +1,31 @@
+@import "stylesheets/sdx/variables/colors";
+@import "stylesheets/sdx/mixins/screenreaders";
+@import "stylesheets/sdx/utilities/color";
+@import "stylesheets/sdx/utilities/bg-color";
+@import "stylesheets/sdx/utilities/screenreaders";
+
+.wrapper {
+  position: relative;
+
+  .sticker {
+    position: absolute;
+    overflow: hidden;
+    border: 1px solid;
+    border-radius: 50%;
+    white-space: nowrap;
+    pointer-events: none;
+
+    .inner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      overflow: hidden;
+    }
+  }
+
+  .slot ::slotted(img) {
+    display: block;
+  }
+}

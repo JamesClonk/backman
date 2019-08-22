@@ -1,0 +1,26 @@
+@import "stylesheets/sdx/variables/colors";
+
+:host {
+  position: relative;
+  display: block;
+}
+
+:host {
+  border: 1px solid $color-accordion-border;
+  border-bottom: 0;
+  p {
+    padding: 13px 13px 14px 19px;
+  }
+}
+
+:host([arrow-position="center"]) {
+  padding: 0;
+}
+
+:host(.margin-bottom-2) {
+  margin-bottom: 16px;
+}
+
+:host(.margin-0) {
+  margin: 0px;
+}

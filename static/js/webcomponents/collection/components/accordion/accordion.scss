@@ -1,0 +1,6 @@
+@import "stylesheets/sdx/variables/colors";
+
+:host {
+  display: block;
+  border-bottom: 1px solid $color-accordion-border;
+}

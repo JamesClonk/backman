@@ -1,0 +1,12 @@
+:host {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+:host {
+  position: relative;
+  display: inline-block;
+}

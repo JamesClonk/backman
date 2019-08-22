@@ -1,0 +1,459 @@
+@charset "UTF-8";
+:host {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+.white {
+  color: #fff;
+}
+
+.navy {
+  color: #015;
+}
+
+.blue {
+  color: #1781e3;
+}
+.blue-tint-2, .blue-40 {
+  color: #a2cdf4;
+}
+.blue-tint-3, .blue-20 {
+  color: #d1e6f9;
+}
+
+.aluminum,
+.aluminium {
+  color: #dde3e7;
+}
+.aluminum-tint-2, .aluminum-80,
+.aluminium-tint-2,
+.aluminium-80 {
+  color: #e4e9ec;
+}
+
+.horizon {
+  color: #eef3f6;
+}
+.horizon-tint-2, .horizon-40 {
+  color: #f8fafb;
+}
+
+.gray {
+  color: #333;
+}
+.gray-tint-2, .gray-90 {
+  color: #474747;
+}
+.gray-tint-3, .gray-80 {
+  color: #5c5c5c;
+}
+.gray-tint-4, .gray-mid {
+  color: #666;
+}
+.gray-tint-5, .gray-60 {
+  color: #858585;
+}
+.gray-tint-6, .gray-40 {
+  color: #adadad;
+}
+.gray-tint-7, .gray-light {
+  color: #bbb;
+}
+.gray-tint-8, .gray-20 {
+  color: #d6d6d6;
+}
+
+.sc-blue {
+  color: #1af;
+}
+.sc-red {
+  color: #d12;
+}
+.sc-purple {
+  color: #5944c6;
+}
+.sc-navy {
+  color: #015;
+}
+.sc-white {
+  color: #fff;
+}
+.sc-gray {
+  color: #333;
+}
+.sc-gray-mid {
+  color: #666;
+}
+.sc-gray-light {
+  color: #bbb;
+}
+
+.int-blue {
+  color: #1781e3;
+}
+.int-blue--active {
+  color: #0851da;
+}
+.int-gray {
+  color: #cfd5d9;
+}
+.int-gray--active {
+  color: #b1b9be;
+}
+.int-green {
+  color: #25b252;
+}
+.int-green--active {
+  color: #008236;
+}
+.int-red {
+  color: #d12;
+}
+.int-red--active {
+  color: #be0000;
+}
+.int-orange {
+  color: #ff8b2e;
+}
+.int-orange--active {
+  color: #e86416;
+}
+
+.azure {
+  color: #1781e3;
+}
+.azure--active {
+  color: #0851da;
+}
+
+.orchid {
+  color: #a63297;
+}
+.orchid--active {
+  color: #7f2879;
+}
+.orchid-tint-2 {
+  color: #AB449F;
+}
+.orchid-tint-3 {
+  color: #B458A8;
+}
+.orchid-tint-4 {
+  color: #BB6AB1;
+}
+.orchid-tint-5 {
+  color: #C47FBB;
+}
+.orchid-tint-6 {
+  color: #CB91C2;
+}
+.orchid-tint-7 {
+  color: #D2A4CC;
+}
+.orchid-tint-8 {
+  color: #DAB7D5;
+}
+
+.iris {
+  color: #5944c6;
+}
+.iris--active {
+  color: #42389e;
+}
+.iris-tint-2 {
+  color: #6754C8;
+}
+.iris-tint-3 {
+  color: #7765CE;
+}
+.iris-tint-4 {
+  color: #7177D2;
+}
+.iris-tint-5 {
+  color: #9589D7;
+}
+.iris-tint-6 {
+  color: #A59ADB;
+}
+.iris-tint-7 {
+  color: #B4ABE0;
+}
+.iris-tint-8 {
+  color: #C3BCE2;
+}
+
+.pink {
+  color: #e61e64;
+}
+.pink--active {
+  color: #bf1b5a;
+}
+.pink-tint-2 {
+  color: #E63A70;
+}
+.pink-tint-3 {
+  color: #E74E7F;
+}
+.pink-tint-4 {
+  color: #E8628D;
+}
+.pink-tint-5 {
+  color: #EA779C;
+}
+.pink-tint-6 {
+  color: #EB8BAA;
+}
+.pink-tint-7 {
+  color: #ECA0B8;
+}
+.pink-tint-8 {
+  color: #EDB4C6;
+}
+
+.turquoise,
+.apple,
+.petrol {
+  color: #0eaba9;
+}
+.turquoise--active,
+.apple--active,
+.petrol--active {
+  color: #0c847e;
+}
+
+.turquoise-tint-2 {
+  color: #21B1AF;
+}
+.turquoise-tint-3 {
+  color: #38B8B6;
+}
+.turquoise-tint-4 {
+  color: #4CC0BD;
+}
+.turquoise-tint-5 {
+  color: #67C7C5;
+}
+.turquoise-tint-6 {
+  color: #7ECECD;
+}
+.turquoise-tint-7 {
+  color: #97D5D4;
+}
+.turquoise-tint-8 {
+  color: #A9DBDB;
+}
+
+.bg-white {
+  background-color: #fff;
+}
+
+.bg-navy {
+  background-color: #015;
+}
+
+.bg-blue {
+  background-color: #1781e3;
+}
+.bg-blue-tint-2, .bg-blue-40 {
+  background-color: #a2cdf4;
+}
+.bg-blue-tint-3, .bg-blue-20 {
+  background-color: #d1e6f9;
+}
+
+.bg-aluminum,
+.bg-aluminium {
+  background-color: #dde3e7;
+}
+.bg-aluminum-tint-2, .bg-aluminum-80,
+.bg-aluminium-tint-2,
+.bg-aluminium-80 {
+  background-color: #e4e9ec;
+}
+
+.bg-horizon {
+  background-color: #eef3f6;
+}
+.bg-horizon-tint-2, .bg-horizon-40 {
+  background-color: #f8fafb;
+}
+
+.bg-gray {
+  background-color: #333;
+}
+.bg-gray-tint-2, .bg-gray-90 {
+  background-color: #474747;
+}
+.bg-gray-tint-3, .bg-gray-80 {
+  background-color: #5c5c5c;
+}
+.bg-gray-tint-4, .bg-gray-mid {
+  background-color: #666;
+}
+.bg-gray-tint-5, .bg-gray-60 {
+  background-color: #858585;
+}
+.bg-gray-tint-6, .bg-gray-40 {
+  background-color: #adadad;
+}
+.bg-gray-tint-7, .bg-gray-light {
+  background-color: #bbb;
+}
+.bg-gray-tint-8, .bg-gray-20 {
+  background-color: #d6d6d6;
+}
+
+.bg-sc-blue {
+  background-color: #1af;
+}
+.bg-sc-red {
+  background-color: #d12;
+}
+.bg-sc-navy {
+  background-color: #015;
+}
+.bg-sc-white {
+  background-color: #fff;
+}
+
+.bg-int-blue {
+  background-color: #1781e3;
+}
+.bg-int-blue--active {
+  background-color: #0851da;
+}
+.bg-int-gray {
+  background-color: #cfd5d9;
+}
+.bg-int-gray--active {
+  background-color: #b1b9be;
+}
+.bg-int-green {
+  background-color: #25b252;
+}
+.bg-int-green--active {
+  background-color: #008236;
+}
+.bg-int-red {
+  background-color: #d12;
+}
+.bg-int-red--active {
+  background-color: #be0000;
+}
+.bg-int-orange {
+  background-color: #ff8b2e;
+}
+.bg-int-orange--active {
+  background-color: #e86416;
+}
+
+.bg-azure {
+  background-color: #1781e3;
+}
+.bg-azure--active {
+  background-color: #0851da;
+}
+
+.bg-orchid {
+  background-color: #a63297;
+}
+.bg-orchid--active {
+  background-color: #7f2879;
+}
+
+.bg-iris {
+  background-color: #5944c6;
+}
+.bg-iris--active {
+  background-color: #42389e;
+}
+
+.bg-pink {
+  background-color: #e61e64;
+}
+.bg-pink--active {
+  background-color: #bf1b5a;
+}
+
+.bg-turquoise,
+.bg-apple,
+.bg-petrol {
+  background-color: #0eaba9;
+}
+.bg-turquoise--active,
+.bg-apple--active,
+.bg-petrol--active {
+  background-color: #0c847e;
+}
+
+/*doc
+---
+title: Screen Readers
+name: 05-utilities-screenreaders-01
+category: Dev Utilities - Screen Readers
+---
+
+<p>Hide an element to all devices except screen readers with <code>.sr-only</code>.
+Combine <code>.sr-only</code> with <code>.sr-only-focusable</code> to show the element again when it’s focused (e.g. by a keyboard-only user).</p>
+
+```htmlmixed_no_preview
+<a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+```
+
+<p>Can also be used as a mixin.</p>
+
+```css_no_preview
+// Usage as a mixin
+.skip-navigation {
+  @include sr-only;
+  @include sr-only-focusable;
+}
+```
+
+*/
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.sr-only-focusable:active, .sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+}
+
+.wrapper {
+  position: relative;
+}
+.wrapper .sticker {
+  position: absolute;
+  overflow: hidden;
+  border: 1px solid;
+  border-radius: 50%;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.wrapper .sticker .inner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  overflow: hidden;
+}
+.wrapper .slot ::slotted(img) {
+  display: block;
+}

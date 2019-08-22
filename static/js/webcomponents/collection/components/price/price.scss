@@ -1,0 +1,39 @@
+@import "stylesheets/sdx/variables/global";
+@import "stylesheets/sdx/variables/grid";
+@import "stylesheets/sdx/variables/sizes";
+@import "stylesheets/sdx/variables/typography";
+
+@import "stylesheets/sdx/mixins/breakpoints";
+@import "stylesheets/sdx/mixins/mediaqueries";
+@import "stylesheets/sdx/mixins/screenreaders";
+@import "stylesheets/sdx/mixins/typography";
+
+@import "stylesheets/sdx/typography/typography";
+@import "stylesheets/sdx/utilities/screenreaders";
+
+// for example "/Mt."
+.period {
+  font-size: 50%;
+  letter-spacing: 0;
+}
+
+// display the period above the ndash
+.integer {
+  .period {
+    font-size: 26%;
+    position: absolute;
+    margin-left: -2em;
+    margin-top: -0.8em;
+  }
+
+  &.text-d1, &.text-d2, &.text-d3 {
+    .period {
+      margin-top: 0.55em;
+    }
+  }
+}
+
+// save some space
+.text-d1, .text-d2, .text-d3 {
+  line-height: 1;
+}

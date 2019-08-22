@@ -1,0 +1,15 @@
+:host {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  cursor: text;
+  color: #666;
+  font-size: 14px;
+}
