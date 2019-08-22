@@ -2,9 +2,11 @@ package ui
 
 import (
 	"io"
+	"strings"
 	"text/template"
 
 	"github.com/labstack/echo/v4"
+	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service"
 )
 
 type TemplateRenderer struct {
@@ -16,8 +18,12 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 }
 
 func (h *Handler) RegisterRenderer(e *echo.Echo) {
+	funcMap := template.FuncMap{
+		"ToLower":     strings.ToLower,
+		"ServiceType": service.ParseServiceType,
+	}
 	renderer := &TemplateRenderer{
-		templates: template.Must(template.ParseGlob("public/*.html")),
+		templates: template.Must(template.New("main").Funcs(funcMap).ParseGlob("public/*.html")),
 	}
 	e.Renderer = renderer
 }

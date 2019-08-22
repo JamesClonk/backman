@@ -38,7 +38,7 @@ func (s *Service) Backup(service CFService, filename string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), service.Timeout)
 	defer cancel()
 
-	switch ParseServiceType(service.Label) {
+	switch service.Type() {
 	case MongoDB:
 		err = mongodb.Backup(ctx, s.S3, envService, filename)
 	case MySQL:

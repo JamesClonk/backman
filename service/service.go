@@ -41,6 +41,10 @@ func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 }
 
+func (cf *CFService) Type() ServiceType {
+	return ParseServiceType(cf.Label)
+}
+
 func new(app *cfenv.App, s3 *s3.Client) *Service {
 	return &Service{
 		App: app,

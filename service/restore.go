@@ -22,7 +22,7 @@ func (s *Service) Restore(service CFService, filename string) error {
 	defer cancel()
 
 	objectPath := fmt.Sprintf("%s/%s/%s", service.Label, service.Name, filename)
-	switch ParseServiceType(service.Label) {
+	switch service.Type() {
 	case MongoDB:
 		err = mongodb.Restore(ctx, s.S3, envService, objectPath)
 	case MySQL:

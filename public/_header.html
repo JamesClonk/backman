@@ -47,12 +47,12 @@
 					<div class="nav__subnav">
 						<div class="container">
 							<div class="nav-section" id="navpoint-1">
-								{{ range $name, $services := .Services }}
+								{{ range $label, $services := .Services }}
 								<div class="nav-col">
-									<div class="nav-title">{{ $name }}</div>
+									<div class="nav-title">{{ $label }}</div>
 									<ul class="nav-items">
 										{{ range $service := $services }}
-										<li class="nav-item"><a class="nav-link" href="/service/{{ $service.Name }}">{{ $service.Name }}</a></li>
+										<li class="nav-item"><a class="nav-link" href="/service/{{ $service.Label }}/{{ $service.Name }}">{{ $service.Name }}</a></li>
 										{{ end }}
 									</ul>
 								</div>
@@ -74,12 +74,12 @@
 								<ul class="nav-items">
 									{{ if gt (len .Service.Name) 0 }}
 									<li class="nav-item menu-item menu-item-type-post_type menu-item-object-page">
-										<a href="/service/{{ .Service.Name }}" class="nav-link nav-link--header">
-											<span class="nav-link__text">{{ .Service.Name }}</span>
+										<a href="/service/{{ .Service.Label }}/{{ .Service.Name }}" class="nav-link nav-link--header">
+											<span class="nav-link__text">{{ .Service.Label }}/{{ .Service.Name }}</span>
 										</a>
 									</li>
 									<li class="nav-item menu-item menu-item-type-post_type menu-item-object-page">
-										<a href="/backups/{{ .Service.Name }}" class="nav-link nav-link--header">
+										<a href="/backups/{{ .Service.Label }}/{{ .Service.Name }}" class="nav-link nav-link--header">
 											<span class="nav-link__text">Backups</span>
 										</a>
 									</li>
@@ -100,12 +100,12 @@
 												<div class="nav__subnav">
 													<div class="nav-body">
 														<div class="nav-section">
-															{{ range $name, $services := .Services }}
+															{{ range $label, $services := .Services }}
 															<div class="nav-col">
-																<div class="nav-title">{{ $name }}</div>
+																<div class="nav-title">{{ $label }}</div>
 																<ul class="nav-items">
 																	{{ range $service := $services }}
-																	<li class="nav-item"><a class="nav-link" href="/service/{{ $service.Name }}">{{ $service.Name }}</a></li>
+																	<li class="nav-item"><a class="nav-link" href="/service/{{ $service.Label }}/{{ $service.Name }}">{{ $service.Name }}</a></li>
 																	{{ end }}
 																</ul>
 															</div>

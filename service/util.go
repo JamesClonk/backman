@@ -12,7 +12,7 @@ func ParseServiceType(serviceType string) ServiceType {
 	switch serviceType {
 	case "postgres", "pg", "postgresql", "elephantsql", "citusdb":
 		return Postgres
-	case "mysql", "mariadb", "mariadbent", "pxc":
+	case "mysql", "mariadb", "mariadbent", "pxc", "galera":
 		return MySQL
 	case "mongo", "mongodb", "mongodb-2", "mongodbent", "mangodb":
 		return MongoDB
@@ -30,4 +30,16 @@ func IsValidServiceType(serviceType string) bool {
 		return true
 	}
 	return false
+}
+
+func (s ServiceType) String() string {
+	switch s {
+	case Postgres:
+		return "PostgreSQL"
+	case MySQL:
+		return "MySQL"
+	case MongoDB:
+		return "MongoDB"
+	}
+	return ""
 }
