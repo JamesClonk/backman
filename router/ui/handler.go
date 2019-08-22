@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"net/http"
+	"sort"
 	"time"
 
 	echo "github.com/labstack/echo/v4"
@@ -19,8 +20,8 @@ type Page struct {
 	Title    string
 	Service  service.CFService
 	Services map[string][]service.CFService
+	Backup   service.Backup
 	Backups  []service.Backup
-	Content  interface{}
 	Error    struct {
 		Code    int
 		Message string
@@ -46,7 +47,7 @@ func New() *Handler {
 }
 
 func (h *Handler) RegisterRoutes(e *echo.Echo) {
-	e.GET("/", h.Index)
+	e.GET("/", h.ServicesHandler)
 	e.GET("/services", h.ServicesHandler)
 	e.GET("/services/:service_type", h.ServicesHandler)
 	e.GET("/service/:service_type/:service_name", h.ServiceHandler)
@@ -98,7 +99,7 @@ func (h *Handler) ServiceHandler(c echo.Context) error {
 	serviceType := c.Param("service_type")
 	serviceName := c.Param("service_name")
 	if len(serviceType) == 0 || len(serviceName) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid request")
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid request - service_type and service_name are required!")
 	}
 
 	if !service.IsValidServiceType(serviceType) {
@@ -112,8 +113,26 @@ func (h *Handler) ServiceHandler(c echo.Context) error {
 		}
 	}
 	if len(page.Service.Name) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("could not find service: %s", serviceName))
+		return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("could not find service: %s", serviceName))
 	}
+
+	// get backups for service
+	backups, err := h.Service.GetBackups(serviceType, serviceName)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("could not read service backups from S3: %v", err))
+	}
+	page.Backups = backups
+
+	// there should only be 1 backup struct in there since we specified serviceName
+	if len(page.Backups) != 1 {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("found more than one backup listing for service: %v", serviceName))
+	}
+	page.Backup = page.Backups[0]
+
+	// reverse sort order of backup files
+	sort.Slice(page.Backup.Files, func(i, j int) bool {
+		return page.Backup.Files[j].LastModified.Before(page.Backup.Files[i].LastModified)
+	})
 
 	return c.Render(http.StatusOK, "service.html", page)
 }

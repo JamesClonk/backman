@@ -1,37 +1,167 @@
 {{ template "_header.html" . }}
 
-<br/>
-<div class="table table--responsive table--highlight">
-	<h3 class="table__title">
-		<a class="link" href="/services/{{ .Service.Label }}">
-			<img class="link" src="/images/svgs/{{ ToLower (ServiceType .Service.Label).String }}.svg" width="65px" height="65px">
-		</a>
-		{{ ServiceType .Service.Label }}
-	</h3>
-	<div class="table__wrapper">
-		<table data-init="auto">
-			<thead>
-				<tr>
-					<th>Name</th>
-					<th>Plan</th>
-					<th>Backup Schedule</th>
-					<th>Retention Policy</th>
-					<th>Timeout Duration</th>
-					<th></th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td><a class="link" href="/service/{{ .Service.Label }}/{{ .Service.Name }}">{{ .Service.Name }}</a></td>
-					<td>{{ .Service.Plan }}</td>
-					<td>{{ .Service.Schedule }}</td>
-					<td>{{ .Service.Retention.Days }} days / {{ .Service.Retention.Files }} files</td>
-					<td>{{ Duration .Service.Timeout }}</td>
-				</tr>
-			</tbody>
-		</table>
+<div class="row">&nbsp;</div>
+<div class="row flex-items-md-center">
+
+
+	<div class="col-xs col-lg-4">
+		<div class="table table--responsive table--highlight">
+			<h2 class="table__title">
+				{{ .Service.Name }}
+			</h2>
+			<div class="table__wrapper">
+				<table data-init="auto">
+					<tbody>
+						<tr>
+							<td><strong>Type</strong></td>
+							<td>
+								<a class="link" href="/services/{{ .Service.Label }}">
+									<img class="link" src="/images/svgs/{{ ToLower (ServiceType .Service.Label).String }}.svg" width="24px" height="24px">
+									{{ ServiceType .Service.Label }}
+								</a>
+							</td>
+						</tr>
+						<tr>
+							<td><strong>Plan</strong></td>
+							<td>{{ .Service.Plan }}</td>
+						</tr>
+						<tr>
+							<td><strong>Schedule</strong></td>
+							<td>{{ .Service.Schedule }}</td>
+						</tr>
+						<tr>
+							<td><strong>Retention</strong></td>
+							<td>{{ .Service.Retention.Days }} days<br/>{{ .Service.Retention.Files }} files</td>
+						</tr>
+						<tr>
+							<td><strong>Timeout</strong></td>
+							<td>{{ Duration .Service.Timeout }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div class="col-xs-12 col-md-auto">
+		&nbsp;
+	</div>
+	<div class="col-xs">
+		<div class="table table--responsive table--highlight">
+			<h3 class="table__title">
+				Backups
+			</h3>
+			<div class="table__wrapper">
+				<table data-init="auto">
+					<thead>
+						<tr>
+							<th>#</th>
+							<th>Filename</th>
+							<th>Size</th>
+							<th>Last Modified</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						{{ range $idx, $file := .Backup.Files }}
+						<tr>
+							<td>{{ $idx }}</td>
+							<td><a class="link" href="/api/v1/backup/{{ $file.Filepath }}/{{ $file.Filename }}/download">{{ $file.Filename }}</a></td>
+							<td>{{ Bytes $file.Size }}</td>
+							<td>{{ Time $file.LastModified }}</td>
+							<td>
+								<div class="toolbar" id="toolbar01">
+								  	<button class="toolbar__item item--show" style="padding-top: 0px; padding-bottom: 0px;" aria-label="Download" onclick="location.href='/api/v1/backup/{{ $file.Filepath }}/{{ $file.Filename }}/download';">
+								    	<i class="icon icon-024-download-cloud" aria-hidden="true"></i>
+								    	<span class="toolbar__label"><small>Download</small></span>
+								  	</button>
+								  	<button class="toolbar__item item--show modal-trigger" style="padding-top: 0px; padding-bottom: 0px;" aria-label="Restore" href="restoreModalDialog" onclick="setBackupFile('{{ $file.Filename }}');">
+								    	<i class="icon icon-delivery-2" aria-hidden="true"></i>
+								    	<span class="toolbar__label"><small>Restore</small></span>
+								  	</button>
+								  	<button class="toolbar__item item--show modal-trigger" style="padding-top: 0px; padding-bottom: 0px;" aria-label="Delete" href="deleteModalDialog" onclick="setBackupFile('{{ $file.Filename }}');">
+								    	<i class="icon icon-008-bin" aria-hidden="true"></i>
+								    	<span class="toolbar__label"><small>Delete</small></span>
+								  	</button>
+								</div>
+							</td>
+						</tr>
+						{{ end }}
+					</tbody>
+				</table>
+			</div>
+		</div>
 	</div>
 </div>
-<br/>
+
+<div class="modal" id="restoreModalDialog" role="dialog" tabindex="-1" data-init="auto">
+  <div class="container">
+    <div class="modal__content col-xs col-md-10 col-lg-8 col-xl-6">
+      <div class="modal__header">
+        <h1>Would you like to restore this backup?</h1>
+        <button class="modal__close modal-cancel" aria-label="Close"><i class="icon icon-022-close" aria-hidden="true"></i></button>
+      </div>
+      <div class="modal__body">
+        <p>Do you really want to restore <strong id="restoreFilename">filename.tar.gz</strong> to <i>{{ .Service.Name }}</i>?</p>
+        <div class="button-group button-group--responsive">
+          <button class="button button--responsive button--primary modal-close" onclick="triggerRestore();">Yes, restore it</button>
+          <button class="button button--responsive button--secondary modal-cancel">No, never mind</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="deleteModalDialog" role="dialog" tabindex="-1" data-init="auto">
+  <div class="container">
+    <div class="modal__content col-xs col-md-10 col-lg-8 col-xl-6">
+      <div class="modal__header">
+        <h1>Would you like to delete this backup?</h1>
+        <button class="modal__close modal-cancel" aria-label="Close"><i class="icon icon-022-close" aria-hidden="true"></i></button>
+      </div>
+      <div class="modal__body">
+        <p>Do you really want to delete <strong id="deleteFilename">filename.tar.gz</strong> from S3?</p>
+        <div class="button-group button-group--responsive">
+          <button class="button button--responsive button--primary modal-close" onclick="triggerDelete();">Yes, delete it</button>
+          <button class="button button--responsive button--secondary modal-cancel">No, never mind</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+function triggerRestore()
+{
+	fetch('/api/v1/backup/{{ .Service.Label }}/{{ .Service.Name }}/'+document.getElementById("restoreFilename").innerHTML, {
+        method: 'PUT',
+        credentials: 'same-origin',
+    })
+	.then(function(response) {
+		// TODO: show error notification in case status != StatusAccepted
+		console.log('restore triggered:', response);
+		location.reload(true);
+	});
+}
+
+function triggerDelete()
+{
+	fetch('/api/v1/backup/{{ .Service.Label }}/{{ .Service.Name }}/'+document.getElementById("deleteFilename").innerHTML, {
+        method: 'DELETE',
+        credentials: 'same-origin',
+    })
+	.then(function(response) {
+		if (response.status == 204) {
+			console.log('delete success:', response);
+			location.reload(true);
+		} // TODO: show error notification in case status != 204
+	});
+}
+
+function setBackupFile(filename)
+{
+    document.getElementById("restoreFilename").innerHTML = filename;
+    document.getElementById("deleteFilename").innerHTML = filename;
+}
+</script>
 
 {{ template "_footer.html" . }}

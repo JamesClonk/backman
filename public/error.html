@@ -1,17 +1,15 @@
 {{ template "_header.html" . }}
 
-<div class="container">
-	<br/>
-	<br/>
-	<br/>
-	<br/>
-	<div class="card card--dark card--notification card--rounded" role="region" aria-labelledby="Clickable_Card_1">
-		<div class="card__header">
-			<h1 class="align-left" id="Clickable_Card_1">HTTP-{{ .Error.Code }}</h1>
-			<span class="align-right">{{ .Error.Time.Format "Mon Jan 2 15:04:05 MST 2006" }}</span>
-		</div>
-		<p class="card__text">{{ .Error.Message }}</p>
+<br/>
+<br/>
+<br/>
+<br/>
+<div class="card card--dark card--notification card--rounded" role="region" aria-labelledby="Clickable_Card_1">
+	<div class="card__header">
+		<h1 class="align-left" id="Clickable_Card_1">HTTP-{{ .Error.Code }}</h1>
+		<span class="align-right">{{ .Error.Time.Format "Mon Jan 2 15:04:05 MST 2006" }}</span>
 	</div>
+	<p class="card__text">{{ .Error.Message }}</p>
 </div>
 
 {{ template "_footer.html" . }}

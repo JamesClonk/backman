@@ -1,41 +1,41 @@
 {{ template "_header.html" . }}
 
 {{ range $label, $services := .Services }}
-<br/>
-<div class="table table--responsive table--highlight">
-	<h3 class="table__title">
-		<a class="link" href="/services/{{ $label }}">
-			<img class="link" src="/images/svgs/{{ ToLower (ServiceType $label).String }}.svg" width="65px" height="65px">
-		</a>
-		{{ ServiceType $label }}
-	</h3>
-	<div class="table__wrapper">
-		<table data-init="auto">
-			<thead>
-				<tr>
-					<th>Name</th>
-					<th>Plan</th>
-					<th>Backup Schedule</th>
-					<th>Retention Policy</th>
-					<th>Timeout Duration</th>
-					<th></th>
-				</tr>
-			</thead>
-			<tbody>
-				{{ range $service := $services }}
-				<tr>
-					<td><a class="link" href="/service/{{ $service.Label }}/{{ $service.Name }}">{{ $service.Name }}</a></td>
-					<td>{{ $service.Plan }}</td>
-					<td>{{ $service.Schedule }}</td>
-					<td>{{ $service.Retention.Days }} days / {{ $service.Retention.Files }} files</td>
-					<td>{{ Duration $service.Timeout }}</td>
-				</tr>
-				{{ end }}
-			</tbody>
-		</table>
+<div class="row">
+	<div class="table table--responsive table--highlight">
+		<h3 class="table__title">
+			<a class="link" href="/services/{{ $label }}">
+				<img class="link" src="/images/svgs/{{ ToLower (ServiceType $label).String }}.svg" width="65px" height="65px">
+			</a>
+			{{ ServiceType $label }}
+		</h3>
+		<div class="table__wrapper">
+			<table data-init="auto">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Plan</th>
+						<th>Backup Schedule</th>
+						<th>Retention Policy</th>
+						<th>Timeout Duration</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					{{ range $service := $services }}
+					<tr>
+						<td><a class="link" href="/service/{{ $service.Label }}/{{ $service.Name }}">{{ $service.Name }}</a></td>
+						<td>{{ $service.Plan }}</td>
+						<td>{{ $service.Schedule }}</td>
+						<td>{{ $service.Retention.Days }} days / {{ $service.Retention.Files }} files</td>
+						<td>{{ Duration $service.Timeout }}</td>
+					</tr>
+					{{ end }}
+				</tbody>
+			</table>
+		</div>
 	</div>
 </div>
-<br/>
 {{ end }}
 
 {{ template "_footer.html" . }}
