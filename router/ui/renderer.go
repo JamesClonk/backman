@@ -5,6 +5,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/hako/durafmt"
 	"github.com/labstack/echo/v4"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service"
 )
@@ -21,6 +22,7 @@ func (h *Handler) RegisterRenderer(e *echo.Echo) {
 	funcMap := template.FuncMap{
 		"ToLower":     strings.ToLower,
 		"ServiceType": service.ParseServiceType,
+		"Duration":    durafmt.Parse,
 	}
 	renderer := &TemplateRenderer{
 		templates: template.Must(template.New("main").Funcs(funcMap).ParseGlob("public/*.html")),

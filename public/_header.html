@@ -72,21 +72,22 @@
 						<div class="nav__mainnav">
 							<div class="nav__primary">
 								<ul class="nav-items">
-									{{ if gt (len .Service.Name) 0 }}
-									<li class="nav-item menu-item menu-item-type-post_type menu-item-object-page">
-										<a href="/service/{{ .Service.Label }}/{{ .Service.Name }}" class="nav-link nav-link--header">
-											<span class="nav-link__text">{{ .Service.Label }}/{{ .Service.Name }}</span>
-										</a>
-									</li>
-									<li class="nav-item menu-item menu-item-type-post_type menu-item-object-page">
-										<a href="/backups/{{ .Service.Label }}/{{ .Service.Name }}" class="nav-link nav-link--header">
-											<span class="nav-link__text">Backups</span>
-										</a>
-									</li>
-									{{ else }}
 									<li class="nav-item menu-item menu-item-type-post_type menu-item-object-page">
 										<a href="/services" class="nav-link nav-link--header">
 											<span class="nav-link__text">Services</span>
+										</a>
+									</li>
+									{{ if gt (len .Service.Label) 0 }}
+									<li class="nav-item menu-item menu-item-type-post_type menu-item-object-page">
+										<a href="/services/{{ .Service.Label }}" class="nav-link nav-link--header">
+											&gt;&gt;&nbsp;&nbsp;<span class="nav-link__text">{{ ServiceType .Service.Label }}</span>
+										</a>
+									</li>
+									{{ end }}
+									{{ if gt (len .Service.Name) 0 }}
+									<li class="nav-item menu-item menu-item-type-post_type menu-item-object-page">
+										<a href="/service/{{ .Service.Label }}/{{ .Service.Name }}" class="nav-link nav-link--header">
+											&gt;&gt;&nbsp;&nbsp;<span class="nav-link__text">{{ .Service.Name }}</span>
 										</a>
 									</li>
 									{{ end }}

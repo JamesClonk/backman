@@ -1,10 +1,13 @@
-.PHONY: run build prepare-test test mysql mysql-network mysql-stop mysql-start mysql-client postgres postgres-network postgres-stop postgres-start postgres-client mongodb mongodb-network mongodb-stop mongodb-start mongodb-client cleanup
+.PHONY: run gin build prepare-test test mysql mysql-network mysql-stop mysql-start mysql-client postgres postgres-network postgres-stop postgres-start postgres-client mongodb mongodb-network mongodb-stop mongodb-start mongodb-client cleanup
 SHELL := /bin/bash
 
 all: run
 
 run:
 	go run main.go
+
+gin:
+	gin --all --immediate run main.go
 
 build:
 	rm -f appcloud-backman-app

@@ -1,0 +1,37 @@
+{{ template "_header.html" . }}
+
+<br/>
+<div class="table table--responsive table--highlight">
+	<h3 class="table__title">
+		<a class="link" href="/services/{{ .Service.Label }}">
+			<img class="link" src="/images/svgs/{{ ToLower (ServiceType .Service.Label).String }}.svg" width="65px" height="65px">
+		</a>
+		{{ ServiceType .Service.Label }}
+	</h3>
+	<div class="table__wrapper">
+		<table data-init="auto">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Plan</th>
+					<th>Backup Schedule</th>
+					<th>Retention Policy</th>
+					<th>Timeout Duration</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><a class="link" href="/service/{{ .Service.Label }}/{{ .Service.Name }}">{{ .Service.Name }}</a></td>
+					<td>{{ .Service.Plan }}</td>
+					<td>{{ .Service.Schedule }}</td>
+					<td>{{ .Service.Retention.Days }} days / {{ .Service.Retention.Files }} files</td>
+					<td>{{ Duration .Service.Timeout }}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+<br/>
+
+{{ template "_footer.html" . }}
