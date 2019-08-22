@@ -69,19 +69,11 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 	}
 	defer outPipe.Close()
 
-	// capture and read stderr in case an error occurs
-	var errBuf bytes.Buffer
-	cmd.Stderr = &errBuf
-
-	if err := cmd.Start(); err != nil {
-		log.Errorf("could not run postgres dump: %v", err)
-		return err
-	}
-
 	var uploadWait sync.WaitGroup
 	uploadCtx, uploadCancel := context.WithCancel(context.Background()) // allows upload to be cancelable, in case backup times out
 	defer uploadCancel()                                                // cancel upload in case Backup() exits before uploadWait is done
 
+	// start upload in background, streaming output onto S3
 	uploadWait.Add(1)
 	go func() {
 		defer uploadWait.Done()
@@ -110,6 +102,16 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 			log.Errorf("could not upload service backup [%s] to S3: %v", binding.Name, err)
 		}
 	}()
+	time.Sleep(2 * time.Second) // wait for upload goroutine to be ready
+
+	// capture and read stderr in case an error occurs
+	var errBuf bytes.Buffer
+	cmd.Stderr = &errBuf
+
+	if err := cmd.Start(); err != nil {
+		log.Errorf("could not run postgres dump: %v", err)
+		return err
+	}
 
 	if err := cmd.Wait(); err != nil {
 		// check for timeout error

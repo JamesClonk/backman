@@ -1,13 +1,15 @@
 package mongodb
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"os/exec"
-	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	cfenv "github.com/cloudfoundry-community/go-cfenv"
 
@@ -22,33 +24,15 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 	mongoMutex.Lock()
 	defer mongoMutex.Unlock()
 
-	host, _ := binding.CredentialString("host")
-	database, _ := binding.CredentialString("database")
-	username, _ := binding.CredentialString("username")
-	password, _ := binding.CredentialString("password")
-	port, _ := binding.CredentialString("port")
-	if len(port) == 0 {
-		switch p := binding.Credentials["port"].(type) {
-		case float64:
-			port = strconv.Itoa(int(p))
-		case int, int32, int64:
-			port = strconv.Itoa(p.(int))
-		}
-	}
+	uri, _ := binding.CredentialString("uri")
 
 	// prepare mongodump command
 	var command []string
 	command = append(command, "mongodump")
-	command = append(command, "--host")
-	command = append(command, fmt.Sprintf("%s:%s", host, port))
-	command = append(command, "--authenticationDatabase")
-	command = append(command, database)
-	command = append(command, "-d")
-	command = append(command, database)
-	command = append(command, "-u")
-	command = append(command, username)
-	command = append(command, "-p")
-	command = append(command, password)
+	command = append(command, "--uri")
+	command = append(command, uri)
+	command = append(command, "--readPreference")
+	command = append(command, "secondary")
 	command = append(command, "--gzip")
 	command = append(command, "--archive")
 
@@ -63,6 +47,31 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 	}
 	defer outPipe.Close()
 
+	var uploadWait sync.WaitGroup
+	uploadCtx, uploadCancel := context.WithCancel(context.Background()) // allows upload to be cancelable, in case backup times out
+	defer uploadCancel()                                                // cancel upload in case Backup() exits before uploadWait is done
+
+	// start upload in background, streaming output onto S3
+	uploadWait.Add(1)
+	go func() {
+		defer uploadWait.Done()
+
+		pr, pw := io.Pipe()
+		go func() {
+			_, _ = io.Copy(pw, bufio.NewReader(outPipe))
+			if err := pw.Close(); err != nil {
+				log.Errorf("%v", err)
+			}
+		}()
+
+		objectPath := fmt.Sprintf("%s/%s/%s", binding.Label, binding.Name, filename)
+		err = s3.UploadWithContext(uploadCtx, objectPath, pr, -1)
+		if err != nil {
+			log.Errorf("could not upload service backup [%s] to S3: %v", binding.Name, err)
+		}
+	}()
+	time.Sleep(2 * time.Second) // wait for upload goroutine to be ready
+
 	// capture and read stderr in case an error occurs
 	var errBuf bytes.Buffer
 	cmd.Stderr = &errBuf
@@ -71,21 +80,6 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 		log.Errorf("could not run mongodump: %v", err)
 		return err
 	}
-
-	var uploadWait sync.WaitGroup
-	uploadCtx, uploadCancel := context.WithCancel(context.Background()) // allows upload to be cancelable, in case backup times out
-	defer uploadCancel()                                                // cancel upload in case Backup() exits before uploadWait is done
-
-	uploadWait.Add(1)
-	go func() {
-		defer uploadWait.Done()
-
-		objectPath := fmt.Sprintf("%s/%s/%s", binding.Label, binding.Name, filename)
-		err = s3.UploadWithContext(uploadCtx, objectPath, outPipe, -1)
-		if err != nil {
-			log.Errorf("could not upload service backup [%s] to S3: %v", binding.Name, err)
-		}
-	}()
 
 	if err := cmd.Wait(); err != nil {
 		// check for timeout error

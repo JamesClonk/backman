@@ -75,19 +75,17 @@ mongodb-start:
 		--network mongodb-network \
 		-e MONGO_INITDB_ROOT_USERNAME='mongoadmin' \
 		-e MONGO_INITDB_ROOT_PASSWORD='super-secret' \
-		-e MONGO_INITDB_DATABASE='my-db' \
 		-p 27017:27017 \
 		-d mongo:3.6
 
 mongodb-client:
 	docker run -it --rm \
 		--network mongodb-network \
-		--name mongodb-client mongo mongo \
+		--name mongodb-client mongo:3.6 mongo \
 			--host mongodb \
         	-u 'mongoadmin' \
         	-p 'super-secret' \
-        	--authenticationDatabase admin \
-        	'my-db'
+        	--authenticationDatabase admin
 
 cleanup:
 	docker system prune --volumes -a
