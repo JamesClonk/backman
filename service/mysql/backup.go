@@ -48,6 +48,7 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 	command = append(command, "mysqldump")
 	command = append(command, "--single-transaction")
 	command = append(command, "--quick")
+	command = append(command, "--skip-add-locks")
 	command = append(command, "-h")
 	command = append(command, host)
 	command = append(command, "-P")
