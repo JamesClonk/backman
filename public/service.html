@@ -2,43 +2,46 @@
 
 <div class="row">&nbsp;</div>
 <div class="row flex-items-md-center">
-
-
 	<div class="col-xs col-lg-4">
-		<div class="table table--responsive table--highlight">
-			<h2 class="table__title">
-				{{ .Service.Name }}
-			</h2>
-			<div class="table__wrapper">
-				<table data-init="auto">
-					<tbody>
-						<tr>
-							<td><strong>Type</strong></td>
-							<td>
-								<a class="link" href="/services/{{ .Service.Label }}">
-									<img class="link" src="/images/svgs/{{ ToLower (ServiceType .Service.Label).String }}.svg" width="24px" height="24px">
-									{{ ServiceType .Service.Label }}
-								</a>
-							</td>
-						</tr>
-						<tr>
-							<td><strong>Plan</strong></td>
-							<td>{{ .Service.Plan }}</td>
-						</tr>
-						<tr>
-							<td><strong>Schedule</strong></td>
-							<td>{{ .Service.Schedule }}</td>
-						</tr>
-						<tr>
-							<td><strong>Retention</strong></td>
-							<td>{{ .Service.Retention.Days }} days<br/>{{ .Service.Retention.Files }} files</td>
-						</tr>
-						<tr>
-							<td><strong>Timeout</strong></td>
-							<td>{{ Duration .Service.Timeout }}</td>
-						</tr>
-					</tbody>
-				</table>
+		<div class="card card--dark card--notification card--blue" role="region" aria-labelledby="Color_Navy">
+			<div class="card__header">
+				<span class="align-right">Service</span>
+			</div>
+			<div class="table table--responsive table--highlight">
+				<h3 class="table__title">
+					{{ .Service.Name }}
+				</h3>
+				<div class="table__wrapper">
+					<table data-init="auto">
+						<tbody>
+							<tr>
+								<td><strong>Type</strong></td>
+								<td>
+									<a class="link" href="/services/{{ .Service.Label }}">
+										<img class="link" src="/images/svgs/{{ ToLower (ServiceType .Service.Label).String }}.svg" width="24px" height="24px">
+										{{ ServiceType .Service.Label }}
+									</a>
+								</td>
+							</tr>
+							<tr>
+								<td><strong>Plan</strong></td>
+								<td>{{ .Service.Plan }}</td>
+							</tr>
+							<tr>
+								<td><strong>Schedule</strong></td>
+								<td>{{ .Service.Schedule }}</td>
+							</tr>
+							<tr>
+								<td><strong>Retention</strong></td>
+								<td>{{ .Service.Retention.Days }} days<br/>{{ .Service.Retention.Files }} files</td>
+							</tr>
+							<tr>
+								<td><strong>Timeout</strong></td>
+								<td>{{ Duration .Service.Timeout }}</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -64,7 +67,7 @@
 					<tbody>
 						{{ range $idx, $file := .Backup.Files }}
 						<tr>
-							<td>{{ $idx }}</td>
+							<td><small>{{ $idx }}</small></td>
 							<td><a class="link" href="/api/v1/backup/{{ $file.Filepath }}/{{ $file.Filename }}/download">{{ $file.Filename }}</a></td>
 							<td>{{ Bytes $file.Size }}</td>
 							<td>{{ Time $file.LastModified }}</td>
