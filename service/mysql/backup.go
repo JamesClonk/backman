@@ -85,7 +85,7 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 		// gzipping stdout
 		pr, pw := io.Pipe()
 		gw := gzip.NewWriter(pw)
-		gw.Name = filename
+		gw.Name = strings.TrimSuffix(filename, ".gz")
 		gw.ModTime = time.Now()
 		go func() {
 			_, _ = io.Copy(gw, bufio.NewReader(outPipe))
