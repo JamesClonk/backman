@@ -11,7 +11,7 @@ a backup-manager app for [Cloud Foundry](https://www.cloudfoundry.org/)
 4. deploy the app
 5. enjoy!
 
-## screenshots
+## Screenshots
 
 * shows all bound service instances
 
@@ -20,3 +20,9 @@ a backup-manager app for [Cloud Foundry](https://www.cloudfoundry.org/)
 * display service, trigger backups/restores
 
 ![backman service](https://raw.githubusercontent.com/JamesClonk/backman/master/static/images/backman_service_view.png "backman service")
+
+## Supported databases
+
+- MariaDB / MySQL
+- PostgreSQL
+- MongoDB
