@@ -7,6 +7,7 @@ import (
 	"time"
 
 	echo "github.com/labstack/echo/v4"
+	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service"
 )
 
@@ -68,8 +69,8 @@ func (h *Handler) ErrorHandler(err error, c echo.Context) {
 	page.Error.Message = message
 	page.Error.Time = time.Now()
 
-	c.Logger().Error(err)
-	c.Render(http.StatusOK, "error.html", page)
+	log.Errorf("%v", err)
+	c.Render(code, "error.html", page)
 }
 
 func (h *Handler) Index(c echo.Context) error {
