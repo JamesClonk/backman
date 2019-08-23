@@ -1,7 +1,6 @@
 {{ template "_header.html" . }}
 
-<div class="row">&nbsp;</div>
-<div class="row flex-items-md-center">
+<div class="row flex-items-md-center margin-top-4">
 	<div class="col-xs col-lg-4">
 		<div class="card card--dark card--notification card--blue" role="region" aria-labelledby="Color_Navy">
 			<div class="card__header">
@@ -18,8 +17,8 @@
 								<td><strong>Type</strong></td>
 								<td>
 									<a class="link" href="/services/{{ .Service.Label }}">
-										<img class="link" src="/images/svgs/{{ ToLower (ServiceType .Service.Label).String }}.svg" width="24px" height="24px">
-										{{ ServiceType .Service.Label }}
+										<img class="link" src="/images/svgs/{{ ToLower (ServiceType .Service.Label).String }}.svg" width="32px" height="32px" /><br/>
+										<p>{{ ServiceType .Service.Label }}</p>
 									</a>
 								</td>
 							</tr>
@@ -42,6 +41,12 @@
 						</tbody>
 					</table>
 				</div>
+			</div>
+			<div class="button-group button-group--responsive">
+				<button class="button button__icon button--primary button--full margin-h-3" onclick="triggerBackup();">
+					<i class="icon icon-save" aria-hidden="true"></i>
+					Trigger Backup
+				</button>
 			</div>
 		</div>
 	</div>
@@ -73,18 +78,18 @@
 							<td>{{ Time $file.LastModified }}</td>
 							<td>
 								<div class="toolbar" id="toolbar01">
-								  	<button class="toolbar__item item--show" style="padding-top: 0px; padding-bottom: 0px;" aria-label="Download" onclick="location.href='/api/v1/backup/{{ $file.Filepath }}/{{ $file.Filename }}/download';">
-								    	<i class="icon icon-024-download-cloud" aria-hidden="true"></i>
-								    	<span class="toolbar__label"><small>Download</small></span>
-								  	</button>
-								  	<button class="toolbar__item item--show modal-trigger" style="padding-top: 0px; padding-bottom: 0px;" aria-label="Restore" href="restoreModalDialog" onclick="setBackupFile('{{ $file.Filename }}');">
-								    	<i class="icon icon-delivery-2" aria-hidden="true"></i>
-								    	<span class="toolbar__label"><small>Restore</small></span>
-								  	</button>
-								  	<button class="toolbar__item item--show modal-trigger" style="padding-top: 0px; padding-bottom: 0px;" aria-label="Delete" href="deleteModalDialog" onclick="setBackupFile('{{ $file.Filename }}');">
-								    	<i class="icon icon-008-bin" aria-hidden="true"></i>
-								    	<span class="toolbar__label"><small>Delete</small></span>
-								  	</button>
+									<button class="toolbar__item item--show padding-v-0" aria-label="Download" onclick="location.href='/api/v1/backup/{{ $file.Filepath }}/{{ $file.Filename }}/download';">
+										<i class="icon icon-024-download-cloud" aria-hidden="true"></i>
+										<span class="toolbar__label"><small>Download</small></span>
+									</button>
+									<button class="toolbar__item item--show modal-trigger padding-v-0" aria-label="Restore" href="restoreModalDialog" onclick="setBackupFile('{{ $file.Filename }}');">
+										<i class="icon icon-delivery-2" aria-hidden="true"></i>
+										<span class="toolbar__label"><small>Restore</small></span>
+									</button>
+									<button class="toolbar__item item--show modal-trigger padding-v-0" aria-label="Delete" href="deleteModalDialog" onclick="setBackupFile('{{ $file.Filename }}');">
+										<i class="icon icon-008-bin" aria-hidden="true"></i>
+										<span class="toolbar__label"><small>Delete</small></span>
+									</button>
 								</div>
 							</td>
 						</tr>
@@ -97,48 +102,61 @@
 </div>
 
 <div class="modal" id="restoreModalDialog" role="dialog" tabindex="-1" data-init="auto">
-  <div class="container">
-    <div class="modal__content col-xs col-md-10 col-lg-8 col-xl-6">
-      <div class="modal__header">
-        <h1>Would you like to restore this backup?</h1>
-        <button class="modal__close modal-cancel" aria-label="Close"><i class="icon icon-022-close" aria-hidden="true"></i></button>
-      </div>
-      <div class="modal__body">
-        <p>Do you really want to restore <strong id="restoreFilename">filename.tar.gz</strong> to <i>{{ .Service.Name }}</i>?</p>
-        <div class="button-group button-group--responsive">
-          <button class="button button--responsive button--primary modal-close" onclick="triggerRestore();">Yes, restore it</button>
-          <button class="button button--responsive button--secondary modal-cancel">No, never mind</button>
-        </div>
-      </div>
-    </div>
-  </div>
+	<div class="container">
+		<div class="modal__content col-xs col-md-10 col-lg-8 col-xl-6">
+			<div class="modal__header">
+				<h1>Would you like to restore this backup?</h1>
+				<button class="modal__close modal-cancel" aria-label="Close"><i class="icon icon-022-close" aria-hidden="true"></i></button>
+			</div>
+			<div class="modal__body">
+				<p>Do you really want to restore <strong id="restoreFilename">filename.tar.gz</strong> to <i>{{ .Service.Name }}</i>?</p>
+				<div class="button-group button-group--responsive">
+					<button class="button button--responsive button--primary modal-close" onclick="triggerRestore();">Yes, restore it</button>
+					<button class="button button--responsive button--secondary modal-cancel">No, never mind</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <div class="modal" id="deleteModalDialog" role="dialog" tabindex="-1" data-init="auto">
-  <div class="container">
-    <div class="modal__content col-xs col-md-10 col-lg-8 col-xl-6">
-      <div class="modal__header">
-        <h1>Would you like to delete this backup?</h1>
-        <button class="modal__close modal-cancel" aria-label="Close"><i class="icon icon-022-close" aria-hidden="true"></i></button>
-      </div>
-      <div class="modal__body">
-        <p>Do you really want to delete <strong id="deleteFilename">filename.tar.gz</strong> from S3?</p>
-        <div class="button-group button-group--responsive">
-          <button class="button button--responsive button--primary modal-close" onclick="triggerDelete();">Yes, delete it</button>
-          <button class="button button--responsive button--secondary modal-cancel">No, never mind</button>
-        </div>
-      </div>
-    </div>
-  </div>
+	<div class="container">
+		<div class="modal__content col-xs col-md-10 col-lg-8 col-xl-6">
+			<div class="modal__header">
+				<h1>Would you like to delete this backup?</h1>
+				<button class="modal__close modal-cancel" aria-label="Close"><i class="icon icon-022-close" aria-hidden="true"></i></button>
+			</div>
+			<div class="modal__body">
+				<p>Do you really want to delete <strong id="deleteFilename">filename.tar.gz</strong> from S3?</p>
+				<div class="button-group button-group--responsive">
+					<button class="button button--responsive button--primary modal-close" onclick="triggerDelete();">Yes, delete it</button>
+					<button class="button button--responsive button--secondary modal-cancel">No, never mind</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <script type="text/javascript">
+function triggerBackup()
+{
+	fetch('/api/v1/backup/{{ .Service.Label }}/{{ .Service.Name }}', {
+		method: 'POST',
+		credentials: 'same-origin',
+	})
+	.then(function(response) {
+		// TODO: show error notification in case status != StatusAccepted
+		console.log('backup triggered:', response);
+		location.reload(true);
+	});
+}
+
 function triggerRestore()
 {
-	fetch('/api/v1/backup/{{ .Service.Label }}/{{ .Service.Name }}/'+document.getElementById("restoreFilename").innerHTML, {
-        method: 'PUT',
-        credentials: 'same-origin',
-    })
+	fetch('/api/v1/restore/{{ .Service.Label }}/{{ .Service.Name }}/'+document.getElementById("restoreFilename").innerHTML, {
+		method: 'POST',
+		credentials: 'same-origin',
+	})
 	.then(function(response) {
 		// TODO: show error notification in case status != StatusAccepted
 		console.log('restore triggered:', response);
@@ -149,9 +167,9 @@ function triggerRestore()
 function triggerDelete()
 {
 	fetch('/api/v1/backup/{{ .Service.Label }}/{{ .Service.Name }}/'+document.getElementById("deleteFilename").innerHTML, {
-        method: 'DELETE',
-        credentials: 'same-origin',
-    })
+		method: 'DELETE',
+		credentials: 'same-origin',
+	})
 	.then(function(response) {
 		if (response.status == 204) {
 			console.log('delete success:', response);
@@ -162,8 +180,8 @@ function triggerDelete()
 
 function setBackupFile(filename)
 {
-    document.getElementById("restoreFilename").innerHTML = filename;
-    document.getElementById("deleteFilename").innerHTML = filename;
+	document.getElementById("restoreFilename").innerHTML = filename;
+	document.getElementById("deleteFilename").innerHTML = filename;
 }
 </script>
 

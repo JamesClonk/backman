@@ -1,13 +1,11 @@
 {{ template "_header.html" . }}
 
 {{ range $label, $services := .Services }}
-<div class="row">&nbsp;</div>
-<div class="row">&nbsp;</div>
-<div class="row flex-items-md-center">
+<div class="row flex-items-md-center margin-top-4">
 	<div class="table table--responsive table--highlight">
 		<h3 class="table__title">
 			<a class="link" href="/services/{{ $label }}">
-				<img class="link" src="/images/svgs/{{ ToLower (ServiceType $label).String }}.svg" width="65px" height="65px">
+				<img class="link" src="/images/svgs/{{ ToLower (ServiceType $label).String }}.svg" width="64px" height="64px" />
 			</a>
 			{{ ServiceType $label }}
 		</h3>
@@ -38,6 +36,7 @@
 		</div>
 	</div>
 </div>
+<div class="row">&nbsp;</div>
 {{ end }}
 
 {{ template "_footer.html" . }}

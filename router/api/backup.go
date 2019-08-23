@@ -38,7 +38,6 @@ func (h *Handler) GetBackup(c echo.Context) error {
 func (h *Handler) CreateBackup(c echo.Context) error {
 	serviceType := c.Param("service_type")
 	serviceName := c.Param("service_name")
-	filename := c.Param("file")
 
 	if !service.IsValidServiceType(serviceType) {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("unsupported service type: %s", serviceType))
@@ -52,7 +51,7 @@ func (h *Handler) CreateBackup(c echo.Context) error {
 	}
 
 	go func() { // async
-		if err := h.Service.Backup(cfService, filename); err != nil {
+		if err := h.Service.Backup(cfService); err != nil {
 			log.Errorf("requested backup for service [%s] failed: %v", serviceName, err)
 		}
 	}()

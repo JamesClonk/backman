@@ -1,9 +1,6 @@
 package scheduler
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/robfig/cron"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service"
@@ -35,9 +32,7 @@ func RegisterBackups() {
 
 func Run(s service.CFService) {
 	log.Infof("running backup for service [%s]", s.Name)
-
-	filename := fmt.Sprintf("%s-%s.gz", s.Name, time.Now().Format("20060102150405"))
-	if err := service.Get().Backup(s, filename); err != nil {
+	if err := service.Get().Backup(s); err != nil {
 		log.Errorf("scheduled backup for service [%s] failed: %v", s.Name, err)
 	}
 }

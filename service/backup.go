@@ -27,7 +27,9 @@ type File struct {
 	LastModified time.Time
 }
 
-func (s *Service) Backup(service CFService, filename string) error {
+func (s *Service) Backup(service CFService) error {
+	filename := fmt.Sprintf("%s_%s.gz", service.Name, time.Now().Format("20060102150405"))
+
 	envService, err := s.App.Services.WithName(service.Name)
 	if err != nil {
 		log.Errorf("could not find service [%s] to backup: %v", service.Name, err)

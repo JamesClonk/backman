@@ -32,9 +32,11 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 
 	g.GET("/services", h.ListServices)
 	g.GET("/backups", h.ListBackups)
+
 	g.GET("/backup/:service_type/:service_name/:file", h.GetBackup)
 	g.GET("/backup/:service_type/:service_name/:file/download", h.DownloadBackup)
-	g.POST("/backup/:service_type/:service_name/:file", h.CreateBackup)
-	g.PUT("/backup/:service_type/:service_name/:file", h.RestoreBackup) // shouldn't this be "restore" instead of "backup"?
+	g.POST("/backup/:service_type/:service_name", h.CreateBackup)
 	g.DELETE("/backup/:service_type/:service_name/:file", h.DeleteBackup)
+
+	g.POST("/restore/:service_type/:service_name/:file", h.RestoreBackup)
 }
