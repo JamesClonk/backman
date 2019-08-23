@@ -21,7 +21,7 @@ func (h *Handler) ServicesHandler(c echo.Context) error {
 		}
 
 		page.Services = make(map[string][]service.CFService)
-		page.Services[serviceType] = h.Services[serviceType]
+		page.Services[serviceType] = page.AllServices[serviceType]
 		page.Service.Label = serviceType
 		page.Title = service.ParseServiceType(serviceType).String()
 	}

@@ -51,7 +51,7 @@
 					<div class="nav__subnav">
 						<div class="container">
 							<div class="nav-section" id="navpoint-1">
-								{{ range $label, $services := .Services }}
+								{{ range $label, $services := .AllServices }}
 								<div class="nav-col">
 									<div class="nav-title">{{ $label }}</div>
 									<ul class="nav-items">
@@ -105,7 +105,7 @@
 												<div class="nav__subnav">
 													<div class="nav-body">
 														<div class="nav-section">
-															{{ range $label, $services := .Services }}
+															{{ range $label, $services := .AllServices }}
 															<div class="nav-col">
 																<div class="nav-title">{{ $label }}</div>
 																<ul class="nav-items">

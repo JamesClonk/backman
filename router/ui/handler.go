@@ -16,12 +16,13 @@ type Handler struct {
 }
 
 type Page struct {
-	Title    string
-	Service  service.CFService
-	Services map[string][]service.CFService
-	Backup   service.Backup
-	Backups  []service.Backup
-	Error    struct {
+	Title       string
+	Service     service.CFService
+	Services    map[string][]service.CFService
+	AllServices map[string][]service.CFService
+	Backup      service.Backup
+	Backups     []service.Backup
+	Error       struct {
 		Code    int
 		Message string
 		Time    time.Time
@@ -73,7 +74,8 @@ func (h *Handler) ErrorHandler(err error, c echo.Context) {
 
 func (h *Handler) newPage(title string) *Page {
 	return &Page{
-		Title:    title,
-		Services: h.Services,
+		Title:       title,
+		Services:    h.Services,
+		AllServices: h.Services,
 	}
 }
