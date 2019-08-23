@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	echo "github.com/labstack/echo/v4"
 	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
@@ -11,18 +12,26 @@ import (
 
 func (h *Handler) RestoreBackup(c echo.Context) error {
 	serviceType := c.Param("service_type")
-	serviceName := c.Param("service_name")
-	filename := c.Param("file")
+	serviceName, err := url.QueryUnescape(c.Param("service_name"))
+	if err != nil {
+		log.Errorf("%v", err)
+		return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid service name: %v", err))
+	}
+	filename, err := url.QueryUnescape(c.Param("file"))
+	if err != nil {
+		log.Errorf("%v", err)
+		return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid filename: %v", err))
+	}
 
 	if !service.IsValidServiceType(serviceType) {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("unsupported service type: %s", serviceType))
+		return c.JSON(http.StatusBadRequest, fmt.Sprintf("unsupported service type: %s", serviceType))
 	}
 
 	cfService := h.Service.GetService(serviceType, serviceName)
 	if len(cfService.Name) == 0 {
 		err := fmt.Errorf("could not find service [%s] to restore", serviceName)
 		log.Errorf("%v", err)
-		return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("%v", err))
+		return c.JSON(http.StatusNotFound, err.Error())
 	}
 
 	go func() { // async

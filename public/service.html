@@ -138,8 +138,6 @@
 <script type="text/javascript">
 function triggerBackup()
 {
-	showNotification('{{ .Service.Name }} backup triggered ...', '');
-
 	fetch('/api/v1/backup/{{ .Service.Label }}/{{ .Service.Name }}', {
 		method: 'POST',
 		credentials: 'same-origin',
@@ -147,6 +145,7 @@ function triggerBackup()
 	.then(function(response) {
 		if (response.status == 202) {
 			console.log('backup triggered:', response);
+			showNotification('{{ .Service.Name }} backup triggered ...', '');
 		} else {
 			console.log('failed to trigger backup:', response);
 			showNotification('Triggering backup of {{ .Service.Name }} failed!', 'notification--alert');
@@ -157,7 +156,6 @@ function triggerBackup()
 function triggerRestore()
 {
 	var filename = document.getElementById("restoreFilename").innerHTML;
-	showNotification('{{ .Service.Name }} restore with '+filename+' triggered ...', '');
 
 	fetch('/api/v1/restore/{{ .Service.Label }}/{{ .Service.Name }}/'+filename, {
 		method: 'POST',
@@ -166,6 +164,7 @@ function triggerRestore()
 	.then(function(response) {
 		if (response.status == 202) {
 			console.log('restore triggered:', response);
+			showNotification('{{ .Service.Name }} restore with '+filename+' triggered ...', '');
 		} else {
 			console.log('failed to trigger restore:', response);
 			showNotification('Triggering restore of {{ .Service.Name }} failed!', 'notification--alert');
