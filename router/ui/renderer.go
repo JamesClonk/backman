@@ -28,7 +28,7 @@ func (h *Handler) RegisterRenderer(e *echo.Echo) {
 		"Time":        humanize.Time,
 	}
 	renderer := &TemplateRenderer{
-		templates: template.Must(template.New("main").Funcs(funcMap).ParseGlob("public/*.html")),
+		templates: template.Must(template.New("backman").Funcs(funcMap).ParseGlob("public/*.html")),
 	}
 	e.Renderer = renderer
 }
