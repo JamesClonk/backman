@@ -6,9 +6,9 @@ import (
 	"net/url"
 	"sort"
 
+	"github.com/JamesClonk/backman/log"
+	"github.com/JamesClonk/backman/service"
 	echo "github.com/labstack/echo/v4"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service"
 )
 
 func (h *Handler) ServicesHandler(c echo.Context) error {

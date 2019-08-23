@@ -3,7 +3,7 @@ package env
 import (
 	"os"
 
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
+	"github.com/JamesClonk/backman/log"
 )
 
 func Get(key string, nvl string) string {

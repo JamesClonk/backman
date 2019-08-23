@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/JamesClonk/backman/config"
 	"github.com/sirupsen/logrus"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/config"
 )
 
 var (

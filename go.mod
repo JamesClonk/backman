@@ -1,9 +1,11 @@
-module gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app
+module github.com/JamesClonk/backman
 
 go 1.12
 
 require (
 	github.com/cloudfoundry-community/go-cfenv v1.18.0
+	github.com/dustin/go-humanize v1.0.0
+	github.com/hako/durafmt v1.0.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.1.6
 	github.com/minio/minio-go/v6 v6.0.33

@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/JamesClonk/backman/log"
 	echo "github.com/labstack/echo/v4"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
 )
 
 func (h *Handler) ListServices(c echo.Context) error {

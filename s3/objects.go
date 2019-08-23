@@ -5,8 +5,8 @@ import (
 	"io"
 	"sort"
 
+	"github.com/JamesClonk/backman/log"
 	"github.com/minio/minio-go/v6"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
 )
 
 func (s *Client) List(folderPath string) ([]minio.ObjectInfo, error) {

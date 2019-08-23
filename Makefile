@@ -10,15 +10,15 @@ gin:
 	gin --all --immediate run main.go
 
 build:
-	rm -f appcloud-backman-app
-	go build -o appcloud-backman-app
+	rm -f backman
+	go build -o backman
 
 prepare-test:
-	mkdir -p $$GOPATH/src/gitlab.swisscloud.io/appcloud-backman-app|| true
-	ln -s $$(pwd) $$GOPATH/src/gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app
+	mkdir -p $$GOPATH/src/github.com/JamesClonk || true
+	ln -s $$(pwd) $$GOPATH/src/github.com/JamesClonk/backman
 
 test:
-	cd $$GOPATH/src/gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app && source .env && GOARCH=amd64 GOOS=linux go test $$(go list ./... | grep -v /vendor/)
+	cd $$GOPATH/src/github.com/JamesClonk/backman && source .env && GOARCH=amd64 GOOS=linux go test $$(go list ./... | grep -v /vendor/)
 
 mysql: mysql-network mysql-stop mysql-start
 	docker logs mysql -f

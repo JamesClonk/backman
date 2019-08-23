@@ -4,11 +4,11 @@ import (
 	"crypto/subtle"
 	"fmt"
 
+	"github.com/JamesClonk/backman/config"
+	"github.com/JamesClonk/backman/router/api"
+	"github.com/JamesClonk/backman/router/ui"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/config"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/router/api"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/router/ui"
 )
 
 type Router struct {

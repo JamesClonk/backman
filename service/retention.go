@@ -5,7 +5,7 @@ import (
 	"sort"
 	"time"
 
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
+	"github.com/JamesClonk/backman/log"
 )
 
 func (s *Service) RetentionCleanup(service CFService) error {

@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/JamesClonk/backman/log"
+	"github.com/JamesClonk/backman/service"
 	echo "github.com/labstack/echo/v4"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service"
 )
 
 // Handler holds all objects and configurations used across Web-UI requests

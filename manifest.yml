@@ -3,7 +3,7 @@
 # https://docs.developer.swisscom.com/devguide/deploy-apps/manifest.html
 
 applications:
-- name: appcloud-backman-app
+- name: backman
   memory: 1G # mysqldump consumes a lot of memory, no matter how small the database is
   disk_quota: 512M
   instances: 1
@@ -11,7 +11,11 @@ applications:
 
   routes:
   - route: appcloud-backman-app.scapp.io
+  - route: backman-app.scapp.io
+  - route: backman.scapp.io
   - route: appcloud-backman-app.applicationcloud.io
+  - route: backman-app.applicationcloud.io
+  - route: backman.applicationcloud.io
 
   services:
   - backman-storage
@@ -21,7 +25,7 @@ applications:
   buildpacks:
   - https://github.com/cloudfoundry/apt-buildpack
   - go_buildpack
-  command: appcloud-backman-app
+  command: backman
   path: .
 
   env:

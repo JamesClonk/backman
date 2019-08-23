@@ -3,10 +3,10 @@ package api
 import (
 	"fmt"
 
+	"github.com/JamesClonk/backman/s3"
+	"github.com/JamesClonk/backman/service"
 	cfenv "github.com/cloudfoundry-community/go-cfenv"
 	echo "github.com/labstack/echo/v4"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/s3"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service"
 )
 
 const version = "v1"

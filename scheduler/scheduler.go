@@ -1,9 +1,9 @@
 package scheduler
 
 import (
+	"github.com/JamesClonk/backman/log"
+	"github.com/JamesClonk/backman/service"
 	"github.com/robfig/cron"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service"
 )
 
 var c = cron.New()

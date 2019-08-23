@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/mongodb"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/mysql"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service/postgres"
+	"github.com/JamesClonk/backman/log"
+	"github.com/JamesClonk/backman/service/mongodb"
+	"github.com/JamesClonk/backman/service/mysql"
+	"github.com/JamesClonk/backman/service/postgres"
 )
 
 func (s *Service) Restore(service CFService, filename string) error {

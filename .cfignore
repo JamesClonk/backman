@@ -1,4 +1,3 @@
-backups/
 .env
 .env_*
 .git
@@ -7,6 +6,8 @@ backups/
 Makefile
 README.md
 gin-bin
+appcloud-backupmanager
+appcloud-backup-app
 appcloud-backman-app
 backman-app
 backman

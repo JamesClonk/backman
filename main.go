@@ -1,10 +1,10 @@
 package main
 
 import (
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/router"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/scheduler"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/service"
+	"github.com/JamesClonk/backman/log"
+	"github.com/JamesClonk/backman/router"
+	"github.com/JamesClonk/backman/scheduler"
+	"github.com/JamesClonk/backman/service"
 )
 
 func main() {

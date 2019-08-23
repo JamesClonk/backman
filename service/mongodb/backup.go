@@ -13,8 +13,8 @@ import (
 
 	cfenv "github.com/cloudfoundry-community/go-cfenv"
 
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/log"
-	"gitlab.swisscloud.io/appc-cf-core/appcloud-backman-app/s3"
+	"github.com/JamesClonk/backman/log"
+	"github.com/JamesClonk/backman/s3"
 )
 
 var mongoMutex = &sync.Mutex{}
