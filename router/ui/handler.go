@@ -89,14 +89,13 @@ func (h *Handler) ServicesHandler(c echo.Context) error {
 		page.Services = make(map[string][]service.CFService)
 		page.Services[serviceType] = h.Services[serviceType]
 		page.Service.Label = serviceType
+		page.Title = service.ParseServiceType(serviceType).String()
 	}
 
 	return c.Render(http.StatusOK, "services.html", page)
 }
 
 func (h *Handler) ServiceHandler(c echo.Context) error {
-	page := h.newPage("Services")
-
 	serviceType := c.Param("service_type")
 	serviceName := c.Param("service_name")
 	if len(serviceType) == 0 || len(serviceName) == 0 {
@@ -107,6 +106,7 @@ func (h *Handler) ServiceHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("unsupported service type: %s", serviceType))
 	}
 
+	page := h.newPage(serviceName)
 	for _, service := range h.Services[serviceType] {
 		if service.Name == serviceName {
 			page.Service = service
