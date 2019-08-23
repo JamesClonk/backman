@@ -6,10 +6,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/JamesClonk/backman/config"
-	"github.com/JamesClonk/backman/log"
-	"github.com/JamesClonk/backman/s3"
 	cfenv "github.com/cloudfoundry-community/go-cfenv"
+	"github.com/swisscom/backman/config"
+	"github.com/swisscom/backman/log"
+	"github.com/swisscom/backman/s3"
 )
 
 var (

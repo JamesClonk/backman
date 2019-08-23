@@ -1,10 +1,10 @@
 package s3
 
 import (
-	"github.com/JamesClonk/backman/config"
-	"github.com/JamesClonk/backman/log"
 	cfenv "github.com/cloudfoundry-community/go-cfenv"
 	"github.com/minio/minio-go/v6"
+	"github.com/swisscom/backman/config"
+	"github.com/swisscom/backman/log"
 )
 
 // Client is used interact with S3 storage

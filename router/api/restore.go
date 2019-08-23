@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/JamesClonk/backman/log"
-	"github.com/JamesClonk/backman/service"
 	echo "github.com/labstack/echo/v4"
+	"github.com/swisscom/backman/log"
+	"github.com/swisscom/backman/service"
 )
 
 func (h *Handler) RestoreBackup(c echo.Context) error {

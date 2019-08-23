@@ -5,10 +5,10 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/JamesClonk/backman/service"
 	"github.com/dustin/go-humanize"
 	"github.com/hako/durafmt"
 	"github.com/labstack/echo/v4"
+	"github.com/swisscom/backman/service"
 )
 
 type TemplateRenderer struct {

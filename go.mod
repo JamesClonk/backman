@@ -1,4 +1,4 @@
-module github.com/JamesClonk/backman
+module github.com/swisscom/backman
 
 go 1.12
 

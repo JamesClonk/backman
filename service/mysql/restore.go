@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/JamesClonk/backman/log"
-	"github.com/JamesClonk/backman/s3"
 	"github.com/cloudfoundry-community/go-cfenv"
+	"github.com/swisscom/backman/log"
+	"github.com/swisscom/backman/s3"
 )
 
 func Restore(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, objectPath string) error {

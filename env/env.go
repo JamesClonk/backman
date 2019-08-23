@@ -3,7 +3,7 @@ package env
 import (
 	"os"
 
-	"github.com/JamesClonk/backman/log"
+	"github.com/swisscom/backman/log"
 )
 
 func Get(key string, nvl string) string {

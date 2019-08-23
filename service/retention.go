@@ -5,7 +5,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/JamesClonk/backman/log"
+	"github.com/swisscom/backman/log"
 )
 
 func (s *Service) RetentionCleanup(service CFService) error {

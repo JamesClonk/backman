@@ -4,11 +4,11 @@ import (
 	"crypto/subtle"
 	"fmt"
 
-	"github.com/JamesClonk/backman/config"
-	"github.com/JamesClonk/backman/router/api"
-	"github.com/JamesClonk/backman/router/ui"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/swisscom/backman/config"
+	"github.com/swisscom/backman/router/api"
+	"github.com/swisscom/backman/router/ui"
 )
 
 type Router struct {

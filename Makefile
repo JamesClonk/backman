@@ -14,11 +14,11 @@ build:
 	go build -o backman
 
 prepare-test:
-	mkdir -p $$GOPATH/src/github.com/JamesClonk || true
-	ln -s $$(pwd) $$GOPATH/src/github.com/JamesClonk/backman
+	mkdir -p $$GOPATH/src/github.com/swisscom || true
+	ln -s $$(pwd) $$GOPATH/src/github.com/swisscom/backman
 
 test:
-	cd $$GOPATH/src/github.com/JamesClonk/backman && source .env && GOARCH=amd64 GOOS=linux go test $$(go list ./... | grep -v /vendor/)
+	cd $$GOPATH/src/github.com/swisscom/backman && source .env && GOARCH=amd64 GOOS=linux go test $$(go list ./... | grep -v /vendor/)
 
 mysql: mysql-network mysql-stop mysql-start
 	docker logs mysql -f

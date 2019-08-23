@@ -15,11 +15,11 @@ a backup-manager app for [Cloud Foundry](https://www.cloudfoundry.org/)
 
 * shows all bound service instances
 
-![backman services](https://raw.githubusercontent.com/JamesClonk/backman/master/static/images/backman_services_listing.png "backman services")
+![backman services](https://raw.githubusercontent.com/swisscom/backman/master/static/images/backman_services_listing.png "backman services")
 
 * display service, trigger backups/restores
 
-![backman service](https://raw.githubusercontent.com/JamesClonk/backman/master/static/images/backman_service_view.png "backman service")
+![backman service](https://raw.githubusercontent.com/swisscom/backman/master/static/images/backman_service_view.png "backman service")
 
 ## Supported databases
 

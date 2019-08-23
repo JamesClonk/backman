@@ -14,9 +14,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/JamesClonk/backman/log"
-	"github.com/JamesClonk/backman/s3"
 	"github.com/cloudfoundry-community/go-cfenv"
+	"github.com/swisscom/backman/log"
+	"github.com/swisscom/backman/s3"
 )
 
 var pgMutex = &sync.Mutex{}

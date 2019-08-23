@@ -1,9 +1,9 @@
 package scheduler
 
 import (
-	"github.com/JamesClonk/backman/log"
-	"github.com/JamesClonk/backman/service"
 	"github.com/robfig/cron"
+	"github.com/swisscom/backman/log"
+	"github.com/swisscom/backman/service"
 )
 
 var c = cron.New()

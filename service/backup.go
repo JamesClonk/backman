@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/JamesClonk/backman/log"
-	"github.com/JamesClonk/backman/service/mongodb"
-	"github.com/JamesClonk/backman/service/mysql"
-	"github.com/JamesClonk/backman/service/postgres"
+	"github.com/swisscom/backman/log"
+	"github.com/swisscom/backman/service/mongodb"
+	"github.com/swisscom/backman/service/mysql"
+	"github.com/swisscom/backman/service/postgres"
 )
 
 type Backup struct {

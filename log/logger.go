@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/JamesClonk/backman/config"
 	"github.com/sirupsen/logrus"
+	"github.com/swisscom/backman/config"
 )
 
 var (
