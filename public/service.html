@@ -138,41 +138,60 @@
 <script type="text/javascript">
 function triggerBackup()
 {
+	showNotification('{{ .Service.Name }} backup triggered ...', '');
+
 	fetch('/api/v1/backup/{{ .Service.Label }}/{{ .Service.Name }}', {
 		method: 'POST',
 		credentials: 'same-origin',
 	})
 	.then(function(response) {
-		// TODO: show error notification in case status != StatusAccepted
-		console.log('backup triggered:', response);
-		location.reload(true);
+		if (response.status == 202) {
+			console.log('backup triggered:', response);
+		} else {
+			console.log('failed to trigger backup:', response);
+			showNotification('Triggering backup of {{ .Service.Name }} failed!', 'notification--alert');
+		}
 	});
 }
 
 function triggerRestore()
 {
-	fetch('/api/v1/restore/{{ .Service.Label }}/{{ .Service.Name }}/'+document.getElementById("restoreFilename").innerHTML, {
+	var filename = document.getElementById("restoreFilename").innerHTML;
+	showNotification('{{ .Service.Name }} restore with '+filename+' triggered ...', '');
+
+	fetch('/api/v1/restore/{{ .Service.Label }}/{{ .Service.Name }}/'+filename, {
 		method: 'POST',
 		credentials: 'same-origin',
 	})
 	.then(function(response) {
-		// TODO: show error notification in case status != StatusAccepted
-		console.log('restore triggered:', response);
-		location.reload(true);
+		if (response.status == 202) {
+			console.log('restore triggered:', response);
+		} else {
+			console.log('failed to trigger restore:', response);
+			showNotification('Triggering restore of {{ .Service.Name }} failed!', 'notification--alert');
+		}
 	});
 }
 
 function triggerDelete()
 {
-	fetch('/api/v1/backup/{{ .Service.Label }}/{{ .Service.Name }}/'+document.getElementById("deleteFilename").innerHTML, {
+	var filename = document.getElementById("deleteFilename").innerHTML;
+	showNotification('Deleting '+filename+' ...', '');
+
+	fetch('/api/v1/backup/{{ .Service.Label }}/{{ .Service.Name }}/'+filename, {
 		method: 'DELETE',
 		credentials: 'same-origin',
 	})
 	.then(function(response) {
 		if (response.status == 204) {
 			console.log('delete success:', response);
-			location.reload(true);
-		} // TODO: show error notification in case status != 204
+			setTimeout(function() {
+				location.reload(true);
+			}, 4000);
+		} else {
+			console.log('failed to delete '+filename, response);
+			showNotification('Deleting '+filename+' failed!', 'notification--alert');
+		}
 	});
 }
 
@@ -180,6 +199,25 @@ function setBackupFile(filename)
 {
 	document.getElementById("restoreFilename").innerHTML = filename;
 	document.getElementById("deleteFilename").innerHTML = filename;
+}
+
+function showNotification(message, modifier)
+{
+	var callback = function() {
+		//alert("Notification was clicked");
+	};
+
+	var cancelCallback = function() {
+		//alert("Notification was cancelled");
+	};
+
+	// open the notification
+	var notification = sdx.Notification.showOnHeader("header", message, callback, cancelCallback, modifier);
+
+	// remove the notification
+	setTimeout(function() {
+		notification.close();
+	}, 3000);
 }
 </script>
 
