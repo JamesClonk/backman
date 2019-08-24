@@ -29,6 +29,7 @@ applications:
   path: .
 
   env:
+    TZ: Europe/Zurich
     BACKMAN_USERNAME: ((username))
     BACKMAN_PASSWORD: ((password))
 
