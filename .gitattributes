@@ -1,2 +1,2 @@
-static/* linguist-vendored
-vendor/* linguist-vendored
+static/** linguist-vendored
+vendor/** linguist-vendored
