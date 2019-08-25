@@ -2,6 +2,7 @@
 .env_*
 .git
 .gitmodules
+.gitattributes
 .gitignore
 Makefile
 README.md
