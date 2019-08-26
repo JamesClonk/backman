@@ -4,6 +4,10 @@ github.com/cloudfoundry-community/go-cfenv
 github.com/davecgh/go-spew/spew
 # github.com/dgrijalva/jwt-go v3.2.0+incompatible
 github.com/dgrijalva/jwt-go
+# github.com/dustin/go-humanize v1.0.0
+github.com/dustin/go-humanize
+# github.com/hako/durafmt v0.0.0-20190612201238-650ed9f29a84
+github.com/hako/durafmt
 # github.com/kelseyhightower/envconfig v1.4.0
 github.com/kelseyhightower/envconfig
 # github.com/konsorten/go-windows-terminal-sequences v1.0.1
