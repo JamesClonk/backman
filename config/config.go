@@ -19,7 +19,7 @@ type Config struct {
 	Username         string `required:"true"`
 	Password         string `required:"true"`
 	S3               struct {
-		ServiceLabel string `default:"dynstrg"`
+		ServiceLabel string `default:"dynstrg" split_words:"true"`
 		BucketName   string `split_words:"true"`
 	}
 	Backup struct {
