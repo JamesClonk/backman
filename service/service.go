@@ -73,26 +73,26 @@ func (s *Service) parseServices() {
 		if IsValidServiceType(label) {
 			for _, service := range services {
 				// read timeout for service
-				timeout := config.Get().Backup.Timeouts[service.Name]
+				timeout := config.Get().Services[service.Name].Timeout
 				if timeout.Seconds() <= 1 {
-					timeout = 1 * time.Hour // default
+					timeout.Duration = 1 * time.Hour // default
 				}
 
 				// read crontab schedule for service
-				schedule := config.Get().Backup.Schedules[service.Name]
+				schedule := config.Get().Services[service.Name].Schedule
 				if len(schedule) == 0 {
 					// create a random schedule for daily backup as a fallback
 					schedule = fmt.Sprintf("%d %d %d * * *", rand.Intn(59), rand.Intn(59), rand.Intn(23))
 				}
 
 				// read retention days & files, with defaults as fallback
-				retentionDays := config.Get().Backup.Retention.Days[service.Name]
-				retentionFiles := config.Get().Backup.Retention.Files[service.Name]
+				retentionDays := config.Get().Services[service.Name].Retention.Days
+				retentionFiles := config.Get().Services[service.Name].Retention.Files
 				if retentionDays <= 0 {
-					retentionDays = 31
+					retentionDays = 31 // default
 				}
 				if retentionFiles <= 0 {
-					retentionFiles = 100
+					retentionFiles = 100 // default
 				}
 
 				s.Services = append(s.Services, CFService{
@@ -100,7 +100,7 @@ func (s *Service) parseServices() {
 					Label:    service.Label,
 					Plan:     service.Plan,
 					Tags:     service.Tags,
-					Timeout:  timeout,
+					Timeout:  timeout.Duration,
 					Schedule: schedule,
 					Retention: Retention{
 						Days:  retentionDays,

@@ -1,0 +1,32 @@
+{
+	"log_level": "info",
+	"logging_timestamp": false,
+	"username": "http_basic_auth_user_abc",
+	"password": "http_basic_auth_password_xyz",
+	"s3": {
+		"service_label": "dynstrg",
+		"bucket_name": "my-database-backups"
+	},
+	"services": {
+		"my_postgres_db": {
+			"schedule": "0 0 2,18 * * *",
+			"timeout": "2h",
+			"retention": {
+				"days": 60,
+				"files": 250
+			}
+		},
+		"my_mysql_db": {
+			"timeout": "35m"
+		},
+		"other_postgres_db": {
+			"timeout": "2h15m"
+		},
+		"mongodb-for-backend": {
+			"schedule": "0 45 0/4 * * *",
+			"retention": {
+				"files": 500
+			}
+		}
+	}
+}

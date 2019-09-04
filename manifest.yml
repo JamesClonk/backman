@@ -10,17 +10,14 @@ applications:
   health-check-type: port
 
   routes:
-  - route: appcloud-backman-app.scapp.io
-  - route: backman-app.scapp.io
   - route: backman.scapp.io
-  - route: appcloud-backman-app.applicationcloud.io
-  - route: backman-app.applicationcloud.io
   - route: backman.applicationcloud.io
 
   services:
   - backman-storage
   # - my_mysql_db
   # - my_postgres_db
+  # - my_mongodb
 
   buildpacks:
   - https://github.com/cloudfoundry/apt-buildpack
@@ -30,16 +27,38 @@ applications:
 
   env:
     TZ: Europe/Zurich
-    BACKMAN_USERNAME: ((username))
-    BACKMAN_PASSWORD: ((password))
-
-    BACKMAN_LOG_LEVEL: debug
-    # BACKMAN_LOGGING_TIMESTAMP: false # defaults to false for CF
-
-    BACKMAN_S3_SERVICE_LABEL: dynstrg
-    # BACKMAN_S3_BUCKET_NAME: my-backup-bucket # optional, using service-instance/binding-name if missing
-
-    # BACKMAN_BACKUP_TIMEOUTS: my_mysql_db:30m,other_postgres_db:2h # optional, defaults to 1h per service backup
-    # BACKMAN_BACKUP_SCHEDULES: my_postgres_db:13 37 0/6 * * * # optional, defaults to random daily backup schedule
-    # BACKMAN_BACKUP_RETENTION_DAYS: my_postgres_db:90 # optional, defaults to 31 days
-    # BACKMAN_BACKUP_RETENTION_FILES: my_postgres_db:250,other_postgres_db:500 # optional, defaults to 100 files
+    BACKMAN_USERNAME: ((username)) # optional, could also be configured in config.json or BACKMAN_CONFIG
+    BACKMAN_PASSWORD: ((password)) # optional, could also be configured in config.json or BACKMAN_CONFIG
+    BACKMAN_CONFIG: |
+      {
+        "log_level": "debug",
+        "s3": {
+          "service_label": "dynstrg",
+          "bucket_name": "backman-storage"
+        },
+        "services": {
+          "my_postgres_db": {
+            "schedule": "0 0 2,18,22 * * *",
+            "timeout": "2h",
+            "retention": {
+              "days": 90,
+              "files": 20
+            }
+          },
+          "other_postgres_db": {
+            "timeout": "2h15m",
+            "retention": {
+              "files": 500
+            }
+          },
+          "my_mysql_db": {
+            "timeout": "35m"
+          },
+          "mongodb-for-backend": {
+            "schedule": "0 45 0/4 * * *",
+            "retention": {
+              "files": 500
+            }
+          }
+        }
+      }
