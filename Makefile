@@ -1,4 +1,4 @@
-.PHONY: run gin build prepare-test test mysql mysql-network mysql-stop mysql-start mysql-client postgres postgres-network postgres-stop postgres-start postgres-client mongodb mongodb-network mongodb-stop mongodb-start mongodb-client cleanup
+.PHONY: run gin build prepare-test test elasticsearch elasticsearch-network elasticsearch-stop elasticsearch-start elasticsearch-data mysql mysql-network mysql-stop mysql-start mysql-client postgres postgres-network postgres-stop postgres-start postgres-client mongodb mongodb-network mongodb-stop mongodb-start mongodb-client cleanup
 SHELL := /bin/bash
 
 all: run
@@ -19,6 +19,26 @@ prepare-test:
 
 test:
 	cd $$GOPATH/src/github.com/swisscom/backman && source .env && GOARCH=amd64 GOOS=linux go test $$(go list ./... | grep -v /vendor/)
+
+elasticsearch: elasticsearch-network elasticsearch-stop elasticsearch-start elasticsearch-data
+	docker logs elasticsearch -f
+
+elasticsearch-network:
+	docker network create elasticsearch-network --driver bridge || true
+
+elasticsearch-stop:
+	docker rm -f elasticsearch || true
+
+elasticsearch-start:
+	docker run -d -p 9200:9200 -p 9300:9300 \
+		-e "discovery.type=single-node" \
+		--network elasticsearch-network \
+		--name elasticsearch elasticsearch:6.8.2
+
+elasticsearch-data:
+	curl -O https://download.elastic.co/demos/kibana/gettingstarted/7.x/accounts.zip
+	sleep 20
+	curl -H 'Content-Type: application/x-ndjson' -XPOST 'localhost:9200/bank/account/_bulk?pretty' --data-binary @accounts.json
 
 mysql: mysql-network mysql-stop mysql-start
 	docker logs mysql -f

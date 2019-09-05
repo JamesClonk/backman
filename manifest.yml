@@ -18,9 +18,11 @@ applications:
   # - my_mysql_db
   # - my_postgres_db
   # - my_mongodb
+  # - my_elasticsearch
 
   buildpacks:
   - https://github.com/cloudfoundry/apt-buildpack
+  - nodejs_buildpack
   - go_buildpack
   command: backman
   path: .

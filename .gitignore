@@ -31,6 +31,8 @@ _testmain.go
 
 # ---------
 .env_*
+accounts.zip
+accounts.json
 testfile.dat
 gin-bin
 appcloud-backupmanager

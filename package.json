@@ -1,0 +1,6 @@
+{
+    "name": "backman",
+    "dependencies": {
+        "elasticdump": "6.7.5"
+    }
+}
