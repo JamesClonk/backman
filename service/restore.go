@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/swisscom/backman/log"
+	"github.com/swisscom/backman/service/elasticsearch"
 	"github.com/swisscom/backman/service/mongodb"
 	"github.com/swisscom/backman/service/mysql"
 	"github.com/swisscom/backman/service/postgres"
@@ -29,6 +30,8 @@ func (s *Service) Restore(service CFService, filename string) error {
 		err = mysql.Restore(ctx, s.S3, envService, objectPath)
 	case Postgres:
 		err = postgres.Restore(ctx, s.S3, envService, objectPath)
+	case Elasticsearch:
+		err = elasticsearch.Restore(ctx, s.S3, envService, objectPath)
 	default:
 		err = fmt.Errorf("unsupported service type [%s]", service.Label)
 	}

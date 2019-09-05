@@ -2,6 +2,13 @@
 
 a backup-manager app for [Cloud Foundry](https://www.cloudfoundry.org/)
 
+## Supported databases
+
+- MariaDB / MySQL
+- PostgreSQL
+- MongoDB
+- Elasticsearch
+
 ## Usage
 
 1. pick a Cloud Foundry provider
@@ -71,9 +78,3 @@ Possible JSON properties:
 * display service, trigger backups/restores
 
 ![backman service](https://raw.githubusercontent.com/swisscom/backman/master/static/images/backman_service_view.png "backman service")
-
-## Supported databases
-
-- MariaDB / MySQL
-- PostgreSQL
-- MongoDB

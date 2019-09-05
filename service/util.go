@@ -6,6 +6,7 @@ const (
 	Postgres ServiceType = iota
 	MySQL
 	MongoDB
+	Elasticsearch
 )
 
 func ParseServiceType(serviceType string) ServiceType {
@@ -16,6 +17,8 @@ func ParseServiceType(serviceType string) ServiceType {
 		return MySQL
 	case "mongo", "mongodb", "mongodb-2", "mongodbent", "mangodb":
 		return MongoDB
+	case "elastic", "es", "elasticsearch":
+		return Elasticsearch
 	}
 	return -1
 }
@@ -27,6 +30,8 @@ func IsValidServiceType(serviceType string) bool {
 	case MySQL:
 		return true
 	case MongoDB:
+		return true
+	case Elasticsearch:
 		return true
 	}
 	return false
@@ -40,6 +45,8 @@ func (s ServiceType) String() string {
 		return "MySQL"
 	case MongoDB:
 		return "MongoDB"
+	case Elasticsearch:
+		return "Elasticsearch"
 	}
 	return ""
 }

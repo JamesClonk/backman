@@ -37,6 +37,7 @@ elasticsearch-start:
 
 elasticsearch-data:
 	curl -O https://download.elastic.co/demos/kibana/gettingstarted/7.x/accounts.zip
+	unzip accounts.zip
 	sleep 20
 	curl -H 'Content-Type: application/x-ndjson' -XPOST 'localhost:9200/bank/account/_bulk?pretty' --data-binary @accounts.json
 
