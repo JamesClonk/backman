@@ -1,7 +1,7 @@
 # :minidisc: backman
 
 [![CircleCI](https://circleci.com/gh/swisscom/backman.svg?style=svg)](https://circleci.com/gh/swisscom/backman)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](https://github.com/swisscom/backman)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](https://github.com/swisscom/backman/blob/master/LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Cloud%20Foundry-lightgrey)](https://developer.swisscom.com/)
 
 a backup-manager app for [Cloud Foundry](https://www.cloudfoundry.org/)       
