@@ -11,7 +11,7 @@ a backup-manager app for [Cloud Foundry](https://www.cloudfoundry.org/)
 
 ## Usage
 
-1. pick a Cloud Foundry provider
+1. pick a Cloud Foundry provider.      
    I'd suggest the [Swisscom AppCloud](https://developer.swisscom.com/)
 2. create a service instance of an S3-compatible object storage
 3. modify the provided `manifest.yml`, specify your service instance(s)
