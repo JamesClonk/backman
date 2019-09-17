@@ -20,18 +20,18 @@ import (
 
 var (
 	// prom metrics for backup success/failure
-	backupRuns = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "backups_total",
-		Help: "Total number of backups triggered.",
-	})
-	backupFailures = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "backup_failures_total",
-		Help: "Total number of backup failures.",
-	})
-	backupSuccess = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "backup_success_total",
-		Help: "Total number of successful backups.",
-	})
+	backupRuns = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "backman_backups_total",
+		Help: "Total number of backups triggered per service.",
+	}, []string{"service_name", "service_type"})
+	backupFailures = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "backman_backup_failures_total",
+		Help: "Total number of backup failures per service.",
+	}, []string{"service_name", "service_type"})
+	backupSuccess = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "backman_backup_success_total",
+		Help: "Total number of successful backups per service.",
+	}, []string{"service_name", "service_type"})
 )
 
 type Backup struct {
@@ -54,7 +54,7 @@ func (s *Service) Backup(service CFService) error {
 		log.Errorf("could not find service [%s] to backup: %v", service.Name, err)
 		return err
 	}
-	backupRuns.Inc()
+	backupRuns.WithLabelValues(service.Name, service.Type().String()).Inc()
 
 	// ctx to abort backup if this takes longer than defined timeout
 	ctx, cancel := context.WithTimeout(context.Background(), service.Timeout)
@@ -74,11 +74,11 @@ func (s *Service) Backup(service CFService) error {
 	}
 	if err != nil {
 		log.Errorf("could not backup service [%s]: %v", service.Name, err)
-		backupFailures.Inc()
+		backupFailures.WithLabelValues(service.Name, service.Type().String()).Inc()
 		return err
 	}
 	log.Infof("created and uploaded backup [%s] for service [%s]", filename, service.Name)
-	backupSuccess.Inc()
+	backupSuccess.WithLabelValues(service.Name, service.Type().String()).Inc()
 
 	// cleanup files according to retention policy of service
 	go func() {

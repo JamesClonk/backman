@@ -13,15 +13,15 @@ var (
 
 	// prom metrics for scheduled backup success/failure
 	scheduledRuns = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "scheduler_runs_total",
+		Name: "backman_scheduler_runs_total",
 		Help: "Total number of backup runs triggered over crontab-schedule.",
 	})
 	scheduledFailures = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "scheduler_backup_failures_total",
+		Name: "backman_scheduler_backup_failures_total",
 		Help: "Total number of backup failures over crontab-schedule.",
 	})
 	scheduledSuccess = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "scheduler_backup_success_total",
+		Name: "backman_scheduler_backup_success_total",
 		Help: "Total number of successful backups over crontab-schedule.",
 	})
 )
