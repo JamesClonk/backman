@@ -1,3 +1,4 @@
+.circleci
 .env
 .env_*
 .git

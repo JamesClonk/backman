@@ -1,4 +1,4 @@
-.PHONY: run gin build prepare-test test elasticsearch elasticsearch-network elasticsearch-stop elasticsearch-start elasticsearch-data mysql mysql-network mysql-stop mysql-start mysql-client postgres postgres-network postgres-stop postgres-start postgres-client mongodb mongodb-network mongodb-stop mongodb-start mongodb-client cleanup
+.PHONY: run gin build test elasticsearch elasticsearch-network elasticsearch-stop elasticsearch-start elasticsearch-data mysql mysql-network mysql-stop mysql-start mysql-client postgres postgres-network postgres-stop postgres-start postgres-client mongodb mongodb-network mongodb-stop mongodb-start mongodb-client cleanup
 SHELL := /bin/bash
 
 all: run
@@ -13,12 +13,8 @@ build:
 	rm -f backman
 	go build -o backman
 
-prepare-test:
-	mkdir -p $$GOPATH/src/github.com/swisscom || true
-	ln -s $$(pwd) $$GOPATH/src/github.com/swisscom/backman
-
 test:
-	cd $$GOPATH/src/github.com/swisscom/backman && source .env && GOARCH=amd64 GOOS=linux go test $$(go list ./... | grep -v /vendor/)
+	source .env && GOARCH=amd64 GOOS=linux go test -v ./...
 
 elasticsearch: elasticsearch-network elasticsearch-stop elasticsearch-start elasticsearch-data
 	docker logs elasticsearch -f

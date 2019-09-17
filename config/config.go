@@ -69,6 +69,11 @@ func (td *TimeoutDuration) UnmarshalJSON(b []byte) error {
 
 func Get() *Config {
 	once.Do(func() {
+		// initialize
+		config = Config{
+			Services: make(map[string]ServiceConfig),
+		}
+
 		// first load config file, if it exists
 		if _, err := os.Stat("config.json"); err == nil {
 			data, err := ioutil.ReadFile("config.json")
