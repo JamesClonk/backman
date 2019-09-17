@@ -69,6 +69,51 @@ Possible JSON properties:
 - `services.<service-instance>.retention.days`: optional, specifies how long backman will keep backups on S3 at maximum for this service instance
 - `services.<service-instance>.retention.files`: optional, specifies how maximum number of files backman will keep on S3 for this service instance
 
+## Metrics
+
+backman exposes a couple of metrics via [Prometheus](https://prometheus.io/docs/introduction/overview/) endpoint `/metrics`.
+
+Example:
+```
+$ curl localhost:9990/metrics
+
+# HELP backman_backup_failures_total Total number of backup failures per service.
+# TYPE backman_backup_failures_total counter
+backman_backup_failures_total{service_name="my-elasticsearch",service_type="Elasticsearch"} 3
+backman_backup_failures_total{service_name="my_mongodb",service_type="MongoDB"} 1
+backman_backup_failures_total{service_name="my_postgres_db",service_type="PostgreSQL"} 3
+# HELP backman_backup_success_total Total number of backup failures per service.
+# TYPE backman_backup_success_total counter
+backman_backup_success_total{service_name="my-elasticsearch",service_type="Elasticsearch"} 18
+backman_backup_success_total{service_name="my_mongodb",service_type="MongoDB"} 4
+backman_backup_success_total{service_name="my_postgres_db",service_type="PostgreSQL"} 4
+# HELP backman_backups_total Total number of backups triggered per service.
+# TYPE backman_backups_total counter
+backman_backups_total{service_name="my-elasticsearch",service_type="Elasticsearch"} 21
+backman_backups_total{service_name="my_mongodb",service_type="MongoDB"} 5
+backman_backups_total{service_name="my_postgres_db",service_type="PostgreSQL"} 7
+# HELP backman_restore_failures_total Total number of restore failures per service.
+# TYPE backman_restore_failures_total counter
+backman_restore_failures_total{service_name="my-elasticsearch",service_type="Elasticsearch"} 2
+# HELP backman_restore_success_total Total number of successful restores per service.
+# TYPE backman_restore_success_total counter
+backman_restore_success_total{service_name="my-elasticsearch",service_type="Elasticsearch"} 1
+backman_restore_success_total{service_name="my_mongodb",service_type="MongoDB"} 2
+# HELP backman_restores_total Total number of restores triggered per service.
+# TYPE backman_restores_total counter
+backman_restores_total{service_name="my-elasticsearch",service_type="Elasticsearch"} 3
+backman_restores_total{service_name="my_mongodb",service_type="MongoDB"} 2
+# HELP backman_scheduler_backup_failures_total Total number of backup failures over crontab-schedule.
+# TYPE backman_scheduler_backup_failures_total counter
+backman_scheduler_backup_failures_total 0
+# HELP backman_scheduler_backup_success_total Total number of successful backups over crontab-schedule.
+# TYPE backman_scheduler_backup_success_total counter
+backman_scheduler_backup_success_total 4
+# HELP backman_scheduler_runs_total Total number of backup runs triggered over crontab-schedule.
+# TYPE backman_scheduler_runs_total counter
+backman_scheduler_runs_total 4
+```
+
 ## Screenshots
 
 * shows all bound service instances
