@@ -6,6 +6,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/router/api"
 	"github.com/swisscom/backman/router/ui"
@@ -57,6 +58,8 @@ func New() *Router {
 		api:  api.New(),
 		ui:   ui.New(),
 	}
+	// setup Prometheus endpoint
+	r.echo.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
 	// setup API routes
 	r.api.RegisterRoutes(r.echo)
 	// setup Web-UI routes

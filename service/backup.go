@@ -9,11 +9,29 @@ import (
 	"strings"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/service/elasticsearch"
 	"github.com/swisscom/backman/service/mongodb"
 	"github.com/swisscom/backman/service/mysql"
 	"github.com/swisscom/backman/service/postgres"
+)
+
+var (
+	// prom metrics for backup success/failure
+	backupRuns = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "backups_total",
+		Help: "Total number of backups triggered.",
+	})
+	backupFailures = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "backup_failures_total",
+		Help: "Total number of backup failures.",
+	})
+	backupSuccess = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "backup_success_total",
+		Help: "Total number of successful backups.",
+	})
 )
 
 type Backup struct {
@@ -36,6 +54,7 @@ func (s *Service) Backup(service CFService) error {
 		log.Errorf("could not find service [%s] to backup: %v", service.Name, err)
 		return err
 	}
+	backupRuns.Inc()
 
 	// ctx to abort backup if this takes longer than defined timeout
 	ctx, cancel := context.WithTimeout(context.Background(), service.Timeout)
@@ -55,9 +74,11 @@ func (s *Service) Backup(service CFService) error {
 	}
 	if err != nil {
 		log.Errorf("could not backup service [%s]: %v", service.Name, err)
+		backupFailures.Inc()
 		return err
 	}
 	log.Infof("created and uploaded backup [%s] for service [%s]", filename, service.Name)
+	backupSuccess.Inc()
 
 	// cleanup files according to retention policy of service
 	go func() {
