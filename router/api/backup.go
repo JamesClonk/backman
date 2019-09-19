@@ -10,6 +10,16 @@ import (
 	"github.com/swisscom/backman/service/util"
 )
 
+// swagger:route GET /api/v1/backups backup listBackups
+// Lists all backup objects.
+//
+// produces:
+// - application/json
+//
+// schemes: http, https
+//
+// responses:
+//   200: backups
 func (h *Handler) ListBackups(c echo.Context) error {
 	serviceType := c.QueryParam("service_type")
 	serviceName, err := url.QueryUnescape(c.Param("service_name"))
@@ -25,6 +35,16 @@ func (h *Handler) ListBackups(c echo.Context) error {
 	return c.JSON(http.StatusOK, backups)
 }
 
+// swagger:route GET /api/v1/backup/{service_type}/{service_name}/{filename} backup getBackup
+// Returns a backup file object for given service.
+//
+// produces:
+// - application/json
+//
+// schemes: http, https
+//
+// responses:
+//   200: backup
 func (h *Handler) GetBackup(c echo.Context) error {
 	serviceType := c.Param("service_type")
 	serviceName, err := url.QueryUnescape(c.Param("service_name"))
@@ -48,6 +68,16 @@ func (h *Handler) GetBackup(c echo.Context) error {
 	return c.JSON(http.StatusOK, backup)
 }
 
+// swagger:route POST /api/v1/backup/{service_type}/{service_name} backup createBackup
+// Creates a new backup for given service.
+//
+// produces:
+// - application/json
+//
+// schemes: http, https
+//
+// responses:
+//   202:
 func (h *Handler) CreateBackup(c echo.Context) error {
 	serviceType := c.Param("service_type")
 	serviceName, err := url.QueryUnescape(c.Param("service_name"))
@@ -75,6 +105,16 @@ func (h *Handler) CreateBackup(c echo.Context) error {
 	return c.JSON(http.StatusAccepted, nil)
 }
 
+// swagger:route GET /api/v1/backup/{service_type}/{service_name}/{filename}/download backup downloadBackup
+// Download a backup file for given service.
+//
+// produces:
+// - application/json
+//
+// schemes: http, https
+//
+// responses:
+//   200:
 func (h *Handler) DownloadBackup(c echo.Context) error {
 	serviceType := c.Param("service_type")
 	serviceName, err := url.QueryUnescape(c.Param("service_name"))
@@ -96,6 +136,16 @@ func (h *Handler) DownloadBackup(c echo.Context) error {
 	return c.Stream(http.StatusOK, "application/gzip", reader)
 }
 
+// swagger:route DELETE /api/v1/backup/{service_type}/{service_name}/{filename} backup deleteBackup
+// Deletes a backup file from S3 for given service.
+//
+// produces:
+// - application/json
+//
+// schemes: http, https
+//
+// responses:
+//   204:
 func (h *Handler) DeleteBackup(c echo.Context) error {
 	serviceType := c.Param("service_type")
 	serviceName, err := url.QueryUnescape(c.Param("service_name"))

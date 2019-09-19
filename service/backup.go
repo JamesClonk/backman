@@ -17,6 +17,7 @@ import (
 	"github.com/swisscom/backman/service/util"
 )
 
+// swagger:response backup
 type Backup struct {
 	Service util.Service
 	Files   []File
@@ -28,6 +29,9 @@ type File struct {
 	Size         int64
 	LastModified time.Time
 }
+
+// swagger:response backups
+type Backups []Backup
 
 func (s *Service) Backup(service util.Service) error {
 	filename := fmt.Sprintf("%s_%s.gz", service.Name, time.Now().Format("20060102150405"))

@@ -2,6 +2,7 @@ package util
 
 import "time"
 
+// swagger:response service
 type Service struct {
 	Name      string
 	Label     string
@@ -15,6 +16,9 @@ type Retention struct {
 	Days  int
 	Files int
 }
+
+// swagger:response services
+type Services []Service
 
 func (s *Service) Type() ServiceType {
 	return ParseServiceType(s.Label)

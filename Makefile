@@ -1,4 +1,4 @@
-.PHONY: run gin build test elasticsearch elasticsearch-network elasticsearch-stop elasticsearch-start elasticsearch-data mysql mysql-network mysql-stop mysql-start mysql-client postgres postgres-network postgres-stop postgres-start postgres-client mongodb mongodb-network mongodb-stop mongodb-start mongodb-client cleanup
+.PHONY: run gin build test swagger elasticsearch elasticsearch-network elasticsearch-stop elasticsearch-start elasticsearch-data mysql mysql-network mysql-stop mysql-start mysql-client postgres postgres-network postgres-stop postgres-start postgres-client mongodb mongodb-network mongodb-stop mongodb-start mongodb-client cleanup
 SHELL := /bin/bash
 
 all: run
@@ -15,6 +15,10 @@ build:
 
 test:
 	source .env && GOARCH=amd64 GOOS=linux go test -v ./...
+
+swagger:
+	swagger generate spec -o ./swagger.yml
+	swagger serve -F=swagger swagger.yml
 
 elasticsearch: elasticsearch-network elasticsearch-stop elasticsearch-start elasticsearch-data
 	docker logs elasticsearch -f

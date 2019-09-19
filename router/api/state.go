@@ -10,11 +10,31 @@ import (
 	"github.com/swisscom/backman/state"
 )
 
+// swagger:route GET /api/v1/states state listStates
+// Lists current/last operation state of all service types.
+//
+// produces:
+// - application/json
+//
+// schemes: http, https
+//
+// responses:
+//   200: states
 func (h *Handler) ListStates(c echo.Context) error {
 	states := state.Tracker().List()
 	return c.JSON(http.StatusOK, states)
 }
 
+// swagger:route GET /api/v1/state/{service_type}/{service_name}  state getState
+// Returns current/last operation state of backup/restore.
+//
+// produces:
+// - application/json
+//
+// schemes: http, https
+//
+// responses:
+//   200: state
 func (h *Handler) GetState(c echo.Context) error {
 	serviceType := c.Param("service_type")
 	serviceName, err := url.QueryUnescape(c.Param("service_name"))

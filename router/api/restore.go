@@ -10,6 +10,16 @@ import (
 	"github.com/swisscom/backman/service/util"
 )
 
+// swagger:route POST /api/v1/restore/{service_type}/{service_name} restore restoreBackup
+// Triggers a restore for given service.
+//
+// produces:
+// - application/json
+//
+// schemes: http, https
+//
+// responses:
+//   202:
 func (h *Handler) RestoreBackup(c echo.Context) error {
 	serviceType := c.Param("service_type")
 	serviceName, err := url.QueryUnescape(c.Param("service_name"))

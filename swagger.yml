@@ -1,0 +1,259 @@
+definitions:
+  Backup:
+    properties:
+      Files:
+        items:
+          $ref: '#/definitions/File'
+        type: array
+      Service:
+        $ref: '#/definitions/Service'
+    type: object
+    x-go-package: github.com/swisscom/backman/service
+  Duration:
+    description: |-
+      A Duration represents the elapsed time between two instants
+      as an int64 nanosecond count. The representation limits the
+      largest representable duration to approximately 290 years.
+    format: int64
+    type: integer
+    x-go-package: time
+  File:
+    properties:
+      Filename:
+        type: string
+      Filepath:
+        type: string
+      Key:
+        type: string
+      LastModified:
+        format: date-time
+        type: string
+      Size:
+        format: int64
+        type: integer
+    type: object
+    x-go-package: github.com/swisscom/backman/service
+  Retention:
+    properties:
+      Days:
+        format: int64
+        type: integer
+      Files:
+        format: int64
+        type: integer
+    type: object
+    x-go-package: github.com/swisscom/backman/service/util
+  Service:
+    properties:
+      Label:
+        type: string
+      Name:
+        type: string
+      Plan:
+        type: string
+      Retention:
+        $ref: '#/definitions/Retention'
+      Schedule:
+        type: string
+      Tags:
+        items:
+          type: string
+        type: array
+      Timeout:
+        $ref: '#/definitions/Duration'
+    type: object
+    x-go-package: github.com/swisscom/backman/service/util
+  State:
+    properties:
+      At:
+        format: date-time
+        type: string
+      Duration:
+        $ref: '#/definitions/Duration'
+      Operation:
+        type: string
+      Service:
+        $ref: '#/definitions/Service'
+      Status:
+        type: string
+    type: object
+    x-go-package: github.com/swisscom/backman/state
+paths:
+  /api/v1/backup/{service_type}/{service_name}:
+    post:
+      operationId: createBackup
+      produces:
+      - application/json
+      responses:
+        "202": {}
+      schemes:
+      - http
+      - https
+      summary: Creates a new backup for given service.
+      tags:
+      - backup
+  /api/v1/backup/{service_type}/{service_name}/{filename}:
+    delete:
+      operationId: deleteBackup
+      produces:
+      - application/json
+      responses:
+        "204": {}
+      schemes:
+      - http
+      - https
+      summary: Deletes a backup file from S3 for given service.
+      tags:
+      - backup
+    get:
+      operationId: getBackup
+      produces:
+      - application/json
+      responses:
+        "200":
+          $ref: '#/responses/backup'
+      schemes:
+      - http
+      - https
+      summary: Returns a backup file object for given service.
+      tags:
+      - backup
+  /api/v1/backup/{service_type}/{service_name}/{filename}/download:
+    get:
+      operationId: downloadBackup
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      schemes:
+      - http
+      - https
+      summary: Download a backup file for given service.
+      tags:
+      - backup
+  /api/v1/backups:
+    get:
+      operationId: listBackups
+      produces:
+      - application/json
+      responses:
+        "200":
+          $ref: '#/responses/backups'
+      schemes:
+      - http
+      - https
+      summary: Lists all backup objects.
+      tags:
+      - backup
+  /api/v1/restore/{service_type}/{service_name}:
+    post:
+      operationId: restoreBackup
+      produces:
+      - application/json
+      responses:
+        "202": {}
+      schemes:
+      - http
+      - https
+      summary: Triggers a restore for given service.
+      tags:
+      - restore
+  /api/v1/services:
+    get:
+      operationId: listServices
+      produces:
+      - application/json
+      responses:
+        "200":
+          $ref: '#/responses/services'
+      schemes:
+      - http
+      - https
+      summary: Lists all services managed by backman.
+      tags:
+      - service
+  /api/v1/state/{service_type}/{service_name}:
+    get:
+      operationId: getState
+      produces:
+      - application/json
+      responses:
+        "200":
+          $ref: '#/responses/state'
+      schemes:
+      - http
+      - https
+      summary: Returns current/last operation state of backup/restore.
+      tags:
+      - state
+  /api/v1/states:
+    get:
+      operationId: listStates
+      produces:
+      - application/json
+      responses:
+        "200":
+          $ref: '#/responses/states'
+      schemes:
+      - http
+      - https
+      summary: Lists current/last operation state of all service types.
+      tags:
+      - state
+responses:
+  backup:
+    headers:
+      Files:
+        items:
+          $ref: '#/definitions/File'
+        type: array
+      Service: {}
+    schema:
+      $ref: '#/definitions/Service'
+  backups:
+    schema:
+      items:
+        $ref: '#/definitions/Backup'
+      type: array
+  service:
+    headers:
+      Label:
+        type: string
+      Name:
+        type: string
+      Plan:
+        type: string
+      Retention: {}
+      Schedule:
+        type: string
+      Tags:
+        items:
+          type: string
+        type: array
+      Timeout: {}
+    schema:
+      $ref: '#/definitions/Retention'
+  services:
+    schema:
+      items:
+        $ref: '#/definitions/Service'
+      type: array
+  state:
+    headers:
+      At:
+        format: date-time
+        type: string
+      Duration: {}
+      Operation:
+        type: string
+      Service: {}
+      Status:
+        type: string
+    schema:
+      $ref: '#/definitions/Duration'
+  states:
+    schema:
+      items:
+        $ref: '#/definitions/State'
+      type: array
+swagger: "2.0"

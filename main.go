@@ -7,6 +7,7 @@ import (
 	"github.com/swisscom/backman/service"
 )
 
+//go:generate swagger generate spec
 func main() {
 	// init services
 	service.Get()
