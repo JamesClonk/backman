@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](https://github.com/swisscom/backman/blob/master/LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Cloud%20Foundry-lightgrey)](https://developer.swisscom.com/)
 
-a backup-manager app for [Cloud Foundry](https://www.cloudfoundry.org/)       
+a backup-manager app for [Cloud Foundry](https://www.cloudfoundry.org/)
 
 ## Supported databases
 
@@ -15,7 +15,7 @@ a backup-manager app for [Cloud Foundry](https://www.cloudfoundry.org/)
 
 ## Usage
 
-1. pick a Cloud Foundry provider.      
+1. pick a Cloud Foundry provider.
    I'd suggest the [Swisscom AppCloud](https://developer.swisscom.com/)
 2. create a service instance of an S3-compatible object storage
 3. modify the provided `manifest.yml`, specify your service instance(s)
@@ -83,30 +83,50 @@ $ curl localhost:9990/metrics
 
 # HELP backman_backup_failures_total Total number of backup failures per service.
 # TYPE backman_backup_failures_total counter
-backman_backup_failures_total{service_name="my-elasticsearch",service_type="Elasticsearch"} 3
-backman_backup_failures_total{service_name="my_mongodb",service_type="MongoDB"} 1
-backman_backup_failures_total{service_name="my_postgres_db",service_type="PostgreSQL"} 3
+backman_backup_failures_total{name="my-elasticsearch",type="Elasticsearch"} 3
+backman_backup_failures_total{name="my_mongodb",type="MongoDB"} 1
+backman_backup_failures_total{name="my_postgres_db",type="PostgreSQL"} 3
 # HELP backman_backup_success_total Total number of backup failures per service.
 # TYPE backman_backup_success_total counter
-backman_backup_success_total{service_name="my-elasticsearch",service_type="Elasticsearch"} 18
-backman_backup_success_total{service_name="my_mongodb",service_type="MongoDB"} 4
-backman_backup_success_total{service_name="my_postgres_db",service_type="PostgreSQL"} 4
-# HELP backman_backups_total Total number of backups triggered per service.
-# TYPE backman_backups_total counter
-backman_backups_total{service_name="my-elasticsearch",service_type="Elasticsearch"} 21
-backman_backups_total{service_name="my_mongodb",service_type="MongoDB"} 5
-backman_backups_total{service_name="my_postgres_db",service_type="PostgreSQL"} 7
+backman_backup_success_total{name="my-elasticsearch",type="Elasticsearch"} 18
+backman_backup_success_total{name="my_mongodb",type="MongoDB"} 4
+backman_backup_success_total{name="my_postgres_db",type="PostgreSQL"} 4
+# HELP backman_backup_queued Backups currently in queue per service.
+# TYPE backman_backup_queued gauge
+backman_backup_queued{name="my-elasticsearch",type="elasticsearch"} 0
+backman_backup_queued{name="my_mongodb",type="mongodb"} 0
+backman_backup_queued{name="my_postgres_db",type="postgres"} 0
+# HELP backman_backup_running Current running state of backups triggered per service.
+# TYPE backman_backup_running gauge
+backman_backup_running{name="my-elasticsearch",type="elasticsearch"} 0
+backman_backup_running{name="my_mongodb",type="mongodb"} 0
+backman_backup_running{name="my_postgres_db",type="postgres"} 0
+# HELP backman_backup_total Total number of backups triggered per service.
+# TYPE backman_backup_total counter
+backman_backup_total{name="my-elasticsearch",type="Elasticsearch"} 21
+backman_backup_total{name="my_mongodb",type="MongoDB"} 5
+backman_backup_total{name="my_postgres_db",type="PostgreSQL"} 7
 # HELP backman_restore_failures_total Total number of restore failures per service.
 # TYPE backman_restore_failures_total counter
-backman_restore_failures_total{service_name="my-elasticsearch",service_type="Elasticsearch"} 2
+backman_restore_failures_total{name="my-elasticsearch",type="Elasticsearch"} 2
 # HELP backman_restore_success_total Total number of successful restores per service.
 # TYPE backman_restore_success_total counter
-backman_restore_success_total{service_name="my-elasticsearch",service_type="Elasticsearch"} 1
-backman_restore_success_total{service_name="my_mongodb",service_type="MongoDB"} 2
-# HELP backman_restores_total Total number of restores triggered per service.
-# TYPE backman_restores_total counter
-backman_restores_total{service_name="my-elasticsearch",service_type="Elasticsearch"} 3
-backman_restores_total{service_name="my_mongodb",service_type="MongoDB"} 2
+backman_restore_success_total{name="my-elasticsearch",type="Elasticsearch"} 1
+backman_restore_success_total{name="my_mongodb",type="MongoDB"} 2
+# HELP backman_restore_queued Restores currently in queue per service.
+# TYPE backman_restore_queued gauge
+backman_restore_queued{name="my-elasticsearch",type="elasticsearch"} 0
+backman_restore_queued{name="my_mongodb",type="mongodb"} 0
+backman_restore_queued{name="my_postgres_db",type="postgres"} 0
+# HELP backman_restore_running Current running state of restores triggered per service.
+# TYPE backman_restore_running gauge
+backman_restore_running{name="my-elasticsearch",type="elasticsearch"} 1
+backman_restore_running{name="my_mongodb",type="mongodb"} 0
+backman_restore_running{name="my_postgres_db",type="postgres"} 0
+# HELP backman_restore_total Total number of restores triggered per service.
+# TYPE backman_restore_total counter
+backman_restore_total{name="my-elasticsearch",type="Elasticsearch"} 3
+backman_restore_total{name="my_mongodb",type="MongoDB"} 2
 # HELP backman_scheduler_backup_failures_total Total number of backup failures over crontab-schedule.
 # TYPE backman_scheduler_backup_failures_total counter
 backman_scheduler_backup_failures_total 0
