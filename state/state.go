@@ -11,10 +11,10 @@ var (
 )
 
 type State struct {
-	Type     string
-	Status   string
-	At       time.Time
-	Duration time.Duration
+	Type     string        `json:",omitempty"`
+	Status   string        `json:",omitempty"`
+	At       time.Time     `json:",omitempty"`
+	Duration time.Duration `json:",omitempty"`
 }
 
 type StateTracker struct {
@@ -36,7 +36,7 @@ func newStateTracker() *StateTracker {
 	}
 }
 
-func (st *StateTracker) Read(key string) (State, bool) {
+func (st *StateTracker) Get(key string) (State, bool) {
 	st.RLock()
 	defer st.RUnlock()
 

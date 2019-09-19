@@ -19,3 +19,7 @@ type Retention struct {
 func (s *Service) Type() ServiceType {
 	return ParseServiceType(s.Label)
 }
+
+func (s *Service) Key() string {
+	return ParseServiceType(s.Label).String()
+}

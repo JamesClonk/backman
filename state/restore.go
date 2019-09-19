@@ -1,6 +1,8 @@
 package state
 
 import (
+	"time"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/swisscom/backman/service/util"
@@ -43,14 +45,39 @@ func RestoreStart(service util.Service) {
 	restoreQueuedState.WithLabelValues(service.Label, service.Name).Dec()
 	restoreRunningState.WithLabelValues(service.Label, service.Name).Set(1)
 	restoreRuns.WithLabelValues(service.Label, service.Name).Inc()
+
+	Tracker().Set(service.Key(),
+		State{
+			Type:   "restore",
+			Status: "running",
+			At:     time.Now(),
+		})
 }
 
 func RestoreFailure(service util.Service) {
 	restoreRunningState.WithLabelValues(service.Label, service.Name).Set(0)
 	restoreFailures.WithLabelValues(service.Label, service.Name).Inc()
+
+	state, _ := Tracker().Get(service.Key())
+	Tracker().Set(service.Key(),
+		State{
+			Type:     "restore",
+			Status:   "failure",
+			At:       time.Now(),
+			Duration: time.Since(state.At),
+		})
 }
 
 func RestoreSuccess(service util.Service) {
 	restoreRunningState.WithLabelValues(service.Label, service.Name).Set(0)
 	restoreSuccess.WithLabelValues(service.Label, service.Name).Inc()
+
+	state, _ := Tracker().Get(service.Key())
+	Tracker().Set(service.Key(),
+		State{
+			Type:     "restore",
+			Status:   "success",
+			At:       time.Now(),
+			Duration: time.Since(state.At),
+		})
 }
