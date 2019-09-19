@@ -32,6 +32,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 
 	g.GET("/services", h.ListServices)
 	g.GET("/backups", h.ListBackups)
+	g.GET("/states", h.ListStates)
 
 	g.GET("/backup/:service_type/:service_name/:file", h.GetBackup)
 	g.GET("/backup/:service_type/:service_name/:file/download", h.DownloadBackup)
@@ -39,4 +40,6 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	g.DELETE("/backup/:service_type/:service_name/:file", h.DeleteBackup)
 
 	g.POST("/restore/:service_type/:service_name/:file", h.RestoreBackup)
+
+	g.GET("/state/:service_type/:service_name", h.GetState)
 }

@@ -3,6 +3,8 @@ package state
 import (
 	"sync"
 	"time"
+
+	"github.com/swisscom/backman/service/util"
 )
 
 var (
@@ -11,10 +13,11 @@ var (
 )
 
 type State struct {
-	Type     string        `json:",omitempty"`
-	Status   string        `json:",omitempty"`
-	At       time.Time     `json:",omitempty"`
-	Duration time.Duration `json:",omitempty"`
+	Service   util.Service  `json:",omitempty"`
+	Operation string        `json:",omitempty"`
+	Status    string        `json:",omitempty"`
+	At        time.Time     `json:",omitempty"`
+	Duration  time.Duration `json:",omitempty"`
 }
 
 type StateTracker struct {
@@ -36,24 +39,36 @@ func newStateTracker() *StateTracker {
 	}
 }
 
-func (st *StateTracker) Get(key string) (State, bool) {
+func (st *StateTracker) List() []State {
 	st.RLock()
 	defer st.RUnlock()
 
-	state, ok := st.state[key]
+	states := make([]State, 0)
+	for _, state := range st.state {
+		states = append(states, state)
+	}
+	return states
+}
+
+func (st *StateTracker) Get(service util.Service) (State, bool) {
+	st.RLock()
+	defer st.RUnlock()
+
+	state, ok := st.state[service.Key()]
 	return state, ok
 }
 
-func (st *StateTracker) Delete(key string) {
+func (st *StateTracker) Delete(service util.Service) {
 	st.Lock()
 	defer st.Unlock()
 
-	delete(st.state, key)
+	delete(st.state, service.Key())
 }
 
-func (st *StateTracker) Set(key string, state State) {
+func (st *StateTracker) Set(service util.Service, state State) {
 	st.Lock()
 	defer st.Unlock()
 
-	st.state[key] = state
+	state.Service = service
+	st.state[service.Key()] = state
 }

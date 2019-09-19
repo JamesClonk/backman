@@ -46,11 +46,11 @@ func RestoreStart(service util.Service) {
 	restoreRunningState.WithLabelValues(service.Label, service.Name).Set(1)
 	restoreRuns.WithLabelValues(service.Label, service.Name).Inc()
 
-	Tracker().Set(service.Key(),
+	Tracker().Set(service,
 		State{
-			Type:   "restore",
-			Status: "running",
-			At:     time.Now(),
+			Operation: "restore",
+			Status:    "running",
+			At:        time.Now(),
 		})
 }
 
@@ -58,13 +58,13 @@ func RestoreFailure(service util.Service) {
 	restoreRunningState.WithLabelValues(service.Label, service.Name).Set(0)
 	restoreFailures.WithLabelValues(service.Label, service.Name).Inc()
 
-	state, _ := Tracker().Get(service.Key())
-	Tracker().Set(service.Key(),
+	state, _ := Tracker().Get(service)
+	Tracker().Set(service,
 		State{
-			Type:     "restore",
-			Status:   "failure",
-			At:       time.Now(),
-			Duration: time.Since(state.At),
+			Operation: "restore",
+			Status:    "failure",
+			At:        time.Now(),
+			Duration:  time.Since(state.At),
 		})
 }
 
@@ -72,12 +72,12 @@ func RestoreSuccess(service util.Service) {
 	restoreRunningState.WithLabelValues(service.Label, service.Name).Set(0)
 	restoreSuccess.WithLabelValues(service.Label, service.Name).Inc()
 
-	state, _ := Tracker().Get(service.Key())
-	Tracker().Set(service.Key(),
+	state, _ := Tracker().Get(service)
+	Tracker().Set(service,
 		State{
-			Type:     "restore",
-			Status:   "success",
-			At:       time.Now(),
-			Duration: time.Since(state.At),
+			Operation: "restore",
+			Status:    "success",
+			At:        time.Now(),
+			Duration:  time.Since(state.At),
 		})
 }

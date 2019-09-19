@@ -36,7 +36,7 @@ func BackupInit(service util.Service) {
 	backupQueuedState.WithLabelValues(service.Label, service.Name).Set(0)
 	backupRunningState.WithLabelValues(service.Label, service.Name).Set(0)
 
-	Tracker().Set(service.Key(),
+	Tracker().Set(service,
 		State{
 			Status: "idle",
 			At:     time.Now(),
@@ -52,11 +52,11 @@ func BackupStart(service util.Service) {
 	backupRunningState.WithLabelValues(service.Label, service.Name).Set(1)
 	backupRuns.WithLabelValues(service.Label, service.Name).Inc()
 
-	Tracker().Set(service.Key(),
+	Tracker().Set(service,
 		State{
-			Type:   "backup",
-			Status: "running",
-			At:     time.Now(),
+			Operation: "backup",
+			Status:    "running",
+			At:        time.Now(),
 		})
 }
 
@@ -64,13 +64,13 @@ func BackupFailure(service util.Service) {
 	backupRunningState.WithLabelValues(service.Label, service.Name).Set(0)
 	backupFailures.WithLabelValues(service.Label, service.Name).Inc()
 
-	state, _ := Tracker().Get(service.Key())
-	Tracker().Set(service.Key(),
+	state, _ := Tracker().Get(service)
+	Tracker().Set(service,
 		State{
-			Type:     "backup",
-			Status:   "failure",
-			At:       time.Now(),
-			Duration: time.Since(state.At),
+			Operation: "backup",
+			Status:    "failure",
+			At:        time.Now(),
+			Duration:  time.Since(state.At),
 		})
 }
 
@@ -78,12 +78,12 @@ func BackupSuccess(service util.Service) {
 	backupRunningState.WithLabelValues(service.Label, service.Name).Set(0)
 	backupSuccess.WithLabelValues(service.Label, service.Name).Inc()
 
-	state, _ := Tracker().Get(service.Key())
-	Tracker().Set(service.Key(),
+	state, _ := Tracker().Get(service)
+	Tracker().Set(service,
 		State{
-			Type:     "backup",
-			Status:   "success",
-			At:       time.Now(),
-			Duration: time.Since(state.At),
+			Operation: "backup",
+			Status:    "success",
+			At:        time.Now(),
+			Duration:  time.Since(state.At),
 		})
 }
