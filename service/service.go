@@ -10,6 +10,8 @@ import (
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/s3"
+	"github.com/swisscom/backman/service/util"
+	"github.com/swisscom/backman/state"
 )
 
 var (
@@ -21,28 +23,11 @@ var (
 type Service struct {
 	App      *cfenv.App
 	S3       *s3.Client
-	Services []CFService
-}
-type CFService struct {
-	Name      string
-	Label     string
-	Plan      string
-	Tags      []string
-	Timeout   time.Duration
-	Schedule  string
-	Retention Retention
-}
-type Retention struct {
-	Days  int
-	Files int
+	Services []util.Service
 }
 
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
-}
-
-func (cf *CFService) Type() ServiceType {
-	return ParseServiceType(cf.Label)
 }
 
 func new(app *cfenv.App, s3 *s3.Client) *Service {
@@ -67,10 +52,10 @@ func Get() *Service {
 }
 
 func (s *Service) parseServices() {
-	s.Services = make([]CFService, 0)
+	s.Services = make([]util.Service, 0)
 
 	for label, services := range s.App.Services {
-		if IsValidServiceType(label) {
+		if util.IsValidServiceType(label) {
 			for _, service := range services {
 				// read timeout for service
 				timeout := config.Get().Services[service.Name].Timeout
@@ -95,31 +80,36 @@ func (s *Service) parseServices() {
 					retentionFiles = 100 // default
 				}
 
-				s.Services = append(s.Services, CFService{
+				newService := util.Service{
 					Name:     service.Name,
 					Label:    service.Label,
 					Plan:     service.Plan,
 					Tags:     service.Tags,
 					Timeout:  timeout.Duration,
 					Schedule: schedule,
-					Retention: Retention{
+					Retention: util.Retention{
 						Days:  retentionDays,
 						Files: retentionFiles,
 					},
-				})
+				}
+				s.Services = append(s.Services, newService)
+
+				// init prometheus state metrics to 0
+				state.BackupInit(newService)
+				state.RestoreInit(newService)
 			}
 		}
 	}
 	log.Debugf("services loaded: %+v", s.Services)
 }
 
-func (s *Service) GetServices(serviceType, serviceName string) []CFService {
-	cfServices := make([]CFService, 0)
+func (s *Service) GetServices(serviceType, serviceName string) []util.Service {
+	services := make([]util.Service, 0)
 	if len(serviceName) > 0 {
 		// list only a specific service binding
 		for _, service := range s.Services {
 			if service.Name == serviceName {
-				cfServices = append(cfServices, service)
+				services = append(services, service)
 				break
 			}
 		}
@@ -128,7 +118,7 @@ func (s *Service) GetServices(serviceType, serviceName string) []CFService {
 		// list services only for a specific service type
 		for _, service := range s.Services {
 			if service.Label == serviceType {
-				cfServices = append(cfServices, service)
+				services = append(services, service)
 			}
 		}
 
@@ -136,14 +126,14 @@ func (s *Service) GetServices(serviceType, serviceName string) []CFService {
 		// list all services
 		return s.Services
 	}
-	return cfServices
+	return services
 }
 
-func (s *Service) GetService(serviceType, serviceName string) CFService {
+func (s *Service) GetService(serviceType, serviceName string) util.Service {
 	for _, service := range s.Services {
 		if service.Name == serviceName && service.Label == serviceType {
 			return service
 		}
 	}
-	return CFService{}
+	return util.Service{}
 }

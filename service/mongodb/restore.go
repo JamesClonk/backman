@@ -11,12 +11,18 @@ import (
 	"github.com/cloudfoundry-community/go-cfenv"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/s3"
+	"github.com/swisscom/backman/service/util"
+	"github.com/swisscom/backman/state"
 )
 
-func Restore(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, objectPath string) error {
+func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *cfenv.Service, objectPath string) error {
+	state.RestoreQueue(service)
+
 	// lock global mongodb mutex, only 1 backup of this service-type is allowed to run in parallel
 	mongoMutex.Lock()
 	defer mongoMutex.Unlock()
+
+	state.RestoreStart(service)
 
 	uri, _ := binding.CredentialString("uri")
 
@@ -38,6 +44,7 @@ func Restore(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, objectP
 	reader, err := s3.DownloadWithContext(downloadCtx, objectPath)
 	if err != nil {
 		log.Errorf("could not download service backup [%s] from S3: %v", binding.Name, err)
+		state.RestoreFailure(service)
 		return err
 	}
 	defer reader.Close()
@@ -49,15 +56,21 @@ func Restore(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, objectP
 
 	if err := cmd.Start(); err != nil {
 		log.Errorf("could not run mongorestore: %v", err)
+		state.RestoreFailure(service)
 		return err
 	}
 
 	if err := cmd.Wait(); err != nil {
+		state.RestoreFailure(service)
 		// check for timeout error
 		if ctx.Err() == context.DeadlineExceeded {
 			return fmt.Errorf("mongorestore: timeout: %v", ctx.Err())
 		}
 		return fmt.Errorf("mongorestore: %v", err)
+	}
+
+	if err == nil {
+		state.RestoreSuccess(service)
 	}
 	return err
 }

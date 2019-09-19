@@ -8,7 +8,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/hako/durafmt"
 	"github.com/labstack/echo/v4"
-	"github.com/swisscom/backman/service"
+	"github.com/swisscom/backman/service/util"
 )
 
 type TemplateRenderer struct {
@@ -22,7 +22,7 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 func (h *Handler) RegisterRenderer(e *echo.Echo) {
 	funcMap := template.FuncMap{
 		"ToLower":     strings.ToLower,
-		"ServiceType": service.ParseServiceType,
+		"ServiceType": util.ParseServiceType,
 		"Duration":    durafmt.Parse,
 		"Bytes":       func(b int64) string { return humanize.Bytes(uint64(b)) },
 		"Time":        humanize.Time,

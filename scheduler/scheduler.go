@@ -6,6 +6,7 @@ import (
 	"github.com/robfig/cron"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/service"
+	"github.com/swisscom/backman/service/util"
 )
 
 var (
@@ -48,7 +49,7 @@ func RegisterBackups() {
 	StartScheduler()
 }
 
-func Run(s service.CFService) {
+func Run(s util.Service) {
 	log.Infof("running backup for service [%s]", s.Name)
 	scheduledRuns.Inc()
 

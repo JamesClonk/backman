@@ -15,14 +15,20 @@ import (
 
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/s3"
+	"github.com/swisscom/backman/service/util"
+	"github.com/swisscom/backman/state"
 )
 
 var mongoMutex = &sync.Mutex{}
 
-func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename string) error {
+func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *cfenv.Service, filename string) error {
+	state.BackupQueue(service)
+
 	// lock global mongodb mutex, only 1 backup of this service-type is allowed to run in parallel
 	mongoMutex.Lock()
 	defer mongoMutex.Unlock()
+
+	state.BackupStart(service)
 
 	uri, _ := binding.CredentialString("uri")
 
@@ -43,6 +49,7 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 	outPipe, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Errorf("could not get stdout pipe for mongodump: %v", err)
+		state.BackupFailure(service)
 		return err
 	}
 	defer outPipe.Close()
@@ -78,10 +85,12 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 
 	if err := cmd.Start(); err != nil {
 		log.Errorf("could not run mongodump: %v", err)
+		state.BackupFailure(service)
 		return err
 	}
 
 	if err := cmd.Wait(); err != nil {
+		state.BackupFailure(service)
 		// check for timeout error
 		if ctx.Err() == context.DeadlineExceeded {
 			return fmt.Errorf("mongodump: timeout: %v", ctx.Err())
@@ -92,5 +101,8 @@ func Backup(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, filename
 	}
 
 	uploadWait.Wait() // wait for upload to have finished
+	if err == nil {
+		state.BackupSuccess(service)
+	}
 	return err
 }

@@ -9,33 +9,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/service/elasticsearch"
 	"github.com/swisscom/backman/service/mongodb"
 	"github.com/swisscom/backman/service/mysql"
 	"github.com/swisscom/backman/service/postgres"
-)
-
-var (
-	// prom metrics for backup success/failure
-	backupRuns = promauto.NewCounterVec(prometheus.CounterOpts{
-		Name: "backman_backups_total",
-		Help: "Total number of backups triggered per service.",
-	}, []string{"service_name", "service_type"})
-	backupFailures = promauto.NewCounterVec(prometheus.CounterOpts{
-		Name: "backman_backup_failures_total",
-		Help: "Total number of backup failures per service.",
-	}, []string{"service_name", "service_type"})
-	backupSuccess = promauto.NewCounterVec(prometheus.CounterOpts{
-		Name: "backman_backup_success_total",
-		Help: "Total number of successful backups per service.",
-	}, []string{"service_name", "service_type"})
+	"github.com/swisscom/backman/service/util"
 )
 
 type Backup struct {
-	Service CFService
+	Service util.Service
 	Files   []File
 }
 type File struct {
@@ -46,7 +29,7 @@ type File struct {
 	LastModified time.Time
 }
 
-func (s *Service) Backup(service CFService) error {
+func (s *Service) Backup(service util.Service) error {
 	filename := fmt.Sprintf("%s_%s.gz", service.Name, time.Now().Format("20060102150405"))
 
 	envService, err := s.App.Services.WithName(service.Name)
@@ -54,31 +37,28 @@ func (s *Service) Backup(service CFService) error {
 		log.Errorf("could not find service [%s] to backup: %v", service.Name, err)
 		return err
 	}
-	backupRuns.WithLabelValues(service.Name, service.Type().String()).Inc()
 
 	// ctx to abort backup if this takes longer than defined timeout
 	ctx, cancel := context.WithTimeout(context.Background(), service.Timeout)
 	defer cancel()
 
 	switch service.Type() {
-	case MongoDB:
-		err = mongodb.Backup(ctx, s.S3, envService, filename)
-	case MySQL:
-		err = mysql.Backup(ctx, s.S3, envService, filename)
-	case Postgres:
-		err = postgres.Backup(ctx, s.S3, envService, filename)
-	case Elasticsearch:
-		err = elasticsearch.Backup(ctx, s.S3, envService, filename)
+	case util.MongoDB:
+		err = mongodb.Backup(ctx, s.S3, service, envService, filename)
+	case util.MySQL:
+		err = mysql.Backup(ctx, s.S3, service, envService, filename)
+	case util.Postgres:
+		err = postgres.Backup(ctx, s.S3, service, envService, filename)
+	case util.Elasticsearch:
+		err = elasticsearch.Backup(ctx, s.S3, service, envService, filename)
 	default:
 		err = fmt.Errorf("unsupported service type [%s]", service.Label)
 	}
 	if err != nil {
 		log.Errorf("could not backup service [%s]: %v", service.Name, err)
-		backupFailures.WithLabelValues(service.Name, service.Type().String()).Inc()
 		return err
 	}
 	log.Infof("created and uploaded backup [%s] for service [%s]", filename, service.Name)
-	backupSuccess.WithLabelValues(service.Name, service.Type().String()).Inc()
 
 	// cleanup files according to retention policy of service
 	go func() {

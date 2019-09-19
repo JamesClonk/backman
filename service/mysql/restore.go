@@ -13,13 +13,19 @@ import (
 	"github.com/cloudfoundry-community/go-cfenv"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/s3"
+	"github.com/swisscom/backman/service/util"
+	"github.com/swisscom/backman/state"
 )
 
-func Restore(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, objectPath string) error {
+func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *cfenv.Service, objectPath string) error {
+	state.RestoreQueue(service)
+
 	// lock global mysql mutex, only 1 backup/restore operation of this service-type is allowed to run in parallel
 	// to avoid issues with setting MYSQL* environment variables and memory consumption
 	mysqlMutex.Lock()
 	defer mysqlMutex.Unlock()
+
+	state.RestoreStart(service)
 
 	host, _ := binding.CredentialString("host")
 	database, _ := binding.CredentialString("database")
@@ -58,12 +64,14 @@ func Restore(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, objectP
 	reader, err := s3.DownloadWithContext(downloadCtx, objectPath)
 	if err != nil {
 		log.Errorf("could not download service backup [%s] from S3: %v", binding.Name, err)
+		state.RestoreFailure(service)
 		return err
 	}
 	defer reader.Close()
 	gr, err := gzip.NewReader(reader)
 	if err != nil {
 		log.Errorf("could not open gzip reader: %v", err)
+		state.RestoreFailure(service)
 		return err
 	}
 	defer gr.Close()
@@ -75,15 +83,21 @@ func Restore(ctx context.Context, s3 *s3.Client, binding *cfenv.Service, objectP
 
 	if err := cmd.Start(); err != nil {
 		log.Errorf("could not run mysql restore: %v", err)
+		state.RestoreFailure(service)
 		return err
 	}
 
 	if err := cmd.Wait(); err != nil {
+		state.RestoreFailure(service)
 		// check for timeout error
 		if ctx.Err() == context.DeadlineExceeded {
 			return fmt.Errorf("mysql restore: timeout: %v", ctx.Err())
 		}
 		return fmt.Errorf("mysql restore: %v", err)
+	}
+
+	if err == nil {
+		state.RestoreSuccess(service)
 	}
 	return err
 }

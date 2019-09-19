@@ -7,7 +7,7 @@ import (
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/swisscom/backman/log"
-	"github.com/swisscom/backman/service"
+	"github.com/swisscom/backman/service/util"
 )
 
 func (h *Handler) ListBackups(c echo.Context) error {
@@ -56,7 +56,7 @@ func (h *Handler) CreateBackup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid service name: %v", err))
 	}
 
-	if !service.IsValidServiceType(serviceType) {
+	if !util.IsValidServiceType(serviceType) {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("unsupported service type: %s", serviceType))
 	}
 

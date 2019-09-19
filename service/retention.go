@@ -6,9 +6,10 @@ import (
 	"time"
 
 	"github.com/swisscom/backman/log"
+	"github.com/swisscom/backman/service/util"
 )
 
-func (s *Service) RetentionCleanup(service CFService) error {
+func (s *Service) RetentionCleanup(service util.Service) error {
 	folderPath := fmt.Sprintf("%s/%s/", service.Label, service.Name)
 	objects, err := s.S3.List(folderPath)
 	if err != nil {
