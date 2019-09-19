@@ -138,6 +138,11 @@ backman_scheduler_backup_success_total 4
 backman_scheduler_runs_total 4
 ```
 
+## API
+
+backman has an API which can be used to trigger backups & restores.
+Have a look at the [Swagger documentation](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/swisscom/backman/master/swagger.yml)
+
 ## Screenshots
 
 * shows all bound service instances
