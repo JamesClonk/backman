@@ -80,6 +80,19 @@ definitions:
     x-go-package: github.com/swisscom/backman/state
 paths:
   /api/v1/backup/{service_type}/{service_name}:
+    get:
+      operationId: getBackups
+      produces:
+      - application/json
+      responses:
+        "200":
+          $ref: '#/responses/backup'
+      schemes:
+      - http
+      - https
+      summary: Returns a full backup object for given service.
+      tags:
+      - backup
     post:
       operationId: createBackup
       produces:
@@ -115,7 +128,7 @@ paths:
       schemes:
       - http
       - https
-      summary: Returns a backup file object for given service.
+      summary: Returns a single backup file object for given service.
       tags:
       - backup
   /api/v1/backup/{service_type}/{service_name}/{filename}/download:

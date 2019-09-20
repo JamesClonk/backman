@@ -35,8 +35,38 @@ func (h *Handler) ListBackups(c echo.Context) error {
 	return c.JSON(http.StatusOK, backups)
 }
 
+// swagger:route GET /api/v1/backup/{service_type}/{service_name} backup getBackups
+// Returns a full backup object for given service.
+//
+// produces:
+// - application/json
+//
+// schemes: http, https
+//
+// responses:
+//   200: backup
+func (h *Handler) GetBackups(c echo.Context) error {
+	serviceType := c.QueryParam("service_type")
+	serviceName, err := url.QueryUnescape(c.Param("service_name"))
+	if err != nil {
+		log.Errorf("%v", err)
+		return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid service name: %v", err))
+	}
+
+	backups, err := h.Service.GetBackups(serviceType, serviceName)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, err.Error())
+	}
+
+	// there should only be 1 backup struct in there since we specified serviceName
+	if len(backups) != 1 {
+		return c.JSON(http.StatusNotFound, fmt.Errorf("backups not found"))
+	}
+	return c.JSON(http.StatusOK, backups[0])
+}
+
 // swagger:route GET /api/v1/backup/{service_type}/{service_name}/{filename} backup getBackup
-// Returns a backup file object for given service.
+// Returns a single backup file object for given service.
 //
 // produces:
 // - application/json
