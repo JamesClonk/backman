@@ -273,51 +273,7 @@ function checkState()
 	})
 	.then(function(state) {
 		if (state.Status != lastState) {
-			// backup/restore is already, don't allow triggering more operations for this service
-			if (state.Status == "running") {
-				document.getElementById("spinner").style.display = "block";
-				document.getElementById("trigger").disabled = true;
-				document.getElementById("trigger").classList.add("disabled");
-
-				var restores = document.getElementsByClassName("restore-button");
-				for (var i = 0; i < restores.length; i++) {
-					restores[i].disabled = true;
-					restores[i].classList.add("item--disabled");
-				}
-
-				// disable delete button if restore operation is ongoing
-				if (state.Operation == "restore") {
-					var deletes = document.getElementsByClassName("delete-button");
-					for (var i = 0; i < deletes.length; i++) {
-						deletes[i].disabled = true;
-						deletes[i].classList.add("item--disabled");
-					}
-				}
-
-				// check state again in 5s
-				setTimeout(function() {
-					checkState();
-				}, 5000);
-
-			// no backup/restore currently running, allow new operations for this service
-			} else {
-				document.getElementById("spinner").style.display = "none";
-				document.getElementById("trigger").disabled = false;
-				document.getElementById("trigger").classList.remove("disabled");
-
-				var restores = document.getElementsByClassName("restore-button");
-				for (var i = 0; i < restores.length; i++) {
-					restores[i].disabled = false;
-					restores[i].classList.remove("item--disabled");
-				}
-				var deletes = document.getElementsByClassName("delete-button");
-				for (var i = 0; i < deletes.length; i++) {
-					deletes[i].disabled = false;
-					deletes[i].classList.remove("item--disabled");
-				}
-			}
-
-			if (state.Status == "failure") {
+			if (state.Status == "failure" && lastState != "unknown") {
 				console.log('operation failed:', state);
 				if (state.Operation == "backup") {
 					showNotification('Backing up {{ .Service.Name }} failed!', 'notification--alert');
@@ -326,18 +282,64 @@ function checkState()
 				}
 			}
 
-			if (state.Status == "success") {
+			if (state.Status == "success" && lastState != "unknown") {
 				console.log('operation success:', state);
 				if (state.Operation == "backup") {
 					showNotification('Successfully backed up {{ .Service.Name }}', 'notification--confirmation');
 					// update backups after successful backup operation
-					getBackups();
+					setTimeout(function() {
+						getBackups();
+					}, 7777);
 				} else {
 					showNotification('Successfully restored {{ .Service.Name }}', 'notification--confirmation');
 				}
 			}
 		}
 		lastState = state.Status;
+
+		// backup/restore is already, don't allow triggering more operations for this service
+		if (state.Status == "running") {
+			document.getElementById("spinner").style.display = "block";
+			document.getElementById("trigger").disabled = true;
+			document.getElementById("trigger").classList.add("disabled");
+
+			var restores = document.getElementsByClassName("restore-button");
+			for (var i = 0; i < restores.length; i++) {
+				restores[i].disabled = true;
+				restores[i].classList.add("item--disabled");
+			}
+
+			// disable delete button if restore operation is ongoing
+			if (state.Operation == "restore") {
+				var deletes = document.getElementsByClassName("delete-button");
+				for (var i = 0; i < deletes.length; i++) {
+					deletes[i].disabled = true;
+					deletes[i].classList.add("item--disabled");
+				}
+			}
+
+			// check state again in 5s
+			setTimeout(function() {
+				checkState();
+			}, 5000);
+
+		// no backup/restore currently running, allow new operations for this service
+		} else {
+			document.getElementById("spinner").style.display = "none";
+			document.getElementById("trigger").disabled = false;
+			document.getElementById("trigger").classList.remove("disabled");
+
+			var restores = document.getElementsByClassName("restore-button");
+			for (var i = 0; i < restores.length; i++) {
+				restores[i].disabled = false;
+				restores[i].classList.remove("item--disabled");
+			}
+			var deletes = document.getElementsByClassName("delete-button");
+			for (var i = 0; i < deletes.length; i++) {
+				deletes[i].disabled = false;
+				deletes[i].classList.remove("item--disabled");
+			}
+		}
 	})
 	.catch(function(error) {
 		console.error('error while service state:', error)
