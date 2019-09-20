@@ -88,11 +88,11 @@
 										<i class="icon icon-024-download-cloud" aria-hidden="true"></i>
 										<span class="toolbar__label"><small>Download</small></span>
 									</button>
-									<button class="toolbar__item item--show modal-trigger padding-v-0" aria-label="Restore" href="restoreModalDialog" v-on:click="setBackupFile(file.Filename)">
+									<button class="toolbar__item item--show padding-v-0" aria-label="Restore" v-on:click="showRestoreDialog(file.Filename)">
 										<i class="icon icon-delivery-2" aria-hidden="true"></i>
 										<span class="toolbar__label"><small>Restore</small></span>
 									</button>
-									<button class="toolbar__item item--show modal-trigger padding-v-0" aria-label="Delete" href="deleteModalDialog" v-on:click="setBackupFile(file.Filename)">
+									<button class="toolbar__item item--show padding-v-0" aria-label="Delete" v-on:click="showDeleteDialog(file.Filename)">
 										<i class="icon icon-008-bin" aria-hidden="true"></i>
 										<span class="toolbar__label"><small>Delete</small></span>
 									</button>
@@ -149,13 +149,15 @@ var app = new Vue({
 	data: {
 		files: []
 	},
-    created: function(){
-        getBackups();
-    }
+	created: function(){
+		// load backups upon page load
+		getBackups();
+	}
 })
 
 function getBackups()
 {
+	// query backups
 	fetch('/api/v1/backup/{{ .Service.Label }}/{{ .Service.Name }}', {
 		method: 'GET',
 		credentials: 'same-origin',
@@ -169,21 +171,18 @@ function getBackups()
 	.then(function(data) {
 		// sort to make sure the latest backup files are at the top
 		data.Files.sort(function(a,b){
-			return new Date(a.LastModified) - new Date(b.LastModified);
+			return new Date(b.LastModified) - new Date(a.LastModified);
 		});
 
 		for (f in data.Files) {
 			file = data.Files[f];
-			file.Size = filesize(file.Size, {round: 0});
-			file.LastModified = moment(file.LastModified).fromNow();
+			file.Size = filesize(file.Size, {round: 0}); // human readable filesizes
+			file.LastModified = moment(file.LastModified).fromNow(); // human readable relative time
 			app.files.push(file);
 		}
 	})
-	.then(function() {
-		// resubscribe triggers
-		for (var i = 0; i < sdx.Modal.instances.length; i++) {
-		  sdx.Modal.instances[i]._subscribeToTrigger()
-		}
+	.catch(function(error) {
+		console.error('error while retrieving backup:', error)
 	});
 }
 
@@ -246,10 +245,24 @@ function triggerDelete()
 	});
 }
 
-function setBackupFile(filename)
+function showRestoreDialog(filename)
 {
 	document.getElementById("restoreFilename").innerHTML = filename;
+	for (var i = 0; i < sdx.Modal.instances.length; i++) {
+		if (sdx.Modal.instances[i].element.id == "restoreModalDialog") {
+			sdx.Modal.instances[i].open();
+		}
+	}
+}
+
+function showDeleteDialog(filename)
+{
 	document.getElementById("deleteFilename").innerHTML = filename;
+	for (var i = 0; i < sdx.Modal.instances.length; i++) {
+		if (sdx.Modal.instances[i].element.id == "deleteModalDialog") {
+			sdx.Modal.instances[i].open();
+		}
+	}
 }
 
 function showNotification(message, modifier)
