@@ -45,11 +45,11 @@
 
 			<div class="row ">
 				<div class="col-xs col-md col-lg col-xl">
-					<div class="loader-spinner loader-spinner--large loader-spinner--plain"><span class="sr-only">Loading. Please wait.</span></div>
+					<div id="spinner" class="loader-spinner loader-spinner--large loader-spinner--plain"><span class="sr-only">Loading. Please wait.</span></div>
 				</div>
 				<div class="col-xs-10 col-md-10 col-lg-10 col-xl-10">
 					<div class="button-group button-group--responsive">
-						<button class="button button__icon button--primary button--full margin-h-3 disabled" aria-disabled="true" onclick="triggerBackup();">
+						<button id="trigger" class="button button__icon button--primary button--full margin-h-3" onclick="triggerBackup();">
 							<i class="icon icon-save" aria-hidden="true"></i>
 							Trigger Backup
 						</button>
@@ -88,11 +88,11 @@
 										<i class="icon icon-024-download-cloud" aria-hidden="true"></i>
 										<span class="toolbar__label"><small>Download</small></span>
 									</button>
-									<button class="toolbar__item item--show padding-v-0" aria-label="Restore" v-on:click="showRestoreDialog(file.Filename)">
+									<button class="toolbar__item item--show padding-v-0 restore-button" aria-label="Restore" v-on:click="showRestoreDialog(file.Filename)">
 										<i class="icon icon-delivery-2" aria-hidden="true"></i>
 										<span class="toolbar__label"><small>Restore</small></span>
 									</button>
-									<button class="toolbar__item item--show padding-v-0" aria-label="Delete" v-on:click="showDeleteDialog(file.Filename)">
+									<button class="toolbar__item item--show padding-v-0 delete-button" aria-label="Delete" v-on:click="showDeleteDialog(file.Filename)">
 										<i class="icon icon-008-bin" aria-hidden="true"></i>
 										<span class="toolbar__label"><small>Delete</small></span>
 									</button>
@@ -143,6 +143,8 @@
 </div>
 
 <script type="text/javascript">
+var lastState = "unknown";
+
 var app = new Vue({
 	el: '#app',
 	delimiters: ['${', '}'],
@@ -183,6 +185,10 @@ function getBackups()
 	})
 	.catch(function(error) {
 		console.error('error while retrieving backup:', error)
+	})
+	.then(function() {
+		// check service state
+		checkState();
 	});
 }
 
@@ -196,6 +202,7 @@ function triggerBackup()
 		if (response.status == 202) {
 			console.log('backup triggered:', response);
 			showNotification('{{ .Service.Name }} backup triggered ...', '');
+			checkState();
 		} else {
 			console.log('failed to trigger backup:', response);
 			showNotification('Triggering backup of {{ .Service.Name }} failed!', 'notification--alert');
@@ -215,6 +222,7 @@ function triggerRestore()
 		if (response.status == 202) {
 			console.log('restore triggered:', response);
 			showNotification('{{ .Service.Name }} restore with '+filename+' triggered ...', '');
+			checkState();
 		} else {
 			console.log('failed to trigger restore:', response);
 			showNotification('Triggering restore of {{ .Service.Name }} failed!', 'notification--alert');
@@ -235,13 +243,109 @@ function triggerDelete()
 		if (response.status == 204) {
 			console.log('delete success:', response);
 			setTimeout(function() {
-				//location.reload(true);
-				getBackups();
-			}, 4000);
+				// remove from current listing
+				for (f in app.files) {
+					file = app.files[f];
+					if (file.Filename == filename) {
+						app.files.splice(f, 1);
+					}
+				}
+			}, 3500);
 		} else {
 			console.log('failed to delete '+filename, response);
 			showNotification('Deleting '+filename+' failed!', 'notification--alert');
 		}
+	});
+}
+
+function checkState()
+{
+	// query service state
+	fetch('/api/v1/state/{{ .Service.Label }}/{{ .Service.Name }}', {
+		method: 'GET',
+		credentials: 'same-origin',
+	})
+	.then(function(response) {
+		if (response.status != 200) {
+			console.log('failed to retrieve service state:', response);
+		}
+		return response.json();
+	})
+	.then(function(state) {
+		if (state.Status != lastState) {
+			// backup/restore is already, don't allow triggering more operations for this service
+			if (state.Status == "running") {
+				document.getElementById("spinner").style.display = "block";
+				document.getElementById("trigger").disabled = true;
+				document.getElementById("trigger").classList.add("disabled");
+
+				var restores = document.getElementsByClassName("restore-button");
+				for (var i = 0; i < restores.length; i++) {
+					restores[i].disabled = true;
+					restores[i].classList.add("item--disabled");
+				}
+
+				// disable delete button if restore operation is ongoing
+				if (state.Operation == "restore") {
+					var deletes = document.getElementsByClassName("delete-button");
+					for (var i = 0; i < deletes.length; i++) {
+						deletes[i].disabled = true;
+						deletes[i].classList.add("item--disabled");
+					}
+				}
+
+				// check state again in 5s
+				setTimeout(function() {
+					checkState();
+				}, 5000);
+
+			// no backup/restore currently running, allow new operations for this service
+			} else {
+				document.getElementById("spinner").style.display = "none";
+				document.getElementById("trigger").disabled = false;
+				document.getElementById("trigger").classList.remove("disabled");
+
+				var restores = document.getElementsByClassName("restore-button");
+				for (var i = 0; i < restores.length; i++) {
+					restores[i].disabled = false;
+					restores[i].classList.remove("item--disabled");
+				}
+				var deletes = document.getElementsByClassName("delete-button");
+				for (var i = 0; i < deletes.length; i++) {
+					deletes[i].disabled = false;
+					deletes[i].classList.remove("item--disabled");
+				}
+			}
+
+			if (state.Status == "failure") {
+				console.log('operation failed:', state);
+				if (state.Operation == "backup") {
+					showNotification('Backing up {{ .Service.Name }} failed!', 'notification--alert');
+				} else {
+					showNotification('Restoring {{ .Service.Name }} failed!', 'notification--alert');
+				}
+			}
+
+			if (state.Status == "success") {
+				console.log('operation success:', state);
+				if (state.Operation == "backup") {
+					showNotification('Successfully backed up {{ .Service.Name }}', 'notification--confirmation');
+					// update backups after successful backup operation
+					getBackups();
+				} else {
+					showNotification('Successfully restored {{ .Service.Name }}', 'notification--confirmation');
+				}
+			}
+		}
+		lastState = state.Status;
+	})
+	.catch(function(error) {
+		console.error('error while service state:', error)
+
+		// check state again in 5s
+		setTimeout(function() {
+			checkState();
+		}, 5000);
 	});
 }
 
