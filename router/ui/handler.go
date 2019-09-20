@@ -70,7 +70,7 @@ func (h *Handler) ErrorHandler(err error, c echo.Context) {
 	page.Error.Time = time.Now()
 
 	log.Errorf("%v", err)
-	c.Render(code, "error.html", page)
+	_ = c.Render(code, "error.html", page)
 }
 
 func (h *Handler) newPage(title string) *Page {

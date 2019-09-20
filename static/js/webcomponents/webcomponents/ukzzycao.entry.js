@@ -1,2 +1,0 @@
-/*! Built with http://stenciljs.com */
-const{h:t}=window.webcomponents;class e{render(){return t("slot",null)}static get is(){return"sdx-accordion-item-section"}static get encapsulation(){return"shadow"}static get style(){return":host{-webkit-box-sizing:border-box;box-sizing:border-box}*,:after,:before{-webkit-box-sizing:inherit;box-sizing:inherit}:host{padding:16px 15px;display:inline-block;position:relative}"}}export{e as SdxAccordionItemSection};

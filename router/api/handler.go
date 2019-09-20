@@ -34,6 +34,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	g.GET("/backups", h.ListBackups)
 	g.GET("/states", h.ListStates)
 
+	g.GET("/backup/:service_type/:service_name", h.GetBackups)
 	g.GET("/backup/:service_type/:service_name/:file", h.GetBackup)
 	g.GET("/backup/:service_type/:service_name/:file/download", h.DownloadBackup)
 	g.POST("/backup/:service_type/:service_name", h.CreateBackup)

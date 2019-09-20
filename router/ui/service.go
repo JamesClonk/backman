@@ -20,6 +20,7 @@ func (h *Handler) ServicesHandler(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("unsupported service type: %s", serviceType))
 		}
 
+		// reduce services list to specific type only
 		page.Services = make(map[string][]util.Service)
 		page.Services[serviceType] = page.AllServices[serviceType]
 		page.Service.Label = serviceType
