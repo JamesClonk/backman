@@ -42,14 +42,23 @@
 					</table>
 				</div>
 			</div>
-			<div class="button-group button-group--responsive">
-				<button class="button button__icon button--primary button--full margin-h-3" onclick="triggerBackup();">
-					<i class="icon icon-save" aria-hidden="true"></i>
-					Trigger Backup
-				</button>
+
+			<div class="row ">
+				<div class="col-xs col-md col-lg col-xl">
+					<div class="loader-spinner loader-spinner--large loader-spinner--plain"><span class="sr-only">Loading. Please wait.</span></div>
+				</div>
+				<div class="col-xs-10 col-md-10 col-lg-10 col-xl-10">
+					<div class="button-group button-group--responsive">
+						<button class="button button__icon button--primary button--full margin-h-3 disabled" aria-disabled="true" onclick="triggerBackup();">
+							<i class="icon icon-save" aria-hidden="true"></i>
+							Trigger Backup
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
+
 	<div class="col-xs-12 col-md-auto">&nbsp;</div>
 	<div class="col-xs">
 		<div class="table table--responsive table--highlight">
@@ -97,7 +106,7 @@
 	</div>
 </div>
 
-<div class="modal" id="restoreModalDialog" role="dialog" tabindex="-1" data-init="auto">
+<div class="modal" id="restoreModalDialog" ref="restoreModalDialog" role="dialog" tabindex="-1" data-init="auto">
 	<div class="container">
 		<div class="modal__content col-xs col-md-10 col-lg-8 col-xl-6">
 			<div class="modal__header">
@@ -115,7 +124,7 @@
 	</div>
 </div>
 
-<div class="modal" id="deleteModalDialog" role="dialog" tabindex="-1" data-init="auto">
+<div class="modal" id="deleteModalDialog" ref="deleteModalDialog" role="dialog" tabindex="-1" data-init="auto">
 	<div class="container">
 		<div class="modal__content col-xs col-md-10 col-lg-8 col-xl-6">
 			<div class="modal__header">
@@ -134,14 +143,16 @@
 </div>
 
 <script type="text/javascript">
-var backups = new Vue({
-	el: '#backups',
+var app = new Vue({
+	el: '#app',
 	delimiters: ['${', '}'],
 	data: {
 		files: []
-	}
+	},
+    created: function(){
+        getBackups();
+    }
 })
-getBackups();
 
 function getBackups()
 {
@@ -156,10 +167,22 @@ function getBackups()
 		return response.json();
 	})
 	.then(function(data) {
+		// sort to make sure the latest backup files are at the top
+		data.Files.sort(function(a,b){
+			return new Date(a.LastModified) - new Date(b.LastModified);
+		});
+
 		for (f in data.Files) {
 			file = data.Files[f];
 			file.Size = filesize(file.Size, {round: 0});
-			backups.files.push(file);
+			file.LastModified = moment(file.LastModified).fromNow();
+			app.files.push(file);
+		}
+	})
+	.then(function() {
+		// resubscribe triggers
+		for (var i = 0; i < sdx.Modal.instances.length; i++) {
+		  sdx.Modal.instances[i]._subscribeToTrigger()
 		}
 	});
 }
@@ -213,7 +236,8 @@ function triggerDelete()
 		if (response.status == 204) {
 			console.log('delete success:', response);
 			setTimeout(function() {
-				location.reload(true);
+				//location.reload(true);
+				getBackups();
 			}, 4000);
 		} else {
 			console.log('failed to delete '+filename, response);
