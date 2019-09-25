@@ -97,6 +97,11 @@ func (s *Service) parseServices() {
 				// init prometheus state metrics to 0
 				state.BackupInit(newService)
 				state.RestoreInit(newService)
+
+				// init backup files state & metrics
+				go func(label, name string) {
+					_, _ = s.GetBackups(label, name)
+				}(service.Label, service.Name)
 			}
 		}
 	}

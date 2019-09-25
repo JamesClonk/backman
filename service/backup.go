@@ -6,15 +6,34 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/service/elasticsearch"
 	"github.com/swisscom/backman/service/mongodb"
 	"github.com/swisscom/backman/service/mysql"
 	"github.com/swisscom/backman/service/postgres"
 	"github.com/swisscom/backman/service/util"
+)
+
+var (
+	// prom metrics for backup files
+	backupFilesTotal = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "backman_backup_files_total",
+		Help: "Number of backup files in total per service.",
+	}, []string{"type", "name"})
+	backupFilesizeTotal = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "backman_backup_filesize_total",
+		Help: "Total filesize sum of all backup files per service.",
+	}, []string{"type", "name"})
+	backupLastFilesize = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "backman_backup_filesize_last",
+		Help: "Filesize of last / most recent backup file per service.",
+	}, []string{"type", "name"})
 )
 
 // swagger:response backup
@@ -69,6 +88,9 @@ func (s *Service) Backup(service util.Service) error {
 		if err := s.RetentionCleanup(service); err != nil {
 			log.Errorf("could not cleanup S3 storage for service [%s]: %v", service.Name, err)
 		}
+
+		// update backup files state & metrics
+		_, _ = s.GetBackups(service.Label, service.Name)
 	}()
 	return err
 }
@@ -99,11 +121,35 @@ func (s *Service) GetBackups(serviceType, serviceName string) ([]Backup, error) 
 			}
 		}
 
+		// sort order of backup files, newest file first
+		sort.Slice(files, func(i, j int) bool {
+			return files[j].LastModified.Before(files[i].LastModified)
+		})
+
 		backups = append(backups, Backup{
 			Service: service,
 			Files:   files,
 		})
 	}
+
+	// update backup files metrics
+	for _, backup := range backups {
+		// number of files
+		backupFilesTotal.WithLabelValues(backup.Service.Label, backup.Service.Name).Set(float64(len(backup.Files)))
+
+		// filesize sum of all files
+		var filesizeTotal float64
+		for _, file := range backup.Files {
+			filesizeTotal += float64(file.Size)
+		}
+		backupFilesizeTotal.WithLabelValues(backup.Service.Label, backup.Service.Name).Set(filesizeTotal)
+
+		// filesize of latest/newest file
+		if len(backup.Files) > 0 {
+			backupLastFilesize.WithLabelValues(backup.Service.Label, backup.Service.Name).Set(float64(backup.Files[0].Size))
+		}
+	}
+
 	return backups, nil
 }
 
@@ -166,5 +212,11 @@ func (s *Service) DeleteBackup(serviceType, serviceName, filename string) error 
 		return err
 	}
 	log.Infof("deleted file [%s]", objectPath)
+
+	// update backup files state & metrics
+	go func(label, name string) {
+		_, _ = s.GetBackups(label, name)
+	}(serviceType, serviceName)
+
 	return nil
 }
