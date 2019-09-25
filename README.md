@@ -81,6 +81,21 @@ Example:
 ```
 $ curl localhost:9990/metrics
 
+# HELP backman_backup_files_total Number of backup files in total per service.
+# TYPE backman_backup_files_total gauge
+backman_backup_files_total{name="my-elasticsearch",type="elasticsearch"} 7
+backman_backup_files_total{name="my_mongodb",type="mongodb"} 1
+backman_backup_files_total{name="my_postgres_db",type="postgres"} 25
+# HELP backman_backup_filesize_last Filesize of last / most recent backup file per service.
+# TYPE backman_backup_filesize_last gauge
+backman_backup_filesize_last{name="my-elasticsearch",type="elasticsearch"} 58404
+backman_backup_filesize_last{name="my_mongodb",type="mongodb"} 1067
+backman_backup_filesize_last{name="my_postgres_db",type="postgres"} 684
+# HELP backman_backup_filesize_total Total filesize sum of all backup files per service.
+# TYPE backman_backup_filesize_total gauge
+backman_backup_filesize_total{name="my-elasticsearch",type="elasticsearch"} 408740
+backman_backup_filesize_total{name="my_mongodb",type="mongodb"} 1067
+backman_backup_filesize_total{name="my_postgres_db",type="postgres"} 7404
 # HELP backman_backup_failures_total Total number of backup failures per service.
 # TYPE backman_backup_failures_total counter
 backman_backup_failures_total{name="my-elasticsearch",type="Elasticsearch"} 3
