@@ -5,7 +5,20 @@ version: 2
 jobs:
   build:
     docker:
+    # primary image for building app
     - image: circleci/golang:1.13
+
+    # service images available at `host: localhost`
+    - image: circleci/postgres:11-alpine
+      environment:
+        POSTGRES_USER: dev-user
+        POSTGRES_PASSWORD: dev-secret
+        POSTGRES_DB: my_postgres_db
+
+    - image: circleci/mysql:5.7
+      environment:
+        MYSQL_DATABASE: mysql
+        MYSQL_ROOT_PASSWORD: my-secret-pw
 
     branches:
       ignore:
@@ -15,4 +28,48 @@ jobs:
 
     steps:
       - checkout
+
+      # path
+      - run:
+          name: prepare path
+          command: |
+            mkdir bin
+            echo 'export PATH=/go/src/github.com/swisscom/backman/bin:$PATH' >> $BASH_ENV
+
+      # unit tests
       - run: make test
+
+      # build binary
+      - run: make build
+
+      # minIO server
+      - run:
+          name: run minIO server
+          command: |
+            wget https://dl.min.io/server/minio/release/linux-amd64/minio -O /go/src/github.com/swisscom/backman/bin/minio
+            chmod +x /go/src/github.com/swisscom/backman/bin/minio
+            minio server /tmp/data
+          background: true
+          environment:
+            MINIO_UPDATE: 'off'
+            MINIO_ACCESS_KEY: deadbeef-beefdead
+            MINIO_SECRET_KEY: beefbeefbeefbeef
+
+      # jq
+      - run:
+          name: install jq
+          command: |
+            wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -O /go/src/github.com/swisscom/backman/bin/jq
+            chmod +x /go/src/github.com/swisscom/backman/bin/jq
+
+      # mysql integration tests
+      - run:
+          name: install MySQL client
+          command: sudo apt install -y mariadb-client || true
+      - run: make mysql-test
+
+      # postgres integration tests
+      - run:
+          name: install Postgres client
+          command: sudo apt install -y postgresql-client || true
+      - run: make postgres-test
