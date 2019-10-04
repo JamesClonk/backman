@@ -1,4 +1,4 @@
-.PHONY: run gin build test swagger elasticsearch elasticsearch-network elasticsearch-stop elasticsearch-start elasticsearch-data minio minio-stop minio-start mysql mysql-network mysql-stop mysql-start mysql-client mysql-test postgres postgres-network postgres-stop postgres-start postgres-client postgres-test mongodb mongodb-network mongodb-stop mongodb-start mongodb-client mongodb-test cleanup
+.PHONY: run gin build test docker-build docker-push docker-run swagger elasticsearch elasticsearch-network elasticsearch-stop elasticsearch-start elasticsearch-data minio minio-stop minio-start mysql mysql-network mysql-stop mysql-start mysql-client mysql-test postgres postgres-network postgres-stop postgres-start postgres-client postgres-test mongodb mongodb-network mongodb-stop mongodb-start mongodb-client mongodb-test cleanup
 SHELL := /bin/bash
 
 all: run
@@ -18,6 +18,18 @@ install:
 
 test:
 	source .env && GOARCH=amd64 GOOS=linux go test -v ./...
+
+docker-build: build
+	docker build -t backman .
+
+docker-push: docker-build
+	docker tag backman:latest jamesclonk/backman:latest
+	docker push jamesclonk/backman:latest
+
+docker-run:
+	docker run -p 9990:8080 \
+		--env-file .dockerenv \
+		backman
 
 swagger:
 	swagger generate spec -o ./swagger.yml

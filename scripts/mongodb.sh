@@ -69,6 +69,7 @@ db.inventory.insertMany([
    { item: "my_backup_item_b", status: "test" }
 ]);
 EOF
+sleep 2
 
 # trigger new backup
 curl -X POST http://john:doe@127.0.0.1:9990/api/v1/backup/mongodb/my_mongodb
@@ -83,6 +84,7 @@ mongo --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabas
 # delete from mongodb
 mongo --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.deleteMany( { item: "my_backup_item_a" } );'
 mongo --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.insert({ item: "my_backup_item_c", status: "test" });'
+sleep 2
 mongo --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.find( { status: "test" } );' | grep 'my_backup_item_c'
 mongo --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.find( { status: "test" } );' | grep -v 'my_backup_item_a'
 

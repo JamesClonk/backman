@@ -5,7 +5,7 @@
 applications:
 - name: backman
   memory: 1G # mysqldump consumes a lot of memory, no matter how small the database is
-  disk_quota: 512M
+  disk_quota: 1G
   instances: 1
   health-check-type: port
 
@@ -20,12 +20,8 @@ applications:
   # - my_mongodb
   # - my_elasticsearch
 
-  buildpacks:
-  - https://github.com/cloudfoundry/apt-buildpack
-  - nodejs_buildpack
-  - go_buildpack
-  command: backman
-  path: .
+  docker:
+    image: jamesclonk/backman
 
   env:
     TZ: Europe/Zurich

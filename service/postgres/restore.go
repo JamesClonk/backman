@@ -47,7 +47,7 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 	// un-gzipping for stdin
 	reader, err := s3.DownloadWithContext(downloadCtx, objectPath)
 	if err != nil {
-		log.Errorf("could not download service backup [%s] from S3: %v", binding.Name, err)
+		log.Errorf("could not download service backup [%s] from S3: %v", service.Name, err)
 		state.RestoreFailure(service)
 		return err
 	}

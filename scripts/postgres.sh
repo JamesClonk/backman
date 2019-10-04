@@ -68,6 +68,7 @@ psql -h 127.0.0.1 -U dev-user -d my_postgres_db <<EOF
 CREATE TABLE test_example (my_column text);
 INSERT INTO test_example (my_column) VALUES ('my_backup_value');
 EOF
+sleep 2
 
 # trigger new backup
 curl -X POST http://john:doe@127.0.0.1:9990/api/v1/backup/postgres/my_postgres_db
@@ -80,6 +81,7 @@ psql -h 127.0.0.1 -U dev-user -d my_postgres_db -c 'select my_column from test_e
 
 # delete from postgres
 psql -h 127.0.0.1 -U dev-user -d my_postgres_db -c 'delete from test_example'
+sleep 2
 psql -h 127.0.0.1 -U dev-user -d my_postgres_db -c 'select my_column from test_example' | grep -v 'my_backup_value'
 
 # trigger restore
