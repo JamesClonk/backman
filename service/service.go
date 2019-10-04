@@ -10,6 +10,7 @@ import (
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/s3"
+	"github.com/swisscom/backman/service/postgres"
 	"github.com/swisscom/backman/service/util"
 	"github.com/swisscom/backman/state"
 )
@@ -55,8 +56,18 @@ func (s *Service) parseServices() {
 	s.Services = make([]util.Service, 0)
 
 	for label, services := range s.App.Services {
-		if util.IsValidServiceType(label) {
+		if util.IsValidServiceType(label) || label == "user-provided" {
 			for _, service := range services {
+				// try to figure out if user-provided service binding can be handled
+				if service.Label == "user-provided" {
+					// can it be identified as a custom postgres binding?
+					if postgres.IsPostgresBinding(&service) {
+						service.Label = "postgres"
+					} else {
+						continue // cannot handle service binding
+					}
+				}
+
 				// read timeout for service
 				timeout := config.Get().Services[service.Name].Timeout
 				if timeout.Seconds() <= 1 {

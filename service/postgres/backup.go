@@ -9,7 +9,6 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -33,30 +32,17 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 
 	state.BackupStart(service)
 
-	host, _ := binding.CredentialString("host")
-	database, _ := binding.CredentialString("database")
-	username, _ := binding.CredentialString("username")
-	password, _ := binding.CredentialString("password")
-	port, _ := binding.CredentialString("port")
-	if len(port) == 0 {
-		switch p := binding.Credentials["port"].(type) {
-		case float64:
-			port = strconv.Itoa(int(p))
-		case int, int32, int64:
-			port = strconv.Itoa(p.(int))
-		}
-	}
-
-	os.Setenv("PGUSER", username)
-	os.Setenv("PGPASSWORD", password)
-	os.Setenv("PGHOST", host)
-	os.Setenv("PGPORT", port)
+	credentials := GetCredentials(binding)
+	os.Setenv("PGUSER", credentials.Username)
+	os.Setenv("PGPASSWORD", credentials.Password)
+	os.Setenv("PGHOST", credentials.Hostname)
+	os.Setenv("PGPORT", credentials.Port)
 
 	// prepare postgres dump command
 	var command []string
-	if len(database) > 0 {
+	if len(credentials.Database) > 0 {
 		command = append(command, "pg_dump")
-		command = append(command, database)
+		command = append(command, credentials.Database)
 		command = append(command, "-C")
 	} else {
 		command = append(command, "pg_dumpall")

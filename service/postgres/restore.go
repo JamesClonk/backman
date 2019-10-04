@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 
 	"github.com/cloudfoundry-community/go-cfenv"
@@ -27,30 +26,17 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 
 	state.RestoreStart(service)
 
-	host, _ := binding.CredentialString("host")
-	database, _ := binding.CredentialString("database")
-	username, _ := binding.CredentialString("username")
-	password, _ := binding.CredentialString("password")
-	port, _ := binding.CredentialString("port")
-	if len(port) == 0 {
-		switch p := binding.Credentials["port"].(type) {
-		case float64:
-			port = strconv.Itoa(int(p))
-		case int, int32, int64:
-			port = strconv.Itoa(p.(int))
-		}
-	}
-
-	os.Setenv("PGUSER", username)
-	os.Setenv("PGPASSWORD", password)
-	os.Setenv("PGHOST", host)
-	os.Setenv("PGPORT", port)
+	credentials := GetCredentials(binding)
+	os.Setenv("PGUSER", credentials.Username)
+	os.Setenv("PGPASSWORD", credentials.Password)
+	os.Setenv("PGHOST", credentials.Hostname)
+	os.Setenv("PGPORT", credentials.Port)
 
 	// prepare postgres restore command
 	var command []string
 	command = append(command, "psql")
 	command = append(command, "--quiet")
-	command = append(command, database)
+	command = append(command, credentials.Database)
 
 	log.Debugf("executing postgres restore command: %v", strings.Join(command, " "))
 	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
