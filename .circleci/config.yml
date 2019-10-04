@@ -20,6 +20,11 @@ jobs:
         MYSQL_DATABASE: mysql
         MYSQL_ROOT_PASSWORD: my-secret-pw
 
+    - image: circleci/mongo:3.6
+      environment:
+        MONGO_INITDB_ROOT_USERNAME: mongoadmin
+        MONGO_INITDB_ROOT_PASSWORD: super-secret
+
     branches:
       ignore:
       - develop
@@ -28,13 +33,6 @@ jobs:
 
     steps:
       - checkout
-
-      # path
-      - run:
-          name: prepare path
-          command: |
-            mkdir bin
-            echo 'export PATH=/go/src/github.com/swisscom/backman/bin:$PATH' >> $BASH_ENV
 
       # unit tests
       - run: make test
@@ -46,30 +44,45 @@ jobs:
       - run:
           name: run minIO server
           command: |
-            wget https://dl.min.io/server/minio/release/linux-amd64/minio -O /go/src/github.com/swisscom/backman/bin/minio
-            chmod +x /go/src/github.com/swisscom/backman/bin/minio
+            wget https://dl.min.io/server/minio/release/linux-amd64/minio -qO minio
+            chmod +x minio
+            sudo mv minio /usr/local/bin/minio
             minio server /tmp/data
           background: true
           environment:
             MINIO_UPDATE: 'off'
-            MINIO_ACCESS_KEY: deadbeef-beefdead
-            MINIO_SECRET_KEY: beefbeefbeefbeef
+            MINIO_ACCESS_KEY: 6d611e2d-330b-4e52-a27c-59064d6e8a62
+            MINIO_SECRET_KEY: eW9sbywgeW91IGhhdmUganVzdCBiZWVuIHRyb2xsZWQh
 
       # jq
       - run:
           name: install jq
           command: |
-            wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -O /go/src/github.com/swisscom/backman/bin/jq
-            chmod +x /go/src/github.com/swisscom/backman/bin/jq
+            wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -qO jq
+            chmod +x jq
+            sudo mv jq /usr/local/bin/jq
+
+      # mongodb integration tests
+      - run:
+          name: install MongoDB client
+          command: |
+            sudo apt-get install -y libcurl4
+            wget https://repo.mongodb.org/apt/debian/dists/stretch/mongodb-org/3.6/main/binary-amd64/mongodb-org-server_3.6.14_amd64.deb -qO mongodb-org-server_3.6.14_amd64.deb
+            sudo dpkg -i --ignore-depends=libcurl3 mongodb-org-server_3.6.14_amd64.deb
+            wget https://repo.mongodb.org/apt/debian/dists/stretch/mongodb-org/3.6/main/binary-amd64/mongodb-org-shell_3.6.14_amd64.deb -qO mongodb-org-shell_3.6.14_amd64.deb
+            sudo dpkg -i --ignore-depends=libcurl3 mongodb-org-shell_3.6.14_amd64.deb
+            wget https://repo.mongodb.org/apt/debian/dists/stretch/mongodb-org/4.2/main/binary-amd64/mongodb-org-tools_4.2.0_amd64.deb -qO mongodb-org-tools_4.2.0_amd64.deb
+            sudo dpkg -i --ignore-depends=libcurl3 mongodb-org-tools_4.2.0_amd64.deb
+      - run: make mongodb-test
 
       # mysql integration tests
       - run:
           name: install MySQL client
-          command: sudo apt install -y mariadb-client || true
+          command: sudo apt install -y mariadb-client
       - run: make mysql-test
 
       # postgres integration tests
       - run:
           name: install Postgres client
-          command: sudo apt install -y postgresql-client || true
+          command: sudo apt install -y postgresql-client
       - run: make postgres-test

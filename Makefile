@@ -1,4 +1,4 @@
-.PHONY: run gin build test swagger elasticsearch elasticsearch-network elasticsearch-stop elasticsearch-start elasticsearch-data minio minio-stop minio-start mysql mysql-network mysql-stop mysql-start mysql-client mysql-test postgres postgres-network postgres-stop postgres-start postgres-client postgres-test mongodb mongodb-network mongodb-stop mongodb-start mongodb-client cleanup
+.PHONY: run gin build test swagger elasticsearch elasticsearch-network elasticsearch-stop elasticsearch-start elasticsearch-data minio minio-stop minio-start mysql mysql-network mysql-stop mysql-start mysql-client mysql-test postgres postgres-network postgres-stop postgres-start postgres-client postgres-test mongodb mongodb-network mongodb-stop mongodb-start mongodb-client mongodb-test cleanup
 SHELL := /bin/bash
 
 all: run
@@ -52,8 +52,8 @@ minio-stop:
 
 minio-start:
 	docker run -d -p 9000:9000 --name minio \
-		-e "MINIO_ACCESS_KEY=deadbeef-beefdead" \
-		-e "MINIO_SECRET_KEY=beefbeefbeefbeef" \
+		-e "MINIO_ACCESS_KEY=6d611e2d-330b-4e52-a27c-59064d6e8a62" \
+		-e "MINIO_SECRET_KEY=eW9sbywgeW91IGhhdmUganVzdCBiZWVuIHRyb2xsZWQh" \
 		minio/minio server /data
 
 mysql: mysql-network mysql-stop mysql-start
@@ -131,6 +131,9 @@ mongodb-client:
         	-u 'mongoadmin' \
         	-p 'super-secret' \
         	--authenticationDatabase admin
+
+mongodb-test: build
+	scripts/mongodb.sh
 
 cleanup:
 	docker system prune --volumes -a
