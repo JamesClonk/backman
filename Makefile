@@ -20,7 +20,7 @@ test:
 	source .env && GOARCH=amd64 GOOS=linux go test -v ./...
 
 docker-build: build
-	docker build -t backman .
+	docker build -t jamesclonk/backman .
 
 docker-push: docker-build
 	docker tag backman:latest jamesclonk/backman:latest
@@ -29,7 +29,7 @@ docker-push: docker-build
 docker-run:
 	docker run -p 9990:8080 \
 		--env-file .dockerenv \
-		backman
+		jamesclonk/backman
 
 swagger:
 	swagger generate spec -o ./swagger.yml
