@@ -29,6 +29,11 @@ backman can be configured via JSON configuration, either with a file `config.jso
 Values configured in `BACKMAN_CONFIG` take precedence over `config.json`.
 By default backman will assume useful values for all services/backups unless configured otherwise.
 
+**Note:** Configuration via the `config.json` only makes sense when either pushing with buildpacks to CF, or by building your own docker image.
+If you are using the provided docker image `jamesclonk/backman` (as is default in the manifest) then there will be no configuration file and all configuration options need to be set via environment variables.
+
+It is generally recommended to use the `BACKMAN_CONFIG` environment variable for all your configuration needs.
+
 These here are the default values backman will use if not configured via JSON:
 ```json
 {
