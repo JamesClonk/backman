@@ -1,4 +1,4 @@
-PORT=9990
+PORT=8080
 USER=vcap
 
 BACKMAN_CONFIG={"log_level":"debug","logging_timestamp":true,"username":"john","password":"doe","s3":{"disable_ssl":true},"services":{"my_postgres_db":{"schedule":"13 37 0/6 * * *","retention":{"days":90,"files":20}},"other_postgres_db":{"timeout":"2h15m","retention":{"files":500}}}}
