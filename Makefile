@@ -23,7 +23,7 @@ docker-build: build
 	docker build -t jamesclonk/backman .
 
 docker-push: docker-build
-	docker tag backman:latest jamesclonk/backman:latest
+	docker tag jamesclonk/backman:latest jamesclonk/backman:latest
 	docker push jamesclonk/backman:latest
 
 docker-run:
