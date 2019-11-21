@@ -1,4 +1,4 @@
-.PHONY: run gin build test docker-build docker-push docker-run swagger elasticsearch elasticsearch-network elasticsearch-stop elasticsearch-start elasticsearch-data minio minio-stop minio-start mysql mysql-network mysql-stop mysql-start mysql-client mysql-test postgres postgres-network postgres-stop postgres-start postgres-client postgres-test mongodb mongodb-network mongodb-stop mongodb-start mongodb-client mongodb-test cleanup
+.PHONY: run gin build test docker-build docker-push docker-run docker-exec swagger elasticsearch elasticsearch-network elasticsearch-stop elasticsearch-start elasticsearch-data minio minio-stop minio-start mysql mysql-network mysql-stop mysql-start mysql-client mysql-test postgres postgres-network postgres-stop postgres-start postgres-client postgres-test mongodb mongodb-network mongodb-stop mongodb-start mongodb-client mongodb-test cleanup
 SHELL := /bin/bash
 
 all: run
@@ -27,9 +27,14 @@ docker-push: docker-build
 	docker push jamesclonk/backman:latest
 
 docker-run:
+	docker rm -f backman || true
 	docker run -p 9990:8080 \
 		--env-file .dockerenv \
+		--name backman \
 		jamesclonk/backman
+
+docker-exec:
+	docker exec -it backman /bin/bash
 
 swagger:
 	swagger generate spec -o ./swagger.yml

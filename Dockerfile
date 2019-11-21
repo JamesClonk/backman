@@ -7,7 +7,7 @@ RUN echo "debconf debconf/frontend select noninteractive" | debconf-set-selectio
   export DEBIAN_FRONTEND=noninteractive && \
   apt-get -y $package_args update && \
   apt-get -y $package_args dist-upgrade && \
-  apt-get -y $package_args install curl ca-certificates gnupg
+  apt-get -y $package_args install curl ca-certificates gnupg tzdata
 
 RUN curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
   curl https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add - && \
