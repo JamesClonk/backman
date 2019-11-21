@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 
 	"github.com/cloudfoundry-community/go-cfenv"
@@ -27,32 +26,19 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 
 	state.RestoreStart(service)
 
-	host, _ := binding.CredentialString("host")
-	database, _ := binding.CredentialString("database")
-	username, _ := binding.CredentialString("username")
-	password, _ := binding.CredentialString("password")
-	port, _ := binding.CredentialString("port")
-	if len(port) == 0 {
-		switch p := binding.Credentials["port"].(type) {
-		case float64:
-			port = strconv.Itoa(int(p))
-		case int, int32, int64:
-			port = strconv.Itoa(p.(int))
-		}
-	}
-
-	os.Setenv("MYSQL_PWD", password)
+	credentials := GetCredentials(binding)
+	os.Setenv("MYSQL_PWD", credentials.Password)
 
 	// prepare mysql restore command
 	var command []string
 	command = append(command, "mysql")
-	command = append(command, database)
+	command = append(command, credentials.Database)
 	command = append(command, "-h")
-	command = append(command, host)
+	command = append(command, credentials.Hostname)
 	command = append(command, "-P")
-	command = append(command, port)
+	command = append(command, credentials.Port)
 	command = append(command, "-u")
-	command = append(command, username)
+	command = append(command, credentials.Username)
 
 	log.Debugf("executing mysql restore command: %v", strings.Join(command, " "))
 	cmd := exec.CommandContext(ctx, command[0], command[1:]...)

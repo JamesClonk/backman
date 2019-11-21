@@ -1,8 +1,9 @@
-package postgres
+package mysql
 
 import (
 	"net"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -17,7 +18,7 @@ type Credentials struct {
 	Port     string
 }
 
-func IsPostgresBinding(binding *cfenv.Service) bool {
+func IsMySQLBinding(binding *cfenv.Service) bool {
 	c := GetCredentials(binding)
 	if len(c.Hostname) > 0 &&
 		len(c.Database) > 0 &&
@@ -27,7 +28,7 @@ func IsPostgresBinding(binding *cfenv.Service) bool {
 		for key := range binding.Credentials {
 			switch key {
 			case "database_uri", "jdbcUrl", "jdbc_url", "url", "uri":
-				if uri, _ := binding.CredentialString(key); len(uri) > 0 && strings.Contains(uri, "postgres://") {
+				if uri, _ := binding.CredentialString(key); len(uri) > 0 && strings.Contains(uri, "mysql://") {
 					return true
 				}
 			}
@@ -67,7 +68,7 @@ func GetCredentials(binding *cfenv.Service) *Credentials {
 	for key := range binding.Credentials {
 		switch key {
 		case "database_uri", "jdbcUrl", "jdbc_url", "url", "uri":
-			if uri, _ := binding.CredentialString(key); len(uri) > 0 && strings.Contains(uri, "postgres://") {
+			if uri, _ := binding.CredentialString(key); len(uri) > 0 && strings.Contains(uri, "mysql://") {
 				if u, err := url.Parse(uri); err == nil {
 					if len(username) == 0 {
 						username = u.User.Username()
@@ -87,6 +88,8 @@ func GetCredentials(binding *cfenv.Service) *Credentials {
 
 					if len(database) == 0 {
 						database = strings.TrimPrefix(u.Path, "/")
+						rx := regexp.MustCompile(`([^\?]*)\?.*`) // trim connection options
+						database = rx.ReplaceAllString(database, "${1}")
 					}
 				}
 			}

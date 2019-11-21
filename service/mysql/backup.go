@@ -9,7 +9,6 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -33,21 +32,8 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 
 	state.BackupStart(service)
 
-	host, _ := binding.CredentialString("host")
-	database, _ := binding.CredentialString("database")
-	username, _ := binding.CredentialString("username")
-	password, _ := binding.CredentialString("password")
-	port, _ := binding.CredentialString("port")
-	if len(port) == 0 {
-		switch p := binding.Credentials["port"].(type) {
-		case float64:
-			port = strconv.Itoa(int(p))
-		case int, int32, int64:
-			port = strconv.Itoa(p.(int))
-		}
-	}
-
-	os.Setenv("MYSQL_PWD", password)
+	credentials := GetCredentials(binding)
+	os.Setenv("MYSQL_PWD", credentials.Password)
 
 	// prepare mysqldump command
 	var command []string
@@ -56,14 +42,14 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	command = append(command, "--quick")
 	command = append(command, "--skip-add-locks")
 	command = append(command, "-h")
-	command = append(command, host)
+	command = append(command, credentials.Hostname)
 	command = append(command, "-P")
-	command = append(command, port)
+	command = append(command, credentials.Port)
 	command = append(command, "-u")
-	command = append(command, username)
-	if len(database) > 0 {
+	command = append(command, credentials.Username)
+	if len(credentials.Database) > 0 {
 		command = append(command, "--databases")
-		command = append(command, database)
+		command = append(command, credentials.Database)
 	} else {
 		command = append(command, "--all-databases")
 	}
