@@ -79,6 +79,10 @@ curl -s http://john:doe@127.0.0.1:9990/api/v1/state/mysql/my_mysql_db | grep '"O
 # read from mysql
 mysql -h 127.0.0.1 -u root -D mysql -e 'select my_column from test_example' | grep 'my_backup_value'
 
+# download backup and check for completeness
+FILENAME=$(curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/mysql/my_mysql_db | jq -r .Files[0].Filename)
+curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/mysql/my_mysql_db/${FILENAME}/download | zgrep '\-\- Dump completed'
+
 # delete from mysql
 mysql -h 127.0.0.1 -u root -D mysql -e 'delete from test_example'
 mysql -h 127.0.0.1 -u root -D mysql -e "insert into test_example (my_column) values ('backup_different')"

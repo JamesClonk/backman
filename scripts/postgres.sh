@@ -79,6 +79,10 @@ curl -s http://john:doe@127.0.0.1:9990/api/v1/state/postgres/my_postgres_db | gr
 # read from postgres
 psql -h 127.0.0.1 -U dev-user -d my_postgres_db -c 'select my_column from test_example' | grep 'my_backup_value'
 
+# download backup and check for completeness
+FILENAME=$(curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/postgres/my_postgres_db | jq -r .Files[0].Filename)
+curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/postgres/my_postgres_db/${FILENAME}/download | zgrep '\-\- PostgreSQL database dump complete'
+
 # delete from postgres
 psql -h 127.0.0.1 -U dev-user -d my_postgres_db -c 'delete from test_example'
 sleep 2
