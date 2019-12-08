@@ -20,6 +20,8 @@ type Config struct {
 	LoggingTimestamp bool   `json:"logging_timestamp"`
 	Username         string
 	Password         string
+	DisableWeb       bool `json:"disable_web"`
+	DisableMetrics   bool `json:"disable_metrics"`
 	S3               S3Config
 	Services         map[string]ServiceConfig
 }
@@ -109,6 +111,12 @@ func Get() *Config {
 			}
 			if len(envConfig.Password) > 0 {
 				config.Password = envConfig.Password
+			}
+			if envConfig.DisableWeb {
+				config.DisableWeb = envConfig.DisableWeb
+			}
+			if envConfig.DisableMetrics {
+				config.DisableMetrics = envConfig.DisableMetrics
 			}
 			if envConfig.S3.DisableSSL {
 				config.S3.DisableSSL = envConfig.S3.DisableSSL

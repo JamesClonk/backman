@@ -39,6 +39,8 @@ These here are the default values backman will use if not configured via JSON:
 {
 	"log_level": "info",
 	"logging_timestamp": false,
+	"disable_web": false,
+	"disable_metrics": false,
 	"s3": {
 		"service_label": "dynstrg",
 	},
@@ -71,6 +73,8 @@ Possible JSON properties:
 - `logging_timestamp`: optional, enable timestamping log output, not needed when deployed on Cloud Foundry
 - `username`: optional, HTTP basic auth username
 - `password`: optional, HTTP basic auth password
+- `disable_web`: optional, disable web interface and api
+- `disable_metrics`: optional, disable Prometheus metrics endpoint
 - `s3.service_label`: optional, defines which service label backman will look for to find the S3-compatible object storage
 - `s3.bucket_name`: optional, bucket to use on S3 storage, backman will use service-instance/binding-name if not configured
 - `services.<service-instance>.schedule`: optional, defines cron schedule for running backups

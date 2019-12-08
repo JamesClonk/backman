@@ -58,14 +58,19 @@ func New() *Router {
 		api:  api.New(),
 		ui:   ui.New(),
 	}
-	// setup Prometheus endpoint
-	r.echo.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
-	// setup API routes
-	r.api.RegisterRoutes(r.echo)
-	// setup Web-UI routes
-	r.ui.RegisterRoutes(r.echo)
-	// setup Web-UI rendering
-	r.ui.RegisterRenderer(r.echo)
+
+	if !config.Get().DisableMetrics {
+		// setup Prometheus endpoint
+		r.echo.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
+	}
+	if !config.Get().DisableWeb {
+		// setup API routes
+		r.api.RegisterRoutes(r.echo)
+		// setup Web-UI routes
+		r.ui.RegisterRoutes(r.echo)
+		// setup Web-UI rendering
+		r.ui.RegisterRenderer(r.echo)
+	}
 
 	return r
 }
