@@ -17,6 +17,7 @@ import (
 	"github.com/swisscom/backman/service/mongodb"
 	"github.com/swisscom/backman/service/mysql"
 	"github.com/swisscom/backman/service/postgres"
+	"github.com/swisscom/backman/service/redis"
 	"github.com/swisscom/backman/service/util"
 )
 
@@ -68,6 +69,8 @@ func (s *Service) Backup(service util.Service) error {
 	switch service.Type() {
 	case util.MongoDB:
 		err = mongodb.Backup(ctx, s.S3, service, envService, filename)
+	case util.Redis:
+		err = redis.Backup(ctx, s.S3, service, envService, filename)
 	case util.MySQL:
 		err = mysql.Backup(ctx, s.S3, service, envService, filename)
 	case util.Postgres:

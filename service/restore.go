@@ -27,6 +27,8 @@ func (s *Service) Restore(service util.Service, filename string) error {
 	switch service.Type() {
 	case util.MongoDB:
 		err = mongodb.Restore(ctx, s.S3, service, envService, objectPath)
+	// case util.Redis:
+	// 	err = redis.Restore(ctx, s.S3, service, envService, objectPath)
 	case util.MySQL:
 		err = mysql.Restore(ctx, s.S3, service, envService, objectPath)
 	case util.Postgres:
