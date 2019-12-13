@@ -97,6 +97,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 		err = s3.UploadWithContext(uploadCtx, objectPath, pr, -1)
 		if err != nil {
 			log.Errorf("could not upload service backup [%s] to S3: %v", service.Name, err)
+			state.BackupFailure(service)
 		}
 	}()
 	time.Sleep(2 * time.Second) // wait for upload goroutine to be ready

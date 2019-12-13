@@ -12,6 +12,7 @@ import (
 	"github.com/swisscom/backman/s3"
 	"github.com/swisscom/backman/service/mysql"
 	"github.com/swisscom/backman/service/postgres"
+	"github.com/swisscom/backman/service/redis"
 	"github.com/swisscom/backman/service/util"
 	"github.com/swisscom/backman/state"
 )
@@ -64,9 +65,10 @@ func (s *Service) parseServices() {
 					// can it be identified as a custom postgres binding?
 					if postgres.IsPostgresBinding(&service) {
 						service.Label = "postgres"
-						// or a mysql binding?
-					} else if mysql.IsMySQLBinding(&service) {
+					} else if mysql.IsMySQLBinding(&service) { // or a mysql binding?
 						service.Label = "mysql"
+					} else if redis.IsRedisBinding(&service) { // or a redis binding?
+						service.Label = "redis"
 					} else {
 						continue // cannot handle service binding
 					}

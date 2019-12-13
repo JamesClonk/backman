@@ -9,3 +9,4 @@ packages:
 - mysql-client
 - postgresql-client-11
 - mongodb-org-tools=4.2.0
+- redis-tools
