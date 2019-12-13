@@ -19,6 +19,7 @@ applications:
   # - my_postgres_db
   # - my_mongodb
   # - my_elasticsearch
+  # - my_redis
 
   # ### push either as docker image
   docker:

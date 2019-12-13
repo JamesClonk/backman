@@ -1,4 +1,4 @@
-.PHONY: run gin build test docker-build docker-push docker-run docker-exec swagger elasticsearch elasticsearch-network elasticsearch-stop elasticsearch-start elasticsearch-data minio minio-stop minio-start mysql mysql-network mysql-stop mysql-start mysql-client mysql-test postgres postgres-network postgres-stop postgres-start postgres-client postgres-test mongodb mongodb-network mongodb-stop mongodb-start mongodb-client mongodb-test cleanup
+.PHONY: run gin build test docker-build docker-push docker-run docker-exec swagger elasticsearch elasticsearch-network elasticsearch-stop elasticsearch-start elasticsearch-data minio minio-stop minio-start mysql mysql-network mysql-stop mysql-start mysql-client mysql-test postgres postgres-network postgres-stop postgres-start postgres-client postgres-test mongodb mongodb-network mongodb-stop mongodb-start mongodb-client mongodb-test redis redis-network redis-stop redis-start redis-client redis-test cleanup
 SHELL := /bin/bash
 
 all: run
@@ -151,6 +151,31 @@ mongodb-client:
 
 mongodb-test: build
 	scripts/mongodb.sh
+
+redis: redis-network redis-stop redis-start
+	docker logs redis -f
+
+redis-network:
+	docker network create redis-network --driver bridge || true
+
+redis-stop:
+	docker rm -f redis || true
+
+redis-start:
+	docker run --name redis \
+		--network redis-network \
+		-p 6379:6379 \
+		-d redis \
+			redis-server --requirepass 'very-secret'
+
+redis-client:
+	docker run -it --rm \
+		--network redis-network \
+		--name redis-cli redis redis-cli \
+			-h redis -a 'very-secret'
+
+redis-test: build
+	scripts/redis.sh
 
 cleanup:
 	docker system prune --volumes -a
