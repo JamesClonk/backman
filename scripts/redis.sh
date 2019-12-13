@@ -80,6 +80,10 @@ curl -s http://john:doe@127.0.0.1:9990/api/v1/state/redis/my-redis | grep '"Oper
 redis-cli -h 127.0.0.1 -a 'very-secret' 'GET blubb' | grep '"123"'
 redis-cli -h 127.0.0.1 -a 'very-secret' 'GET blabb' | grep '"hello"'
 
+# download backup and check for completeness
+FILENAME=$(curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/redis/my-redis | jq -r .Files[0].Filename)
+curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/redis/my-redis/${FILENAME}/download | zgrep 'blubb'
+
 # delete from redis
 redis-cli -h 127.0.0.1 -a 'very-secret' 'DEL blubb'
 redis-cli -h 127.0.0.1 -a 'very-secret' 'SET blibb howdy'
@@ -87,17 +91,18 @@ sleep 2
 redis-cli -h 127.0.0.1 -a 'very-secret' 'GET blubb' | grep -v '"123"'
 redis-cli -h 127.0.0.1 -a 'very-secret' 'GET blibb' | grep '"howdy"'
 
-# trigger restore
-FILENAME=$(curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/redis/my-redis | jq -r .Files[0].Filename)
-curl -X POST http://john:doe@127.0.0.1:9990/api/v1/restore/redis/my-redis/${FILENAME}
-curl -s http://john:doe@127.0.0.1:9990/api/v1/state/redis/my-redis | grep '"Operation":"restore"' | grep '"Status":"running"'
-sleep 15
-curl -s http://john:doe@127.0.0.1:9990/api/v1/state/redis/my-redis | grep '"Operation":"restore"' | grep '"Status":"success"'
+## restore is unsupported for redis
+# # trigger restore
+# FILENAME=$(curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/redis/my-redis | jq -r .Files[0].Filename)
+# curl -X POST http://john:doe@127.0.0.1:9990/api/v1/restore/redis/my-redis/${FILENAME}
+# curl -s http://john:doe@127.0.0.1:9990/api/v1/state/redis/my-redis | grep '"Operation":"restore"' | grep '"Status":"running"'
+# sleep 15
+# curl -s http://john:doe@127.0.0.1:9990/api/v1/state/redis/my-redis | grep '"Operation":"restore"' | grep '"Status":"success"'
 
-# read from redis
-redis-cli -h 127.0.0.1 -a 'very-secret' 'GET blibb' | grep -v '"howdy"'
-redis-cli -h 127.0.0.1 -a 'very-secret' 'GET blubb' | grep '"123"'
-redis-cli -h 127.0.0.1 -a 'very-secret' 'GET blabb' | grep '"hello"'
+# # read from redis
+# redis-cli -h 127.0.0.1 -a 'very-secret' 'GET blibb' | grep -v '"howdy"'
+# redis-cli -h 127.0.0.1 -a 'very-secret' 'GET blubb' | grep '"123"'
+# redis-cli -h 127.0.0.1 -a 'very-secret' 'GET blabb' | grep '"hello"'
 
 # delete backup
 curl -X DELETE http://john:doe@127.0.0.1:9990/api/v1/backup/redis/my-redis/${FILENAME}
