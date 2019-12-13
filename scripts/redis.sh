@@ -33,8 +33,11 @@ retry() {
 
 # =============================================================================================
 echo "waiting on redis ..."
-retry 10 redis-cli -h 127.0.0.1 -a 'very-secret' ping
+retry 10 redis-cli -h 127.0.0.1 ping
 echo "redis is up!"
+
+echo "configuring redis auth password ..."
+redis-cli -h 127.0.0.1 'CONFIG SET requirepass "very-secret"'
 
 # =============================================================================================
 echo "testing redis integration ..."

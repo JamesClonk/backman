@@ -25,6 +25,8 @@ jobs:
         MONGO_INITDB_ROOT_USERNAME: mongoadmin
         MONGO_INITDB_ROOT_PASSWORD: super-secret
 
+    - image: circleci/redis:5:0
+
     branches:
       ignore:
       - develop
@@ -86,3 +88,9 @@ jobs:
           name: install Postgres client
           command: sudo apt install -y postgresql-client
       - run: make postgres-test
+
+      # redis integration tests
+      - run:
+          name: install Redis client
+          command: sudo apt install -y redis-tools
+      - run: make redis-test
