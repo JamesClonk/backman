@@ -25,7 +25,7 @@ jobs:
         MONGO_INITDB_ROOT_USERNAME: mongoadmin
         MONGO_INITDB_ROOT_PASSWORD: super-secret
 
-    - image: circleci/redis:5:0
+    - image: circleci/redis:5.0
 
     branches:
       ignore:
