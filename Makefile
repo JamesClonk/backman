@@ -157,7 +157,7 @@ minio-start:
 mysql: mysql-network mysql-stop mysql-start
 	docker logs mysql -f
 
-.PHONY: xmysql-network
+.PHONY: mysql-network
 mysql-network:
 	docker network create mysql-network --driver bridge || true
 
