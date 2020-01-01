@@ -214,8 +214,8 @@ postgres-start:
 		-p 5432:5432 \
 		-d postgres:9-alpine
 
-.PHONY: mysql-client
-## mysql-client: connects to mysql backend with CLI
+.PHONY: postgres-client
+## postgres-client: connects to postgres backend with CLI
 postgres-client:
 	docker exec -it \
 		-e PGPASSWORD='dev-secret' \
