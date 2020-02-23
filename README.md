@@ -24,6 +24,10 @@ a backup-manager app for [Cloud Foundry](https://www.cloudfoundry.org/)
 5. deploy the app
 6. enjoy!
 
+#### Using Cloud Foundry tasks
+
+backman also supports running as a one-off task inside Cloud Foundry. Simply push the app as normal, stop it, and then run it via `cf run-task` with `./backman -backup <service_name>` as task command.
+
 ## Configuration
 
 backman can be configured via JSON configuration, either with a file `config.json` in it's root directory, or by the environment variable `BACKMAN_CONFIG`.

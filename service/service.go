@@ -110,18 +110,22 @@ func (s *Service) parseServices() {
 					},
 				}
 				s.Services = append(s.Services, newService)
-
-				// init prometheus state metrics to 0
-				state.BackupInit(newService)
-				state.RestoreInit(newService)
-
-				// init backup files state & metrics
-				go func(label, name string) {
-					_, _ = s.GetBackups(label, name)
-				}(service.Label, service.Name)
 			}
 		}
 	}
+
+	// setup service metrics
+	for _, service := range s.Services {
+		// init prometheus state metrics to 0
+		state.BackupInit(service)
+		state.RestoreInit(service)
+
+		// init backup files state & metrics in background
+		go func(label, name string) {
+			_, _ = s.GetBackups(label, name)
+		}(service.Label, service.Name)
+	}
+
 	log.Debugf("services loaded: %+v", s.Services)
 }
 

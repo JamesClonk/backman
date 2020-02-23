@@ -24,6 +24,7 @@ type Config struct {
 	DisableMetrics   bool `json:"disable_metrics"`
 	S3               S3Config
 	Services         map[string]ServiceConfig
+	Foreground       bool
 }
 
 type S3Config struct {
