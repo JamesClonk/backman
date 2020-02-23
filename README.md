@@ -26,7 +26,7 @@ a backup-manager app for [Cloud Foundry](https://www.cloudfoundry.org/)
 
 #### Using Cloud Foundry tasks
 
-backman also supports running as a one-off task inside Cloud Foundry. Simply push the app as normal, stop it, and then run it via `cf run-task` with `./backman -backup <service_name>` as task command.
+backman also supports running as a one-off task inside Cloud Foundry. Simply push the app as normal, stop it, and then run it via `cf run-task` with `./backman -backup <service_name>` as task command to run a backup. For restoring an existing backup you can use `./backman -restore <service_name> -filename <backup_filename>`.
 
 ## Configuration
 
