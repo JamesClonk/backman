@@ -15,7 +15,7 @@ RUN curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
   echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse" > /etc/apt/sources.list.d/mongodb-org-4.2.list
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 RUN apt-get -y $package_args update && \
-  apt-get -y $package_args install mysql-client postgresql-client-11 mongodb-org-tools=4.2.0 redis-tools nodejs openssh-server bash vim && \
+  apt-get -y $package_args install mysql-client postgresql-client-12 mongodb-org-tools=4.2.0 redis-tools nodejs openssh-server bash vim && \
   apt-get clean && \
   find /usr/share/doc/*/* ! -name copyright | xargs rm -rf && \
   rm -rf \
