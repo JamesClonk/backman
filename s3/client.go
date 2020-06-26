@@ -15,25 +15,37 @@ type Client struct {
 
 func New(app *cfenv.App) *Client {
 	// setup minio/s3 client
-	s3Services, err := app.Services.WithLabel(config.Get().S3.ServiceLabel)
-	if err != nil {
-		log.Fatalf("could not get s3 service from VCAP environment: %v", err)
-	}
-	if len(s3Services) != 1 {
-		log.Fatalf("there must be exactly one defined S3 service, but found %d instead", len(s3Services))
+	var s3Service cfenv.Service
+	if len(config.Get().S3.ServiceName) > 0 {
+		// determine s3 service via provided service name
+		s, err := app.Services.WithName(config.Get().S3.ServiceName)
+		if err != nil {
+			log.Fatalf("could not get s3 service [%s] from VCAP environment: %v", config.Get().S3.ServiceName, err)
+		}
+		s3Service = *s
+	} else {
+		// determine s3 service via provided service label
+		s3Services, err := app.Services.WithLabel(config.Get().S3.ServiceLabel)
+		if err != nil {
+			log.Fatalf("could not get s3 service from VCAP environment: %v", err)
+		}
+		if len(s3Services) != 1 {
+			log.Fatalf("there must be exactly one defined S3 service, but found %d instead", len(s3Services))
+		}
+		s3Service = s3Services[0]
 	}
 
 	bucketName := config.Get().S3.BucketName
 	if len(bucketName) == 0 { // fallback to service binding's name
-		bucketName = s3Services[0].Name
+		bucketName = s3Service.Name
 	}
 	if len(bucketName) == 0 {
 		log.Fatalln("bucket name for S3 storage is not configured properly")
 	}
 
-	endpoint, _ := s3Services[0].CredentialString("accessHost")
-	accessKeyID, _ := s3Services[0].CredentialString("accessKey")
-	secretAccessKey, _ := s3Services[0].CredentialString("sharedSecret")
+	endpoint, _ := s3Service.CredentialString("accessHost")
+	accessKeyID, _ := s3Service.CredentialString("accessKey")
+	secretAccessKey, _ := s3Service.CredentialString("sharedSecret")
 	useSSL := !config.Get().S3.DisableSSL
 
 	minioClient, err := minio.NewV4(endpoint, accessKeyID, secretAccessKey, useSSL)
