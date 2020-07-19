@@ -6,7 +6,7 @@ jobs:
   build:
     docker:
     # primary image for building app
-    - image: circleci/golang:1.13
+    - image: circleci/golang:1.14
 
     # service images available at `host: localhost`
     - image: circleci/postgres:11-alpine
