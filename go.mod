@@ -11,6 +11,7 @@ require (
 	github.com/prometheus/client_golang v1.1.0
 	github.com/robfig/cron v1.2.0
 	github.com/sirupsen/logrus v1.4.2
+	github.com/stretchr/objx v0.3.0 // indirect
 	github.com/stretchr/testify v1.6.1
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 )
