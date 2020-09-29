@@ -34,10 +34,6 @@ jobs:
 
     - image: circleci/redis:5.0
 
-    branches:
-      ignore:
-      - develop
-
     working_directory: /go/src/github.com/swisscom/backman
 
     steps:
