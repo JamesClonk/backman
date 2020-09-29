@@ -40,7 +40,7 @@ install:
 
 .PHONY: test
 ## test: runs go test with the race detector
-test:
+test: build
 	@source .env; GOARCH=amd64 GOOS=linux go test -v -race ./...
 
 .PHONY: init
