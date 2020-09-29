@@ -18,7 +18,7 @@ run:
 .PHONY: gin
 ## gin: runs main.go via gin (hot reloading)
 gin:
-	gin --all --immediate run main.go
+	source .env; source .env_*; gin --all --immediate run main.go
 
 .PHONY: build
 ## build: builds the application

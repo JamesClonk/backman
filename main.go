@@ -8,6 +8,7 @@ import (
 	"github.com/swisscom/backman/router"
 	"github.com/swisscom/backman/scheduler"
 	"github.com/swisscom/backman/service"
+	"github.com/swisscom/backman/service/util"
 )
 
 //go:generate swagger generate spec
@@ -79,7 +80,7 @@ func runNow() bool {
 			if s.Name == *serviceToRestore {
 				// running restore
 				log.Infof("running service restore for [%s/%s] with filename [%s]", s.Label, s.Name, *filenameToRestore)
-				if err := service.Get().Restore(s, *filenameToRestore); err != nil {
+				if err := service.Get().Restore(s, util.Service{}, *filenameToRestore); err != nil {
 					log.Fatalf("service restore failed: %v", err)
 				}
 				found = true
