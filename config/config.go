@@ -24,11 +24,13 @@ type Config struct {
 	DisableMetrics   bool `json:"disable_metrics"`
 	S3               S3Config
 	Services         map[string]ServiceConfig
+	Foreground       bool
 }
 
 type S3Config struct {
 	DisableSSL   bool   `json:"disable_ssl"`
 	ServiceLabel string `json:"service_label"`
+	ServiceName  string `json:"service_name"`
 	BucketName   string `json:"bucket_name"`
 }
 
@@ -123,6 +125,9 @@ func Get() *Config {
 			}
 			if len(envConfig.S3.ServiceLabel) > 0 {
 				config.S3.ServiceLabel = envConfig.S3.ServiceLabel
+			}
+			if len(envConfig.S3.ServiceName) > 0 {
+				config.S3.ServiceName = envConfig.S3.ServiceName
 			}
 			if len(envConfig.S3.BucketName) > 0 {
 				config.S3.BucketName = envConfig.S3.BucketName

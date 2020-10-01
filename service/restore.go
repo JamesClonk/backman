@@ -12,11 +12,18 @@ import (
 	"github.com/swisscom/backman/service/util"
 )
 
-func (s *Service) Restore(service util.Service, filename string) error {
+func (s *Service) Restore(service util.Service, target util.Service, filename string) error {
 	envService, err := s.App.Services.WithName(service.Name)
 	if err != nil {
 		log.Errorf("could not find service [%s] to restore: %v", service.Name, err)
 		return err
+	}
+	if len(target.Name) > 0 {
+		envService, err = s.App.Services.WithName(target.Name)
+		if err != nil {
+			log.Errorf("could not find target service [%s] to restore: %v", target.Name, err)
+			return err
+		}
 	}
 
 	// ctx to abort restore if this takes longer than defined timeout
@@ -27,6 +34,8 @@ func (s *Service) Restore(service util.Service, filename string) error {
 	switch service.Type() {
 	case util.MongoDB:
 		err = mongodb.Restore(ctx, s.S3, service, envService, objectPath)
+	// case util.Redis:
+	// 	err = redis.Restore(ctx, s.S3, service, envService, objectPath)
 	case util.MySQL:
 		err = mysql.Restore(ctx, s.S3, service, envService, objectPath)
 	case util.Postgres:
@@ -38,9 +47,9 @@ func (s *Service) Restore(service util.Service, filename string) error {
 	}
 
 	if err != nil {
-		log.Errorf("could not restore service [%s]: %v", service.Name, err)
+		log.Errorf("could not restore service [%s] to [%s]: %v", service.Name, envService.Name, err)
 		return err
 	}
-	log.Infof("restored service [%s] with backup [%s]", service.Name, filename)
+	log.Infof("restored service [%s] with backup [%s] to [%s]", service.Name, filename, envService.Name)
 	return err
 }

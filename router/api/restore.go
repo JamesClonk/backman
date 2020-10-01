@@ -27,6 +27,11 @@ func (h *Handler) RestoreBackup(c echo.Context) error {
 		log.Errorf("%v", err)
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid service name: %v", err))
 	}
+	targetName, err := url.QueryUnescape(c.Param("target_name"))
+	if err != nil {
+		log.Errorf("%v", err)
+		return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid target service name: %v", err))
+	}
 	filename, err := url.QueryUnescape(c.Param("file"))
 	if err != nil {
 		log.Errorf("%v", err)
@@ -44,8 +49,18 @@ func (h *Handler) RestoreBackup(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, err.Error())
 	}
 
+	targetService := util.Service{}
+	if len(targetName) > 0 {
+		targetService = h.Service.GetService(serviceType, targetName)
+		if len(targetService.Name) == 0 {
+			err := fmt.Errorf("could not find target service [%s] to restore", targetName)
+			log.Errorf("%v", err)
+			return c.JSON(http.StatusNotFound, err.Error())
+		}
+	}
+
 	go func() { // async
-		if err := h.Service.Restore(cfService, filename); err != nil {
+		if err := h.Service.Restore(cfService, targetService, filename); err != nil {
 			log.Errorf("requested restore for service [%s] failed: %v", serviceName, err)
 		}
 	}()

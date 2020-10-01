@@ -12,6 +12,7 @@ import (
 	"github.com/swisscom/backman/s3"
 	"github.com/swisscom/backman/service/mysql"
 	"github.com/swisscom/backman/service/postgres"
+	"github.com/swisscom/backman/service/redis"
 	"github.com/swisscom/backman/service/util"
 	"github.com/swisscom/backman/state"
 )
@@ -64,9 +65,10 @@ func (s *Service) parseServices() {
 					// can it be identified as a custom postgres binding?
 					if postgres.IsPostgresBinding(&service) {
 						service.Label = "postgres"
-						// or a mysql binding?
-					} else if mysql.IsMySQLBinding(&service) {
+					} else if mysql.IsMySQLBinding(&service) { // or a mysql binding?
 						service.Label = "mysql"
+					} else if redis.IsRedisBinding(&service) { // or a redis binding?
+						service.Label = "redis"
 					} else {
 						continue // cannot handle service binding
 					}
@@ -108,18 +110,22 @@ func (s *Service) parseServices() {
 					},
 				}
 				s.Services = append(s.Services, newService)
-
-				// init prometheus state metrics to 0
-				state.BackupInit(newService)
-				state.RestoreInit(newService)
-
-				// init backup files state & metrics
-				go func(label, name string) {
-					_, _ = s.GetBackups(label, name)
-				}(service.Label, service.Name)
 			}
 		}
 	}
+
+	// setup service metrics
+	for _, service := range s.Services {
+		// init prometheus state metrics to 0
+		state.BackupInit(service)
+		state.RestoreInit(service)
+
+		// init backup files state & metrics in background
+		go func(label, name string) {
+			_, _ = s.GetBackups(label, name)
+		}(service.Label, service.Name)
+	}
+
 	log.Debugf("services loaded: %+v", s.Services)
 }
 

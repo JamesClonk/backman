@@ -6,6 +6,7 @@ const (
 	Postgres ServiceType = iota
 	MySQL
 	MongoDB
+	Redis
 	Elasticsearch
 )
 
@@ -15,8 +16,10 @@ func ParseServiceType(serviceType string) ServiceType {
 		return Postgres
 	case "mysql", "mariadb", "mariadbent", "pxc", "galera", "mysql-database":
 		return MySQL
-	case "mongo", "mongodb", "mongodb-2", "mongodbent", "mangodb":
+	case "mongo", "mongodb", "mongodb-2", "mongodbent", "mongodbent-database", "mangodb":
 		return MongoDB
+	case "redis", "redis-2", "redisent", "redis-enterprise", "redis-ha":
+		return Redis
 	case "elastic", "es", "elasticsearch":
 		return Elasticsearch
 	}
@@ -30,6 +33,8 @@ func IsValidServiceType(serviceType string) bool {
 	case MySQL:
 		return true
 	case MongoDB:
+		return true
+	case Redis:
 		return true
 	case Elasticsearch:
 		return true
@@ -45,6 +50,8 @@ func (s ServiceType) String() string {
 		return "MySQL"
 	case MongoDB:
 		return "MongoDB"
+	case Redis:
+		return "Redis"
 	case Elasticsearch:
 		return "Elasticsearch"
 	}

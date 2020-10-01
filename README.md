@@ -14,6 +14,7 @@ a backup-manager app for [Cloud Foundry](https://www.cloudfoundry.org/)
 - PostgreSQL
 - MongoDB
 - Elasticsearch
+- Redis
 
 ## Usage
 
@@ -24,6 +25,10 @@ a backup-manager app for [Cloud Foundry](https://www.cloudfoundry.org/)
 4. configure backman, either through the provided `config.json` or by the environment variable `BACKMAN_CONFIG` (see `manifest.yml`)
 5. deploy the app
 6. enjoy!
+
+#### Using Cloud Foundry tasks
+
+backman also supports running as a one-off task inside Cloud Foundry. Simply push the app as normal, stop it, and then run it via `cf run-task` with `/app/backman -backup <service_name>` as task command to run a backup. For restoring an existing backup you can use `/app/backman -restore <service_name> -filename <backup_filename>`. (or just `backman ...` if the app was pushed with native buildpacks and not as a docker image)
 
 ## Configuration
 

@@ -19,10 +19,11 @@ applications:
   # - my_postgres_db
   # - my_mongodb
   # - my_elasticsearch
+  # - my_redis
 
   # ### push either as docker image
   docker:
-    image: jamesclonk/backman:1.9.0 # choose version from https://hub.docker.com/r/jamesclonk/backman/tags, or 'latest'
+    image: jamesclonk/backman:1.16.0 # choose version from https://hub.docker.com/r/jamesclonk/backman/tags, or 'latest'
   # ### or as buildpack/src
   # buildpacks:
   # - https://github.com/cloudfoundry/apt-buildpack

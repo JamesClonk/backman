@@ -1,12 +1,19 @@
-# Golang CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-go/ for more details
-version: 2
+version: 2.1
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+    - build:
+        filters:
+          branches:
+            only: master
+
 jobs:
   build:
     docker:
     # primary image for building app
-    - image: circleci/golang:1.13
+    - image: circleci/golang:1.14
 
     # service images available at `host: localhost`
     - image: circleci/postgres:11-alpine
@@ -25,64 +32,68 @@ jobs:
         MONGO_INITDB_ROOT_USERNAME: mongoadmin
         MONGO_INITDB_ROOT_PASSWORD: super-secret
 
-    branches:
-      ignore:
-      - develop
+    - image: circleci/redis:5.0
 
     working_directory: /go/src/github.com/swisscom/backman
 
     steps:
-      - checkout
+    - checkout
 
-      # unit tests
-      - run: make test
+    # unit tests
+    - run: make test
 
-      # build binary
-      - run: make build
+    # build binary
+    - run: make build
 
-      # minIO server
-      - run:
-          name: run minIO server
-          command: |
-            wget https://dl.min.io/server/minio/release/linux-amd64/minio -qO minio
-            chmod +x minio
-            sudo mv minio /usr/local/bin/minio
-            minio server /tmp/data
-          background: true
-          environment:
-            MINIO_UPDATE: 'off'
-            MINIO_ACCESS_KEY: 6d611e2d-330b-4e52-a27c-59064d6e8a62
-            MINIO_SECRET_KEY: eW9sbywgeW91IGhhdmUganVzdCBiZWVuIHRyb2xsZWQh
+    # minIO server
+    - run:
+        name: run minIO server
+        command: |
+          wget https://dl.min.io/server/minio/release/linux-amd64/minio -qO minio
+          chmod +x minio
+          sudo mv minio /usr/local/bin/minio
+          minio server /tmp/data
+        background: true
+        environment:
+          MINIO_UPDATE: 'off'
+          MINIO_ACCESS_KEY: 6d611e2d-330b-4e52-a27c-59064d6e8a62
+          MINIO_SECRET_KEY: eW9sbywgeW91IGhhdmUganVzdCBiZWVuIHRyb2xsZWQh
 
-      # jq
-      - run:
-          name: install jq
-          command: |
-            wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -qO jq
-            chmod +x jq
-            sudo mv jq /usr/local/bin/jq
+    # jq
+    - run:
+        name: install jq
+        command: |
+          wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -qO jq
+          chmod +x jq
+          sudo mv jq /usr/local/bin/jq
 
-      # mongodb integration tests
-      - run:
-          name: install MongoDB client
-          command: |
-            sudo apt-get install -y libcurl4
-            wget https://repo.mongodb.org/apt/debian/dists/stretch/mongodb-org/3.6/main/binary-amd64/mongodb-org-server_3.6.14_amd64.deb -qO mongodb-org-server_3.6.14_amd64.deb
-            sudo dpkg -i --ignore-depends=libcurl3 mongodb-org-server_3.6.14_amd64.deb
-            wget https://repo.mongodb.org/apt/debian/dists/stretch/mongodb-org/3.6/main/binary-amd64/mongodb-org-shell_3.6.14_amd64.deb -qO mongodb-org-shell_3.6.14_amd64.deb
-            sudo dpkg -i --ignore-depends=libcurl3 mongodb-org-shell_3.6.14_amd64.deb
-            wget https://repo.mongodb.org/apt/debian/dists/stretch/mongodb-org/4.2/main/binary-amd64/mongodb-org-tools_4.2.0_amd64.deb -qO mongodb-org-tools_4.2.0_amd64.deb
-            sudo dpkg -i --ignore-depends=libcurl3 mongodb-org-tools_4.2.0_amd64.deb
-      - run: make mongodb-test
+    # mongodb integration tests
+    - run:
+        name: install MongoDB client
+        command: |
+          sudo apt-get install -y libcurl4
+          wget https://repo.mongodb.org/apt/debian/dists/stretch/mongodb-org/3.6/main/binary-amd64/mongodb-org-server_3.6.14_amd64.deb -qO mongodb-org-server_3.6.14_amd64.deb
+          sudo dpkg -i --ignore-depends=libcurl3 mongodb-org-server_3.6.14_amd64.deb
+          wget https://repo.mongodb.org/apt/debian/dists/stretch/mongodb-org/3.6/main/binary-amd64/mongodb-org-shell_3.6.14_amd64.deb -qO mongodb-org-shell_3.6.14_amd64.deb
+          sudo dpkg -i --ignore-depends=libcurl3 mongodb-org-shell_3.6.14_amd64.deb
+          wget https://repo.mongodb.org/apt/debian/dists/stretch/mongodb-org/4.2/main/binary-amd64/mongodb-org-tools_4.2.0_amd64.deb -qO mongodb-org-tools_4.2.0_amd64.deb
+          sudo dpkg -i --ignore-depends=libcurl3 mongodb-org-tools_4.2.0_amd64.deb
+    - run: make mongodb-test
 
-      # mysql integration tests
-      - run:
-          name: install MySQL client
-          command: sudo apt install -y mariadb-client
-      - run: make mysql-test
+    # mysql integration tests
+    - run:
+        name: install MySQL client
+        command: sudo apt install -y mariadb-client
+    - run: make mysql-test
 
-      # postgres integration tests
-      - run:
-          name: install Postgres client
-          command: sudo apt install -y postgresql-client
-      - run: make postgres-test
+    # postgres integration tests
+    - run:
+        name: install Postgres client
+        command: sudo apt install -y postgresql-client
+    - run: make postgres-test
+
+    # redis integration tests
+    - run:
+        name: install Redis client
+        command: sudo apt install -y redis-tools
+    - run: make redis-test

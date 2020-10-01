@@ -12,11 +12,13 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/service/elasticsearch"
 	"github.com/swisscom/backman/service/mongodb"
 	"github.com/swisscom/backman/service/mysql"
 	"github.com/swisscom/backman/service/postgres"
+	"github.com/swisscom/backman/service/redis"
 	"github.com/swisscom/backman/service/util"
 )
 
@@ -68,6 +70,8 @@ func (s *Service) Backup(service util.Service) error {
 	switch service.Type() {
 	case util.MongoDB:
 		err = mongodb.Backup(ctx, s.S3, service, envService, filename)
+	case util.Redis:
+		err = redis.Backup(ctx, s.S3, service, envService, filename)
 	case util.MySQL:
 		err = mysql.Backup(ctx, s.S3, service, envService, filename)
 	case util.Postgres:
@@ -83,15 +87,18 @@ func (s *Service) Backup(service util.Service) error {
 	}
 	log.Infof("created and uploaded backup [%s] for service [%s]", filename, service.Name)
 
-	// cleanup files according to retention policy of service
-	go func() {
-		if err := s.RetentionCleanup(service); err != nil {
-			log.Errorf("could not cleanup S3 storage for service [%s]: %v", service.Name, err)
-		}
+	// only run background goroutines if not in non-background mode
+	if !config.Get().Foreground {
+		// cleanup files according to retention policy of service
+		go func() {
+			if err := s.RetentionCleanup(service); err != nil {
+				log.Errorf("could not cleanup S3 storage for service [%s]: %v", service.Name, err)
+			}
 
-		// update backup files state & metrics
-		_, _ = s.GetBackups(service.Label, service.Name)
-	}()
+			// update backup files state & metrics
+			_, _ = s.GetBackups(service.Label, service.Name)
+		}()
+	}
 	return err
 }
 
