@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/hex"
 	"io"
-	"os"
 	"sort"
 
 	"github.com/minio/minio-go/v6"
 	"github.com/minio/sio"
+	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 )
 
@@ -35,9 +35,8 @@ func (s *Client) List(folderPath string) ([]minio.ObjectInfo, error) {
 }
 
 func (s *Client) Upload(object string, reader io.Reader, size int64) error {
-	key := os.Getenv("BACKMAN_ENCRYPTION_KEY")
-	if len(key) != 0 {
-		masterkey, err := hex.DecodeString(key) // use your own key here
+	if len(config.Get().S3.EncryptionKey) != 0 {
+		masterkey, err := hex.DecodeString(config.Get().S3.EncryptionKey) // use your own key here
 		if err != nil {
 			log.Debugf("Cannot decode hex key: %v", err)
 			return err
@@ -80,9 +79,8 @@ func (s *Client) Download(object string) (io.Reader, error) {
 		return nil, err
 	}
 
-	key := os.Getenv("BACKMAN_ENCRYPTION_KEY")
-	if len(key) != 0 {
-		masterkey, err := hex.DecodeString(key)
+	if len(config.Get().S3.EncryptionKey) > 0 {
+		masterkey, err := hex.DecodeString(config.Get().S3.EncryptionKey)
 		if err != nil {
 			log.Debugf("Cannot decode hex key: %v", err)
 			return nil, err
