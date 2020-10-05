@@ -10,7 +10,7 @@ jobs:
   build:
     docker:
     # primary image for building app
-    - image: circleci/golang:1.14
+    - image: circleci/golang:1.15
 
     # service images available at `host: localhost`
     - image: circleci/postgres:12-alpine
@@ -67,7 +67,12 @@ jobs:
     # postgres integration tests
     - run:
         name: install Postgres client
-        command: sudo apt install -y postgresql-client-12
+        command: sudo apt install -y postgresql-client-11
+        command: |
+          sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+          sudo apt-get update
+          sudo apt-get -y install postgresql-client-12
     - run: make postgres-test
 
     # mongodb integration tests
