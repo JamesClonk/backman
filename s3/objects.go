@@ -2,10 +2,14 @@ package s3
 
 import (
 	"context"
+	"encoding/hex"
+	"fmt"
 	"io"
+	"os"
 	"sort"
 
 	"github.com/minio/minio-go/v6"
+	"github.com/minio/sio"
 	"github.com/swisscom/backman/log"
 )
 
@@ -32,6 +36,20 @@ func (s *Client) List(folderPath string) ([]minio.ObjectInfo, error) {
 }
 
 func (s *Client) Upload(object string, reader io.Reader, size int64) error {
+	key := os.Getenv("BACKMAN_ENCRYPTION_KEY")
+	if len(key) != 0 {
+		masterkey, err := hex.DecodeString(key) // use your own key here
+		if err != nil {
+			fmt.Printf("Cannot decode hex key: %v", err) // add error handling
+			return err
+		}
+
+		reader, err = sio.EncryptReader(reader, sio.Config{Key: masterkey[:]})
+		if err != nil {
+			fmt.Printf("Failed to encrypted reader: %v", err) // add error handling
+			return err
+		}
+	}
 	return s.UploadWithContext(context.Background(), object, reader, size)
 }
 
@@ -57,8 +75,29 @@ func (s *Client) Stat(object string) (*minio.ObjectInfo, error) {
 	return &stat, nil
 }
 
-func (s *Client) Download(object string) (*minio.Object, error) {
-	return s.DownloadWithContext(context.Background(), object)
+func (s *Client) Download(object string) (io.Reader, error) {
+	reader, err := s.DownloadWithContext(context.Background(), object)
+	if err != nil {
+		return nil, err
+	}
+
+	key := os.Getenv("BACKMAN_ENCRYPTION_KEY")
+	if len(key) != 0 {
+		masterkey, err := hex.DecodeString(key) // use your own key here
+		if err != nil {
+			fmt.Printf("Cannot decode hex key: %v", err) // add error handling
+			return nil, err
+		}
+
+		decrypted, err := sio.DecryptReader(reader, sio.Config{Key: masterkey[:]})
+		if err != nil {
+			fmt.Printf("Failed to encrypted reader: %v", err) // add error handling
+			return nil, err
+		}
+		return decrypted, nil
+	}
+
+	return reader, nil
 }
 
 func (s *Client) DownloadWithContext(ctx context.Context, object string) (*minio.Object, error) {
