@@ -13,7 +13,7 @@ jobs:
     - image: circleci/golang:1.14
 
     # service images available at `host: localhost`
-    - image: circleci/postgres:11-alpine
+    - image: circleci/postgres:12-alpine
       environment:
         POSTGRES_USER: dev-user
         POSTGRES_PASSWORD: dev-secret
@@ -86,7 +86,7 @@ jobs:
     # postgres integration tests
     - run:
         name: install Postgres client
-        command: sudo apt install -y postgresql-client
+        command: sudo apt install -y postgresql-client-12
     - run: make postgres-test
 
     # redis integration tests
