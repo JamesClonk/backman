@@ -3,7 +3,6 @@ package s3
 import (
 	"context"
 	"encoding/hex"
-	"fmt"
 	"io"
 	"os"
 	"sort"
@@ -40,13 +39,13 @@ func (s *Client) Upload(object string, reader io.Reader, size int64) error {
 	if len(key) != 0 {
 		masterkey, err := hex.DecodeString(key) // use your own key here
 		if err != nil {
-			fmt.Printf("Cannot decode hex key: %v", err) // add error handling
+			log.Debugf("Cannot decode hex key: %v", err)
 			return err
 		}
 
 		reader, err = sio.EncryptReader(reader, sio.Config{Key: masterkey[:]})
 		if err != nil {
-			fmt.Printf("Failed to encrypted reader: %v", err) // add error handling
+			log.Debugf("Failed to encrypted reader: %v", err)
 			return err
 		}
 	}
@@ -83,15 +82,15 @@ func (s *Client) Download(object string) (io.Reader, error) {
 
 	key := os.Getenv("BACKMAN_ENCRYPTION_KEY")
 	if len(key) != 0 {
-		masterkey, err := hex.DecodeString(key) // use your own key here
+		masterkey, err := hex.DecodeString(key)
 		if err != nil {
-			fmt.Printf("Cannot decode hex key: %v", err) // add error handling
+			log.Debugf("Cannot decode hex key: %v", err)
 			return nil, err
 		}
 
 		decrypted, err := sio.DecryptReader(reader, sio.Config{Key: masterkey[:]})
 		if err != nil {
-			fmt.Printf("Failed to encrypted reader: %v", err) // add error handling
+			log.Debugf("Failed to encrypted reader: %v", err)
 			return nil, err
 		}
 		return decrypted, nil
