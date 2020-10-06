@@ -28,10 +28,11 @@ type Config struct {
 }
 
 type S3Config struct {
-	DisableSSL   bool   `json:"disable_ssl"`
-	ServiceLabel string `json:"service_label"`
-	ServiceName  string `json:"service_name"`
-	BucketName   string `json:"bucket_name"`
+	DisableSSL    bool   `json:"disable_ssl"`
+	ServiceLabel  string `json:"service_label"`
+	ServiceName   string `json:"service_name"`
+	BucketName    string `json:"bucket_name"`
+	EncryptionKey string `json:"encryption_key"`
 }
 
 type ServiceConfig struct {
@@ -132,6 +133,9 @@ func Get() *Config {
 			if len(envConfig.S3.BucketName) > 0 {
 				config.S3.BucketName = envConfig.S3.BucketName
 			}
+			if len(envConfig.S3.EncryptionKey) > 0 {
+				config.S3.EncryptionKey = envConfig.S3.EncryptionKey
+			}
 			for serviceName, serviceConfig := range envConfig.Services {
 				mergedServiceConfig := config.Services[serviceName]
 				if len(serviceConfig.Schedule) > 0 {
@@ -164,6 +168,11 @@ func Get() *Config {
 		}
 		if len(os.Getenv("BACKMAN_PASSWORD")) > 0 {
 			config.Password = os.Getenv("BACKMAN_PASSWORD")
+		}
+
+		// use s3 encryption key from env if defined
+		if len(os.Getenv("BACKMAN_ENCRYPTION_KEY")) > 0 {
+			config.S3.EncryptionKey = os.Getenv("BACKMAN_ENCRYPTION_KEY")
 		}
 	})
 	return &config

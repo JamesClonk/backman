@@ -3,8 +3,6 @@ github.com/beorn7/perks/quantile
 # github.com/cloudfoundry-community/go-cfenv v1.18.0
 ## explicit
 github.com/cloudfoundry-community/go-cfenv
-# github.com/davecgh/go-spew v1.1.1
-github.com/davecgh/go-spew/spew
 # github.com/dgrijalva/jwt-go v3.2.0+incompatible
 github.com/dgrijalva/jwt-go
 # github.com/dustin/go-humanize v1.0.0
@@ -40,12 +38,13 @@ github.com/minio/minio-go/v6/pkg/encrypt
 github.com/minio/minio-go/v6/pkg/s3signer
 github.com/minio/minio-go/v6/pkg/s3utils
 github.com/minio/minio-go/v6/pkg/set
+# github.com/minio/sio v0.2.0
+## explicit
+github.com/minio/sio
 # github.com/mitchellh/go-homedir v1.1.0
 github.com/mitchellh/go-homedir
 # github.com/mitchellh/mapstructure v1.1.2
 github.com/mitchellh/mapstructure
-# github.com/pmezard/go-difflib v1.0.0
-github.com/pmezard/go-difflib/difflib
 # github.com/prometheus/client_golang v1.1.0
 ## explicit
 github.com/prometheus/client_golang/prometheus
@@ -69,24 +68,30 @@ github.com/robfig/cron
 github.com/sirupsen/logrus
 # github.com/stretchr/testify v1.6.1
 ## explicit
-github.com/stretchr/testify/assert
 # github.com/valyala/bytebufferpool v1.0.0
 github.com/valyala/bytebufferpool
 # github.com/valyala/fasttemplate v1.0.1
 github.com/valyala/fasttemplate
-# golang.org/x/crypto v0.0.0-20190605123033-f99c8df09eb5
+# golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0
+## explicit
 golang.org/x/crypto/acme
 golang.org/x/crypto/acme/autocert
 golang.org/x/crypto/argon2
 golang.org/x/crypto/blake2b
+golang.org/x/crypto/chacha20
+golang.org/x/crypto/chacha20poly1305
+golang.org/x/crypto/internal/subtle
+golang.org/x/crypto/poly1305
 # golang.org/x/net v0.0.0-20190613194153-d28f0bde5980
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2
 golang.org/x/net/http2/hpack
 golang.org/x/net/idna
 golang.org/x/net/publicsuffix
-# golang.org/x/sys v0.0.0-20190801041406-cbf593c0f2f3
+# golang.org/x/sys v0.0.0-20201005172224-997123666555
+## explicit
 golang.org/x/sys/cpu
+golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
 golang.org/x/sys/windows
 # golang.org/x/text v0.3.2
@@ -96,5 +101,3 @@ golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
 # gopkg.in/ini.v1 v1.42.0
 gopkg.in/ini.v1
-# gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
-gopkg.in/yaml.v3

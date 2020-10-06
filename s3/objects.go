@@ -32,6 +32,19 @@ func (s *Client) List(folderPath string) ([]minio.ObjectInfo, error) {
 }
 
 func (s *Client) Upload(object string, reader io.Reader, size int64) error {
+	// if len(config.Get().S3.EncryptionKey) != 0 {
+	// 	masterkey, err := hex.DecodeString(config.Get().S3.EncryptionKey) // use your own key here
+	// 	if err != nil {
+	// 		log.Debugf("Cannot decode hex key: %v", err)
+	// 		return err
+	// 	}
+
+	// 	reader, err = sio.EncryptReader(reader, sio.Config{Key: masterkey[:]})
+	// 	if err != nil {
+	// 		log.Debugf("Failed to encrypted reader: %v", err)
+	// 		return err
+	// 	}
+	// }
 	return s.UploadWithContext(context.Background(), object, reader, size)
 }
 
@@ -57,8 +70,27 @@ func (s *Client) Stat(object string) (*minio.ObjectInfo, error) {
 	return &stat, nil
 }
 
-func (s *Client) Download(object string) (*minio.Object, error) {
-	return s.DownloadWithContext(context.Background(), object)
+func (s *Client) Download(object string) (io.Reader, error) {
+	reader, err := s.DownloadWithContext(context.Background(), object)
+	if err != nil {
+		return nil, err
+	}
+
+	// if len(config.Get().S3.EncryptionKey) > 0 {
+	// 	masterkey, err := hex.DecodeString(config.Get().S3.EncryptionKey)
+	// 	if err != nil {
+	// 		log.Debugf("Cannot decode hex key: %v", err)
+	// 		return nil, err
+	// 	}
+
+	// 	decrypted, err := sio.DecryptReader(reader, sio.Config{Key: masterkey[:]})
+	// 	if err != nil {
+	// 		log.Debugf("Failed to encrypted reader: %v", err)
+	// 		return nil, err
+	// 	}
+	// 	return decrypted, nil
+	// }
+	return reader, nil
 }
 
 func (s *Client) DownloadWithContext(ctx context.Context, object string) (*minio.Object, error) {
