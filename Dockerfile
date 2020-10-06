@@ -1,24 +1,18 @@
-
-ARG package_args='--allow-downgrades --allow-remove-essential --allow-change-held-packages --no-install-recommends'
-
 FROM golang:1.15.2 as build
-
-ARG package_args
 
 WORKDIR /src/backman
 
+ARG package_args='--allow-downgrades --allow-remove-essential --allow-change-held-packages --no-install-recommends'
 RUN apt-get -y $package_args update && apt-get install -y $package_args build-essential
 
 COPY . .
-
 RUN make build
 
+
 FROM ubuntu:20.04
-
-ARG package_args
-
 LABEL maintainer="JamesClonk <jamesclonk@jamesclonk.ch>"
 
+ARG package_args='--allow-downgrades --allow-remove-essential --allow-change-held-packages --no-install-recommends'
 RUN echo "debconf debconf/frontend select noninteractive" | debconf-set-selections && \
   export DEBIAN_FRONTEND=noninteractive && \
   apt-get -y $package_args update && \
@@ -51,7 +45,6 @@ WORKDIR /app
 COPY --from=build /src/backman ./
 COPY public ./public/
 COPY static ./static/
-COPY .env .env
 
 EXPOSE 8080
 

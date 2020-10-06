@@ -51,7 +51,7 @@ init:
 
 .PHONY: docker-build
 ## docker-build: builds docker image
-docker-build: build
+docker-build: clean
 	docker build -t jamesclonk/${APP}:${COMMIT_SHA} .
 
 .PHONY: docker-push
