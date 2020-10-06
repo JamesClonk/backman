@@ -47,8 +47,8 @@ These here are the default values backman will use if not configured via JSON:
 	"disable_web": false,
 	"disable_metrics": false,
 	"s3": {
-    "service_label": "dynstrg",
-    "encryption_key":"a_super_strong_key"
+		"service_label": "dynstrg",
+		"encryption_key":"a_super_strong_key"
 	},
 	"services": {
 		...
