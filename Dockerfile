@@ -20,9 +20,9 @@ RUN echo "debconf debconf/frontend select noninteractive" | debconf-set-selectio
   apt-get -y $package_args install curl ca-certificates gnupg tzdata
 
 RUN curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
-  curl https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add - && \
+  curl https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add - && \
   echo "deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
-  echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse" > /etc/apt/sources.list.d/mongodb-org-4.2.list
+  echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.4 multiverse" > /etc/apt/sources.list.d/mongodb-org-4.4.list
 RUN curl -sL https://deb.nodesource.com/setup_lts.x | bash -
 RUN apt-get -y $package_args update && \
   apt-get -y $package_args install mysql-client postgresql-client-12 mongodb-org-tools=4.4.0 mongodb-org-shell=4.4.0 redis-tools nodejs openssh-server bash vim && \
