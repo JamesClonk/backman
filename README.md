@@ -89,7 +89,7 @@ Possible JSON properties:
 - `services.<service-instance>.retention.days`: optional, specifies how long backman will keep backups on S3 at maximum for this service instance
 - `services.<service-instance>.retention.files`: optional, specifies how maximum number of files backman will keep on S3 for this service instance
 
-Note: Usage of `s3.encryption_key` is not backward compatible! Backups generated without or with a different encryption key cannot be download or restored anymore.
+Note: Usage of `s3.encryption_key` is not backward compatible! Backups generated without or with a different encryption key cannot be downloaded or restored anymore.
 
 ## Metrics
 
