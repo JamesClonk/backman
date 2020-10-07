@@ -36,6 +36,7 @@ applications:
     TZ: Europe/Zurich
     BACKMAN_USERNAME: ((username)) # optional, could also be configured in config.json or BACKMAN_CONFIG
     BACKMAN_PASSWORD: ((password)) # optional, could also be configured in config.json or BACKMAN_CONFIG
+    # BACKMAN_ENCRYPTION_KEY: "" # data-at-rest-encryption for backups stored on S3, optional, could also be configured in config.json or BACKMAN_CONFIG
     BACKMAN_CONFIG: |
       {
         "log_level": "debug",
