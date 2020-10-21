@@ -1,21 +1,21 @@
 package router
 
 import (
-	"crypto/subtle"
 	"fmt"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/router/api"
+	"github.com/swisscom/backman/router/metrics"
 	"github.com/swisscom/backman/router/ui"
 )
 
 type Router struct {
-	echo *echo.Echo
-	api  *api.Handler
-	ui   *ui.Handler
+	echo    *echo.Echo
+	metrics *metrics.Handler
+	api     *api.Handler
+	ui      *ui.Handler
 }
 
 func New() *Router {
@@ -42,27 +42,19 @@ func New() *Router {
 	//e.Use(middleware.Recover()) // don't recover, let platform deal with panics
 	e.Use(middleware.Static("static"))
 
-	// secure whole app with HTTP BasicAuth
-	username := config.Get().Username
-	password := config.Get().Password
-	e.Use(middleware.BasicAuth(func(u, p string, c echo.Context) (bool, error) {
-		if subtle.ConstantTimeCompare([]byte(u), []byte(username)) == 1 && subtle.ConstantTimeCompare([]byte(p), []byte(password)) == 1 {
-			return true, nil
-		}
-		return false, nil
-	}))
-
 	// setup router
 	r := &Router{
-		echo: e,
-		api:  api.New(),
-		ui:   ui.New(),
+		echo:    e,
+		metrics: metrics.New(),
+		api:     api.New(),
+		ui:      ui.New(),
 	}
 
 	if !config.Get().DisableMetrics {
-		// setup Prometheus endpoint
-		r.echo.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
+		// setup metrics route
+		r.metrics.RegisterRoutes(r.echo)
 	}
+
 	if !config.Get().DisableWeb {
 		// setup API routes
 		r.api.RegisterRoutes(r.echo)

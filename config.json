@@ -3,6 +3,7 @@
 	"logging_timestamp": false,
 	"disable_web": false,
 	"disable_metrics": false,
+	"unprotected_metrics": false,
 	"username": "http_basic_auth_user_abc",
 	"password": "http_basic_auth_password_xyz",
 	"s3": {

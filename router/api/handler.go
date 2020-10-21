@@ -1,10 +1,13 @@
 package api
 
 import (
+	"crypto/subtle"
 	"fmt"
 
 	cfenv "github.com/cloudfoundry-community/go-cfenv"
 	echo "github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/s3"
 	"github.com/swisscom/backman/service"
 )
@@ -29,6 +32,16 @@ func New() *Handler {
 func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	// everything should be placed under /api/$version/
 	g := e.Group(fmt.Sprintf("/api/%s", version))
+
+	// secure routes with HTTP BasicAuth
+	username := config.Get().Username
+	password := config.Get().Password
+	g.Use(middleware.BasicAuth(func(u, p string, c echo.Context) (bool, error) {
+		if subtle.ConstantTimeCompare([]byte(u), []byte(username)) == 1 && subtle.ConstantTimeCompare([]byte(p), []byte(password)) == 1 {
+			return true, nil
+		}
+		return false, nil
+	}))
 
 	g.GET("/services", h.ListServices)
 	g.GET("/backups", h.ListBackups)

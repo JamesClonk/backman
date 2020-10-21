@@ -1,10 +1,13 @@
 package ui
 
 import (
+	"crypto/subtle"
 	"net/http"
 	"time"
 
 	echo "github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/service"
 	"github.com/swisscom/backman/service/util"
@@ -48,10 +51,22 @@ func New() *Handler {
 }
 
 func (h *Handler) RegisterRoutes(e *echo.Echo) {
-	e.GET("/", h.ServicesHandler)
-	e.GET("/services", h.ServicesHandler)
-	e.GET("/services/:service_type", h.ServicesHandler)
-	e.GET("/service/:service_type/:service_name", h.ServiceHandler)
+	g := e.Group("")
+
+	// secure routes with HTTP BasicAuth
+	username := config.Get().Username
+	password := config.Get().Password
+	g.Use(middleware.BasicAuth(func(u, p string, c echo.Context) (bool, error) {
+		if subtle.ConstantTimeCompare([]byte(u), []byte(username)) == 1 && subtle.ConstantTimeCompare([]byte(p), []byte(password)) == 1 {
+			return true, nil
+		}
+		return false, nil
+	}))
+
+	g.GET("/", h.ServicesHandler)
+	g.GET("/services", h.ServicesHandler)
+	g.GET("/services/:service_type", h.ServicesHandler)
+	g.GET("/service/:service_type/:service_name", h.ServiceHandler)
 
 	e.HTTPErrorHandler = h.ErrorHandler
 }
