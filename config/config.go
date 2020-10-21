@@ -16,15 +16,16 @@ var (
 )
 
 type Config struct {
-	LogLevel         string `json:"log_level"`
-	LoggingTimestamp bool   `json:"logging_timestamp"`
-	Username         string
-	Password         string
-	DisableWeb       bool `json:"disable_web"`
-	DisableMetrics   bool `json:"disable_metrics"`
-	S3               S3Config
-	Services         map[string]ServiceConfig
-	Foreground       bool
+	LogLevel           string `json:"log_level"`
+	LoggingTimestamp   bool   `json:"logging_timestamp"`
+	Username           string
+	Password           string
+	DisableWeb         bool `json:"disable_web"`
+	DisableMetrics     bool `json:"disable_metrics"`
+	UnprotectedMetrics bool `json:"unprotected_metrics"`
+	S3                 S3Config
+	Services           map[string]ServiceConfig
+	Foreground         bool
 }
 
 type S3Config struct {
@@ -120,6 +121,9 @@ func Get() *Config {
 			}
 			if envConfig.DisableMetrics {
 				config.DisableMetrics = envConfig.DisableMetrics
+			}
+			if envConfig.UnprotectedMetrics {
+				config.UnprotectedMetrics = envConfig.UnprotectedMetrics
 			}
 			if envConfig.S3.DisableSSL {
 				config.S3.DisableSSL = envConfig.S3.DisableSSL
