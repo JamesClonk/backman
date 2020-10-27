@@ -43,6 +43,7 @@ type ServiceConfig struct {
 		Days  int
 		Files int
 	}
+	DisableColumnStatistics bool `json:"disable_column_statistics"`
 }
 
 type TimeoutDuration struct {
@@ -153,6 +154,9 @@ func Get() *Config {
 				}
 				if serviceConfig.Retention.Files > 0 {
 					mergedServiceConfig.Retention.Files = serviceConfig.Retention.Files
+				}
+				if serviceConfig.DisableColumnStatistics {
+					mergedServiceConfig.DisableColumnStatistics = serviceConfig.DisableColumnStatistics
 				}
 				config.Services[serviceName] = mergedServiceConfig
 			}

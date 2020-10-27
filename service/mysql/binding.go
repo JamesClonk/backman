@@ -63,6 +63,9 @@ func GetCredentials(binding *cfenv.Service) *Credentials {
 			}
 		}
 	}
+	if len(hostname) == 0 && len(host) > 0 && !strings.Contains(host, ":") {
+		hostname = host
+	}
 
 	// figure out credentials from URL if still missing
 	for key := range binding.Credentials {

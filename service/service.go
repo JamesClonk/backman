@@ -108,6 +108,7 @@ func (s *Service) parseServices() {
 						Days:  retentionDays,
 						Files: retentionFiles,
 					},
+					DisableColumnStatistics: config.Get().Services[service.Name].DisableColumnStatistics,
 				}
 				s.Services = append(s.Services, newService)
 			}

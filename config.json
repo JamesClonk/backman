@@ -20,7 +20,8 @@
 			}
 		},
 		"my_mysql_db": {
-			"timeout": "35m"
+			"timeout": "35m",
+			"disable_column_statistics": true
 		},
 		"other_postgres_db": {
 			"timeout": "2h15m"

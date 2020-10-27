@@ -4,13 +4,14 @@ import "time"
 
 // swagger:response service
 type Service struct {
-	Name      string
-	Label     string
-	Plan      string
-	Tags      []string
-	Timeout   time.Duration
-	Schedule  string
-	Retention Retention
+	Name                    string
+	Label                   string
+	Plan                    string
+	Tags                    []string
+	Timeout                 time.Duration
+	Schedule                string
+	Retention               Retention
+	DisableColumnStatistics bool
 }
 type Retention struct {
 	Days  int

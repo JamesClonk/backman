@@ -23,7 +23,7 @@ applications:
 
   # ### push either as docker image
   docker:
-    image: jamesclonk/backman:1.19.0 # choose version from https://hub.docker.com/r/jamesclonk/backman/tags, or 'latest'
+    image: jamesclonk/backman:1.20.0 # choose version from https://hub.docker.com/r/jamesclonk/backman/tags, or 'latest'
   # ### or as buildpack/src
   # buildpacks:
   # - https://github.com/cloudfoundry/apt-buildpack
@@ -63,7 +63,8 @@ applications:
             }
           },
           "my_mysql_db": {
-            "timeout": "35m"
+            "timeout": "35m",
+            "disable_column_statistics": true
           },
           "mongodb-for-backend": {
             "schedule": "0 45 0/4 * * *",
