@@ -1,14 +1,3 @@
-FROM golang:1.15.2 as build
-
-WORKDIR /src/backman
-
-ARG package_args='--allow-downgrades --allow-remove-essential --allow-change-held-packages --no-install-recommends'
-RUN apt-get -y $package_args update && apt-get install -y $package_args build-essential
-
-COPY . .
-RUN make build
-
-
 FROM ubuntu:20.04
 LABEL maintainer="JamesClonk <jamesclonk@jamesclonk.ch>"
 
@@ -37,14 +26,15 @@ RUN mongorestore --version
 
 RUN useradd -u 2000 -mU -s /bin/bash vcap && \
   mkdir /home/vcap/app && \
-  chown vcap:vcap /home/vcap/app && \
-  ln -s /home/vcap/app /app
-USER vcap
+  chown vcap:vcap /home/vcap/app
 
-WORKDIR /app
-COPY --from=build /src/backman ./
+WORKDIR /home/vcap/app
+COPY backman ./
 COPY public ./public/
 COPY static ./static/
+
+RUN chown -R vcap:vcap /home/vcap/app
+USER vcap
 
 EXPOSE 8080
 
