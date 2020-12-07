@@ -12,6 +12,7 @@ type Service struct {
 	Schedule                string
 	Retention               Retention
 	DisableColumnStatistics bool
+	LocalBackupPath         string
 }
 type Retention struct {
 	Days  int

@@ -17,7 +17,8 @@
 			"retention": {
 				"days": 60,
 				"files": 250
-			}
+			},
+			"local_backup_path": "./_fixtures/"
 		},
 		"my_mysql_db": {
 			"timeout": "35m"

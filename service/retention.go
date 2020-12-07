@@ -25,6 +25,10 @@ func (s *Service) RetentionCleanup(service util.Service) error {
 			}
 		}
 	}
+	// cleanup local files too
+	if len(service.LocalBackupPath) > 0 {
+		// TODO: this!
+	}
 
 	// remove if too many files
 	sort.Slice(objects, func(i, j int) bool {
@@ -36,6 +40,10 @@ func (s *Service) RetentionCleanup(service util.Service) error {
 				return err
 			}
 		}
+	}
+	// cleanup local files too
+	if len(service.LocalBackupPath) > 0 {
+		// TODO: this!
 	}
 	return nil
 }
