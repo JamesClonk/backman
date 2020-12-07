@@ -75,6 +75,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 		if err := cmd.Run(); err != nil {
 			log.Errorf("could not run postgres dump: %v", err)
 			state.BackupFailure(service)
+			defer os.Remove(strings.TrimSuffix(backupFilename, ".gz"))
 
 			// check for timeout error
 			if ctx.Err() == context.DeadlineExceeded {
@@ -95,7 +96,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 		// get io.reader for backup file
 		backupFile, err := os.Open(backupFilename)
 		if err != nil {
-			log.Errorf("could not get open backup file for postgres dump: %v", err)
+			log.Errorf("could not open postgres backup file for s3 upload: %v", err)
 			state.BackupFailure(service)
 			return err
 		}
