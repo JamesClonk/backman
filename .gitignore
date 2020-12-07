@@ -41,3 +41,4 @@ appcloud-backman-app
 backman-app
 backman
 /tmp
+_fixtures/*

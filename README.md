@@ -92,6 +92,8 @@ Possible JSON properties:
 - `services.<service-instance>.timeout`: optional, backman will abort a running backup/restore if timeout is exceeded
 - `services.<service-instance>.retention.days`: optional, specifies how long backman will keep backups on S3 at maximum for this service instance
 - `services.<service-instance>.retention.files`: optional, specifies how maximum number of files backman will keep on S3 for this service instance
+- `services.<service-instance>.disable_column_statistics`: optional / MySQL-specific, allows for disabling export of column statistics. Set to `true` to avoid issues with pre-8.0 versions of MySQL
+- `services.<service-instance>.local_backup_path`: optional / PostgreSQL-specific, path where to store backup files locally first before uploading them. Otherwise streams directly onto s3 if not specified.
 
 Note: Usage of `s3.encryption_key` is not backward compatible! Backups generated without or with a different encryption key cannot be downloaded or restored anymore.
 

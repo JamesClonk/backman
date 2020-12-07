@@ -51,8 +51,8 @@ init:
 
 .PHONY: docker-build
 ## docker-build: builds docker image
-docker-build: clean
-	docker build -t jamesclonk/${APP}:${COMMIT_SHA} .
+docker-build: clean build
+	docker build -t jamesclonk/${APP}:${COMMIT_SHA} $$PWD
 
 .PHONY: docker-push
 ## docker-push: pushes docker image to dockerhub
