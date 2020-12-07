@@ -60,22 +60,21 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 		outputPath := filepath.Join(service.LocalBackupPath, service.Label, service.Name)
 		_ = os.MkdirAll(outputPath, 0750)
 
-		// output file for backup
-		backupFilename := filepath.Join(outputPath, filename)
-		outFile, err := os.Create(strings.TrimSuffix(backupFilename, ".gz"))
-		if err != nil {
-			log.Errorf("could not get prepare backup file for postgres dump: %v", err)
-			state.BackupFailure(service)
-			return err
-		}
-		defer outFile.Close()
-		cmd.Stdout = outFile
-		cmd.Stderr = os.Stdout
+		// output filenames for backup
+		backupFilenameGz := filepath.Join(outputPath, filename)
+		backupFilename := strings.TrimSuffix(backupFilenameGz, ".gz")
+
+		// add --file to pg_dump command, no stdout redirection
+		command = append(command, "-f")
+		command = append(command, backupFilename)
+		command = append(command, "--format=plain")
+		cmd = exec.CommandContext(ctx, command[0], command[1:]...)
+		cmd.Stderr = os.Stderr
 
 		if err := cmd.Run(); err != nil {
 			log.Errorf("could not run postgres dump: %v", err)
 			state.BackupFailure(service)
-			defer os.Remove(strings.TrimSuffix(backupFilename, ".gz"))
+			defer os.Remove(backupFilename)
 
 			// check for timeout error
 			if ctx.Err() == context.DeadlineExceeded {
@@ -86,7 +85,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 		time.Sleep(1 * time.Second)
 
 		// gzip file
-		if err := exec.CommandContext(ctx, "gzip", strings.TrimSuffix(backupFilename, ".gz")).Run(); err != nil {
+		if err := exec.CommandContext(ctx, "gzip", backupFilename).Run(); err != nil {
 			log.Errorf("could not gzip postgres backup file: %v", err)
 			state.BackupFailure(service)
 			return err
@@ -94,7 +93,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 		time.Sleep(1 * time.Second)
 
 		// get io.reader for backup file
-		backupFile, err := os.Open(backupFilename)
+		backupFile, err := os.Open(backupFilenameGz)
 		if err != nil {
 			log.Errorf("could not open postgres backup file for s3 upload: %v", err)
 			state.BackupFailure(service)
