@@ -84,6 +84,10 @@ func (h *Handler) ErrorHandler(err error, c echo.Context) {
 	page.Error.Message = message
 	page.Error.Time = time.Now()
 
+	// dont be a chatterbox and reveal service names on the error page
+	page.Services = nil
+	page.AllServices = nil
+
 	log.Errorf("%v", err)
 	_ = c.Render(code, "error.html", page)
 }
