@@ -44,6 +44,7 @@ type ServiceConfig struct {
 		Files int
 	}
 	DisableColumnStatistics bool   `json:"disable_column_statistics"`
+	ForceImport             bool   `json:"force_import"`
 	LocalBackupPath         string `json:"local_backup_path"`
 }
 
@@ -158,6 +159,9 @@ func Get() *Config {
 				}
 				if serviceConfig.DisableColumnStatistics {
 					mergedServiceConfig.DisableColumnStatistics = serviceConfig.DisableColumnStatistics
+				}
+				if serviceConfig.ForceImport {
+					mergedServiceConfig.ForceImport = serviceConfig.ForceImport
 				}
 				if len(serviceConfig.LocalBackupPath) > 0 {
 					mergedServiceConfig.LocalBackupPath = serviceConfig.LocalBackupPath

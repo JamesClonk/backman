@@ -39,6 +39,10 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 	command = append(command, credentials.Port)
 	command = append(command, "-u")
 	command = append(command, credentials.Username)
+	// https://stackoverflow.com/questions/11263018/mysql-ignore-errors-when-importing/25771417#25771417
+	if service.ForceImport {
+		command = append(command, "--force")
+	}
 
 	log.Debugf("executing mysql restore command: %v", strings.Join(command, " "))
 	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
