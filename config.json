@@ -22,7 +22,6 @@
 		},
 		"my_mysql_db": {
 			"timeout": "35m",
-			"disable_column_statistics": true,
 			"force_import": true
 		},
 		"other_postgres_db": {
