@@ -3,6 +3,9 @@
 backman:
   image: "jamesclonk/backman:1.23.1"
 
+  pod_security_policy:
+    enabled: true
+
   network_policy:
     enabled: true
     namespace_labels:
