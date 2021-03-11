@@ -1,0 +1,64 @@
+(@ def connstr(service): @)
+(@   if service.type == "postgres" or service.type == "pg" or service.type == "psql" or service.type == "postgresql" or service.type == "elephantsql" or service.type == "citusdb": @)
+(@     return "postgres://{}:{}@{}:{}/{}?sslmode=disable".format(service.credentials.username, service.credentials.password, service.credentials.hostname, service.credentials.port, service.credentials.database) @)
+(@   end @)
+(@   if service.type == "mysql" or service.type == "mariadb" or service.type == "mariadbent" or service.type == "pxc" or service.type == "galera" or service.type == "mysql-database" or service.type == "mariadb-k8s-database": @)
+(@     return "mysql://{}:{}@{}:{}/{}".format(service.credentials.username, service.credentials.password, service.credentials.hostname, service.credentials.port, service.credentials.database) @)
+(@   end @)
+(@   if service.type == "redis" or service.type == "redis-2" or service.type == "redisent" or service.type == "redis-enterprise" or service.type == "redis-ha" or service.type == "redis-k8s": @)
+(@     return "redis://{}@{}:{}".format(service.credentials.password, service.credentials.hostname, service.credentials.port) @)
+(@   end @)
+(@   return "" @)
+(@ end @)
+
+(@ def postgres_credentials(service): -@)
+    "credentials": {
+        "uri": "(@= connstr(service) @)",
+        "database_uri": "(@= connstr(service) @)",
+        "jdbcUrl": "(@= connstr(service) @)",
+        "name": "(@= service.name @)",
+        "host": "(@= service.credentials.hostname + ':' + str(service.credentials.port) @)",
+        "hostname": "(@= service.credentials.hostname @)",
+        "port": (@= str(service.credentials.port) @),
+        "database": "(@= service.credentials.database @)",
+        "username": "(@= service.credentials.username @)",
+        "password": "(@= service.credentials.password @)"
+    },
+(@- end @)
+
+(@ def mysql_credentials(service): -@)
+    "credentials": {
+        "uri": "(@= connstr(service) @)",
+        "database_uri": "(@= connstr(service) @)",
+        "jdbcUrl": "(@= connstr(service) @)",
+        "name": "(@= service.name @)",
+        "host": "(@= service.credentials.hostname + ':' + str(service.credentials.port) @)",
+        "hostname": "(@= service.credentials.hostname @)",
+        "port": (@= str(service.credentials.port) @),
+        "database": "(@= service.credentials.database @)",
+        "username": "(@= service.credentials.username @)",
+        "password": "(@= service.credentials.password @)"
+    },
+(@- end @)
+
+(@ def mongodb_credentials(service): -@)
+    "credentials": {
+        "uri": "(@= service.credentials.uri @)"
+    },
+(@- end @)
+
+(@ def redis_credentials(service): -@)
+    "credentials": {
+        "hostname": "(@= service.credentials.hostname @)",
+        "port": (@= str(service.credentials.port) @),
+        "password": "(@= service.credentials.password @)"
+    },
+(@- end @)
+
+(@ def elasticsearch_credentials(service): -@)
+    "credentials": {
+        "host": "(@= service.credentials.host @)",
+        "full_access_username": "(@= service.credentials.username @)",
+        "full_access_password": "(@= service.credentials.password @)"
+    },
+(@- end @)

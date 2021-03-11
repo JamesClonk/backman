@@ -1,0 +1,113 @@
+#@ load("@ytt:assert", "assert")
+#@ load("_ytt.lib.txt", "postgres_credentials", "mysql_credentials", "mongodb_credentials", "redis_credentials", "elasticsearch_credentials")
+
+#@ def labels(component):
+  app: backman
+  app.kubernetes.io/name: backman
+  app.kubernetes.io/instance: backman
+  app.kubernetes.io/component: #@ component
+#@ end
+
+#@ def labelSelector(component):
+  matchExpressions:
+  - key: app
+    operator: In
+    values:
+    - backman
+  - key: app.kubernetes.io/name
+    operator: In
+    values:
+    - backman
+  - key: app.kubernetes.io/instance
+    operator: In
+    values:
+    - backman
+  - key: app.kubernetes.io/component
+    operator: In
+    values:
+    - #@ component
+#@ end
+
+#@ def podAntiAffinity(component):
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        topologyKey: kubernetes.io/hostname
+        labelSelector: #@ labelSelector(component)
+#@ end
+
+#@ def credentials(service):
+
+#@   if service.type == "postgres" or service.type == "pg" or service.type == "psql" or service.type == "postgresql" or service.type == "elephantsql" or service.type == "citusdb":
+#@     if len(service.credentials.hostname) == 0 or service.credentials.hostname == "host":
+#@       assert.fail("backman.services[" + service.name + "].credentials.hostname is missing or invalid")
+#@     end
+#@     if service.credentials.port < 1:
+#@       assert.fail("backman.services[" + service.name + "].credentials.port is missing or invalid")
+#@     end
+#@     if len(service.credentials.database) == 0 or service.credentials.database == "dbname":
+#@       assert.fail("backman.services[" + service.name + "].credentials.database is missing or invalid")
+#@     end
+#@     if len(service.credentials.username) == 0 or service.credentials.username == "username":
+#@       assert.fail("backman.services[" + service.name + "].credentials.username is missing or invalid")
+#@     end
+#@     if len(service.credentials.password) == 0 or service.credentials.password == "password":
+#@       assert.fail("backman.services[" + service.name + "].credentials.password is missing or invalid")
+#@     end
+#@     return postgres_credentials(service)
+#@   end
+
+#@   if service.type == "mysql" or service.type == "mariadb" or service.type == "mariadbent" or service.type == "pxc" or service.type == "galera" or service.type == "mysql-database" or service.type == "mariadb-k8s-database":
+#@     if len(service.credentials.hostname) == 0 or service.credentials.hostname == "host":
+#@       assert.fail("backman.services[" + service.name + "].credentials.hostname is missing or invalid")
+#@     end
+#@     if service.credentials.port < 1:
+#@       assert.fail("backman.services[" + service.name + "].credentials.port is missing or invalid")
+#@     end
+#@     if len(service.credentials.database) == 0 or service.credentials.database == "dbname":
+#@       assert.fail("backman.services[" + service.name + "].credentials.database is missing or invalid")
+#@     end
+#@     if len(service.credentials.username) == 0 or service.credentials.username == "username":
+#@       assert.fail("backman.services[" + service.name + "].credentials.username is missing or invalid")
+#@     end
+#@     if len(service.credentials.password) == 0 or service.credentials.password == "password":
+#@       assert.fail("backman.services[" + service.name + "].credentials.password is missing or invalid")
+#@     end
+#@     return mysql_credentials(service)
+#@   end
+
+#@   if service.type == "mongodb" or service.type == "mongo" or service.type == "mongodb-2" or service.type == "mongodbent" or service.type == "mongodbent-database" or service.type == "mangodb" or service.type == "mongodb-k8s":
+#@     if len(service.credentials.uri) == 0:
+#@       assert.fail("backman.services[" + service.name + "].credentials.uri is missing")
+#@     end
+#@     return mongodb_credentials(service)
+#@   end
+
+#@   if service.type == "redis" or service.type == "redis-2" or service.type == "redisent" or service.type == "redis-enterprise" or service.type == "redis-ha" or service.type == "redis-k8s":
+#@     if len(service.credentials.hostname) == 0 or service.credentials.hostname == "host":
+#@       assert.fail("backman.services[" + service.name + "].credentials.hostname is missing or invalid")
+#@     end
+#@     if service.credentials.port < 1:
+#@       assert.fail("backman.services[" + service.name + "].credentials.port is missing or invalid")
+#@     end
+#@     if len(service.credentials.password) == 0 or service.credentials.password == "password":
+#@       assert.fail("backman.services[" + service.name + "].credentials.password is missing or invalid")
+#@     end
+#@     return redis_credentials(service)
+#@   end
+
+#@   if service.type == "elastic" or service.type == "es" or service.type == "elasticsearch":
+#@     if len(service.credentials.host) == 0 or service.credentials.host == "host":
+#@       assert.fail("backman.services[" + service.name + "].credentials.host is missing or invalid")
+#@     end
+#@     if len(service.credentials.username) == 0 or service.credentials.username == "username":
+#@       assert.fail("backman.services[" + service.name + "].credentials.username is missing or invalid")
+#@     end
+#@     if len(service.credentials.password) == 0 or service.credentials.password == "password":
+#@       assert.fail("backman.services[" + service.name + "].credentials.password is missing or invalid")
+#@     end
+#@     return elasticsearch_credentials(service)
+#@   end
+
+#@ end
