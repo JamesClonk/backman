@@ -1,4 +1,17 @@
 FROM ubuntu:20.04
+
+ARG package_args='--allow-downgrades --allow-remove-essential --allow-change-held-packages --no-install-recommends'
+RUN echo "debconf debconf/frontend select noninteractive" | debconf-set-selections && \
+  export DEBIAN_FRONTEND=noninteractive && \
+  apt-get -y $package_args update && \
+  apt-get -y $package_args dist-upgrade && \
+  apt-get -y $package_args install curl ca-certificates gnupg tzdata golang git
+
+WORKDIR /go/src/github.com/swisscom/backman
+COPY . .
+RUN go build -o backman
+
+FROM ubuntu:20.04
 LABEL maintainer="JamesClonk <jamesclonk@jamesclonk.ch>"
 
 ARG package_args='--allow-downgrades --allow-remove-essential --allow-change-held-packages --no-install-recommends'
@@ -29,10 +42,12 @@ RUN useradd -u 2000 -mU -s /bin/bash vcap && \
   chown vcap:vcap /home/vcap/app
 
 WORKDIR /home/vcap/app
-COPY backman ./
+#COPY backman ./
 COPY public ./public/
 COPY static ./static/
+COPY --from=0 /go/src/github.com/swisscom/backman/backman ./backman
 
+RUN chmod +x /home/vcap/app/backman
 RUN chown -R vcap:vcap /home/vcap/app
 USER vcap
 

@@ -51,9 +51,6 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	command = append(command, "-c")
 	command = append(command, "--no-password")
 
-	log.Debugf("executing postgres backup command: %v", strings.Join(command, " "))
-	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
-
 	// store backup file locally first, before uploading it onto s3
 	if len(service.LocalBackupPath) > 0 {
 		// output path
@@ -68,7 +65,8 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 		command = append(command, "-f")
 		command = append(command, backupFilename)
 		command = append(command, "--format=plain")
-		cmd = exec.CommandContext(ctx, command[0], command[1:]...)
+		log.Debugf("executing postgres backup command: %v", strings.Join(command, " "))
+		cmd := exec.CommandContext(ctx, command[0], command[1:]...)
 		cmd.Stderr = os.Stderr
 
 		if err := cmd.Run(); err != nil {
@@ -117,6 +115,9 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 		return err
 
 	} else { // stream pg_dump directly onto s3
+		log.Debugf("executing postgres backup command: %v", strings.Join(command, " "))
+		cmd := exec.CommandContext(ctx, command[0], command[1:]...)
+
 		// capture stdout to pass to gzipping buffer
 		outPipe, err := cmd.StdoutPipe()
 		if err != nil {

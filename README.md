@@ -93,9 +93,24 @@ Possible JSON properties:
 - `services.<service-instance>.retention.days`: optional, specifies how long backman will keep backups on S3 at maximum for this service instance
 - `services.<service-instance>.retention.files`: optional, specifies how maximum number of files backman will keep on S3 for this service instance
 - `services.<service-instance>.disable_column_statistics`: optional / MySQL-specific, allows for disabling export of column statistics. Set to `true` to avoid issues with pre-8.0 versions of MySQL
+- `services.<service-instance>.force_import`: optional / MySQL-specific. Set to `true` to use the `--force` flag for mysql, ignoring any errors that might occur while importing backups.
 - `services.<service-instance>.local_backup_path`: optional / PostgreSQL-specific, path where to store backup files locally first before uploading them. Otherwise streams directly onto s3 if not specified.
 
 Note: Usage of `s3.encryption_key` is not backward compatible! Backups generated without or with a different encryption key cannot be downloaded or restored anymore.
+
+## Kubernetes deployments
+
+backman can of course also be deployed onto a Kubernetes cluster. There are [ytt](https://carvel.dev/ytt/) templates provided under [kubernetes/templates](https://github.com/swisscom/backman/tree/master/kubernetes/templates) that can be used to generate and deploy to Kubernetes. Some useful helper scripts can be found under [kubernetes](https://github.com/swisscom/backman/tree/master/kubernetes).
+
+To deploy via [ytt](https://carvel.dev/ytt/) and [kapp](https://carvel.dev/kapp/):
+
+1. clone this repository
+2. go into the kubernetes folder
+3. edit `values.yml`.
+	See [sample_values.yml](https://github.com/swisscom/backman/tree/master/kubernetes/sample_values.yml) for reference.
+4. run `./deploy.sh`
+
+Additionally if you don't want to use any of the [carvel.dev](https://carvel.dev/) tooling you can just make use of the provided example [deploy.yml](https://github.com/swisscom/backman/tree/master/kubernetes/example/deploy.yml), which is a complete pre-rendered Kubernetes deployment manifest. Please edit it first though to adjust its backman configuration values, the **Secret**, **Ingress** and **NetworkPolicy** resources, the default values these contain will very likely *not* work for you!
 
 ## Metrics
 
