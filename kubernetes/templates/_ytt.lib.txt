@@ -49,6 +49,7 @@
 
 (@ def redis_credentials(service): -@)
     "credentials": {
+        "host": "(@= service.credentials.hostname + ':' + str(service.credentials.port) @)",
         "hostname": "(@= service.credentials.hostname @)",
         "port": (@= str(service.credentials.port) @),
         "password": "(@= service.credentials.password @)"

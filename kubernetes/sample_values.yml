@@ -4,22 +4,22 @@ backman:
   image: "jamesclonk/backman:1.23.1"
 
   pod_security_policy:
-    enabled: true
+    enabled: true  # generates a k8s pod-security-policy if enabled
 
   network_policy:
-    enabled: true
+    enabled: true # generates a k8s network-policy if enabled
     namespace_labels:
-      ingress:
+      ingress: # namespace matchLabels for ingress-controller access
         namespace.kubernetes.io/name: "ingress-nginx"
-      prometheus:
+      prometheus: # namespace matchLabels for prometheus access
         namespace.kubernetes.io/name: "prometheus"
 
   ingress:
-    enabled: true
+    enabled: true # generates a k8s nginx ingress resource if enabled
     hostname: "backman.swisscom.com" # hostname for k8s nginx ingress
     cert_manager_tls:
-      enabled: true
-      cluster_issuer: "my-letsencrypt-issuer"
+      enabled: false # requires cert-manager.io to be installed for ingress TLS support to be enabled
+      cluster_issuer: "" # requires a cluster-issuer name if TLS is enabled
 
   username: "john" # basic-auth username
   password: "doe" # basic-auth password
@@ -27,9 +27,9 @@ backman:
   storage:
     s3:
       region: "" # optional
-      host: "s3.amazonaws.com"
-      key: "access-key"
-      secret: "secret-key"
+      host: "s3.amazonaws.com" # s3 hostname
+      key: "access-key" # s3 access key
+      secret: "secret-key" # s3 secret key
 
   # services require: name, type, credentials, schedule, timeout and retention
   services:
@@ -57,7 +57,7 @@ backman:
       username: "mysql_user"
       password: "mysql_passwd"
     schedule: "1 2 3 4 5 *"
-    timeout: "12h"
+    timeout: "2h"
     retention:
       files: 33
       days: 33
@@ -65,9 +65,9 @@ backman:
   - name: "my-mongodb"
     type: "mongodb"
     credentials:
-      uri: "mongodb://mongoadmin:super-secret@127.0.0.1:27017"
-    schedule: "1 2 3 4 5 *"
-    timeout: "12h"
+      uri: "mongodb://mongodbadmin:super-secret@127.0.0.1:27017"
+    schedule: "0 0 3 * * *"
+    timeout: "2h"
     retention:
       files: 100
       days: 90
@@ -78,8 +78,8 @@ backman:
       hostname: "redis.domain"
       port: 6379
       password: "redis_passwd"
-    schedule: "1 2 3 4 5 *"
-    timeout: "12h"
+    schedule: "0 0 4 * * *"
+    timeout: "1h"
     retention:
       files: 500
       days: 365
@@ -87,11 +87,11 @@ backman:
   - name: "my-elasticsearch"
     type: "elasticsearch"
     credentials:
-      host: "https://dbbe525094a74d4481522f168de810c4.elasticsearch.cs.swisscom.com"
+      host: "https://my.elasticsearch.swisscom.com"
       username: "elasticsearch_user"
       password: "elasticsearch_passwd"
-    schedule: "1 2 3 4 5 *"
-    timeout: "12h"
+    schedule: "0 0 0 4,6 * *"
+    timeout: "6h"
     retention:
       files: 5
       days: 2
