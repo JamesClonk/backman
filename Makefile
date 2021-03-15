@@ -52,6 +52,7 @@ init:
 .PHONY: docker-build
 ## docker-build: builds docker image
 docker-build: clean
+	docker pull ubuntu:20.04
 	docker build -t jamesclonk/${APP}:${COMMIT_SHA} $$PWD
 
 .PHONY: docker-push
