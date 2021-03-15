@@ -13,6 +13,5 @@ require (
 	github.com/robfig/cron v1.2.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.6.1 // indirect
-	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0 // indirect
-	golang.org/x/sys v0.0.0-20201005172224-997123666555 // indirect
+	golang.org/x/crypto v0.0.0-20210314154223-e6e6c4f2bb5b
 )

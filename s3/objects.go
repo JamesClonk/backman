@@ -2,16 +2,20 @@ package s3
 
 import (
 	"context"
-	"crypto/md5"
+	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"io/ioutil"
+	"path/filepath"
 	"sort"
 
 	"github.com/minio/minio-go/v6"
 	"github.com/minio/sio"
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
+	"golang.org/x/crypto/hkdf"
+	"golang.org/x/crypto/scrypt"
 )
 
 func (s *Client) List(folderPath string) ([]minio.ObjectInfo, error) {
@@ -49,7 +53,7 @@ func (s *Client) UploadWithContext(ctx context.Context, object string, reader io
 	var err error
 	uploadReader := reader
 	if len(config.Get().S3.EncryptionKey) != 0 {
-		key := getKey(config.Get().S3.EncryptionKey)
+		key := getKey(config.Get().S3.EncryptionKey, object)
 		uploadReader, err = sio.EncryptReader(reader, sio.Config{Key: key, CipherSuites: []byte{sio.AES_256_GCM}})
 		if err != nil {
 			log.Debugf("failed to encrypt reader: %v", err)
@@ -86,7 +90,7 @@ func (s *Client) DownloadWithContext(ctx context.Context, object string) (io.Rea
 	}
 
 	if len(config.Get().S3.EncryptionKey) > 0 {
-		key := getKey(config.Get().S3.EncryptionKey)
+		key := getKey(config.Get().S3.EncryptionKey, object)
 		decrypted, err := sio.DecryptReader(reader, sio.Config{Key: key, CipherSuites: []byte{sio.AES_256_GCM}})
 		if err != nil {
 			log.Debugf("failed to decrypt reader: %v", err)
@@ -105,8 +109,25 @@ func (s *Client) Delete(object string) error {
 	return nil
 }
 
-func getKey(password string) []byte {
-	hasher := md5.New()
-	hasher.Write([]byte(password))
-	return []byte(hex.EncodeToString(hasher.Sum(nil)))
+func getKey(password, object string) []byte {
+	nonce := filepath.Base(object)
+
+	hasher := sha256.New()
+	if n, err := hasher.Write([]byte(fmt.Sprintf("%s%s", password, nonce))); err != nil || n <= 0 {
+		log.Fatalf("could not get salt: %v", err)
+	}
+	salt := hex.EncodeToString(hasher.Sum(nil))
+
+	masterKey, err := scrypt.Key([]byte(password), []byte(salt), 32768, 8, 1, 32)
+	if err != nil {
+		log.Fatalf("could not get master key: %v", err)
+	}
+
+	// derive encryption key, using filename as nonce (filenames contain timestamps and are unique per backman deployment)
+	var key [32]byte
+	kdf := hkdf.New(sha256.New, []byte(masterKey), []byte(nonce)[:], nil)
+	if _, err := io.ReadFull(kdf, key[:]); err != nil {
+		log.Fatalf("failed to derive encryption key: %v", err)
+	}
+	return key[:]
 }
