@@ -60,18 +60,63 @@ const (
 )
 
 const (
-	KDFOld = iota
-	KDFScrypt // N=32768, r=8 and p=1.
+	KDFUnknown byte = iota
+	KDFOldMD5
+	KDFOldScryptHKDF
+	KDFScrypt  = 0x10 // N=32768, r=8 and p=1.
 )
 
+func getKey(masterKey string, object string, hdr header, reader io.ReadSeeker) ([]byte, error) {
+	switch hdr.KDF() {
+	case KDFScrypt:
+		return generateKeyScrypt(masterKey, object)
+	case KDFUnknown, KDFOldMD5, KDFOldScryptHKDF:
+		// this is only for backwards compatibility
+		key := generateKeyPre123(masterKey)
+		if err := tryOldDecryption(key, reader); err != nil {
+			key = generateKey124(masterKey, object)
+			if err := tryOldDecryption(key, reader); err != nil {
+				return nil, fmt.Errorf("couldn't get key for headerless encryption: %v", err)
+			}
+			return key, nil
+		}
+		return key, nil
+	}
+	return nil, fmt.Errorf("no valid kdf: %v", hdr.KDF())
+}
 
-func getKeyPre123(password string) []byte {
+func generateKey(masterKey string, object string, hdr header) ([]byte, error) {
+	switch hdr.KDF() {
+	case KDFScrypt:
+		return generateKeyScrypt(masterKey, object)
+	case KDFOldMD5:
+		return generateKeyPre123(masterKey), nil
+	case KDFOldScryptHKDF:
+		return generateKey124(masterKey, object), nil
+	}
+	return nil, fmt.Errorf("no valid kdf: %v", hdr.KDF())
+}
+
+func generateKeyScrypt(masterKey, object string) ([]byte, error) {
+	nonce := filepath.Base(object)
+	hasher := sha256.New()
+	if n, err := hasher.Write([]byte(fmt.Sprintf("%s%s", masterKey, nonce))); err != nil || n <= 0 {
+		return nil, fmt.Errorf("could not get salt: %v", err)
+	}
+	key, err := scrypt.Key([]byte(masterKey), hasher.Sum(nil), 32768, 8, 1, 32)
+	if err != nil {
+		return nil, fmt.Errorf("could not derive encryption key: %v", err)
+	}
+	return key, nil
+}
+
+func generateKeyPre123(password string) []byte {
 	hasher := md5.New()
 	hasher.Write([]byte(password))
 	return []byte(hex.EncodeToString(hasher.Sum(nil)))
 }
 
-func getKey124(password, object string) []byte {
+func generateKey124(password, object string) []byte {
 	nonce := filepath.Base(object)
 
 	hasher := sha256.New()
@@ -112,44 +157,4 @@ func tryOldDecryption(key []byte, reader io.ReadSeeker) error {
 		return err
 	}
 	return nil
-}
-
-func getKey(masterKey string, object string, hdr header, reader io.ReadSeeker) ([]byte, error) {
-	switch hdr.KDF() {
-	case KDFScrypt:
-		return getKeyScrypt(masterKey, object)
-	case KDFOld:
-		// this is only for backwards compatibility
-		key := getKeyPre123(masterKey)
-		if err := tryOldDecryption(key, reader); err != nil {
-			key = getKey124(masterKey, object)
-			if err := tryOldDecryption(key, reader); err != nil {
-				return nil, fmt.Errorf("couldn't get key for headerless encryption: %v", err)
-			}
-			return key, nil
-		}
-		return key, nil
-	}
-	return nil, fmt.Errorf("no valid kdf: %v", hdr.KDF())
-}
-
-func generateKey(masterKey string, object string, hdr header) ([]byte, error) {
-	switch hdr.KDF() {
-	case KDFScrypt:
-		return getKeyScrypt(masterKey, object)
-	}
-	return nil, fmt.Errorf("no valid kdf: %v", hdr.KDF())
-}
-
-func getKeyScrypt(masterKey, object string) ([]byte, error) {
-	nonce := filepath.Base(object)
-	hasher := sha256.New()
-	if n, err := hasher.Write([]byte(fmt.Sprintf("%s%s", masterKey, nonce))); err != nil || n <= 0 {
-		return nil, fmt.Errorf("could not get salt: %v", err)
-	}
-	key, err := scrypt.Key([]byte(masterKey), hasher.Sum(nil), 32768, 8, 1, 32)
-	if err != nil {
-		return nil, fmt.Errorf("could not derive encryption key: %v", err)
-	}
-	return key, nil
 }

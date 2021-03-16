@@ -57,7 +57,7 @@ func (s *Client) UploadWithContext(ctx context.Context, object string, reader io
 		if err != nil {
 			return fmt.Errorf("could not get encryption key: %v", err)
 		}
-		uploadReader, err = sio.EncryptReader(reader, sio.Config{Key: key, CipherSuites: []byte{sio.AES_256_GCM}})
+		uploadReader, err = sio.EncryptReader(reader, sio.Config{Key: key, CipherSuites: []byte{hdr.Encryption()}})
 		if err != nil {
 			log.Debugf("failed to encrypt reader: %v", err)
 			return err
@@ -91,25 +91,18 @@ func (s *Client) DownloadWithContext(ctx context.Context, object string) (io.Rea
 	if err != nil {
 		return nil, err
 	}
-
 	masterKey := config.Get().S3.EncryptionKey
 	if len(masterKey) > 0 {
-		hdr := header{}
-		if _, err := reader.Read(hdr[:]); err != nil {
-			return nil, fmt.Errorf("couldn't read header: %v", err)
-		}
-		key := make([]byte, 32)
-		var cipher []byte
-		if err := hdr.Validate(); err != nil {
-			// try old method
-			hdr = NewHeader(sio.AES_256_GCM, KDFOld)
+		hdr, err := readHeader(reader)
+		if err != nil {
+			return nil, err
 		}
 		key, err := getKey(masterKey, object, hdr, reader)
 		if err != nil {
 			return nil, fmt.Errorf("could not derive key: %v", err)
 		}
 
-		decrypted, err := sio.DecryptReader(reader, sio.Config{Key: key, CipherSuites: cipher})
+		decrypted, err := sio.DecryptReader(reader, sio.Config{Key: key, CipherSuites: []byte{hdr.Encryption()}})
 		if err != nil {
 			log.Debugf("failed to decrypt reader: %v", err)
 			return nil, err
@@ -117,6 +110,18 @@ func (s *Client) DownloadWithContext(ctx context.Context, object string) (io.Rea
 		return ioutil.NopCloser(decrypted), nil
 	}
 	return reader, nil
+}
+
+func readHeader(reader io.Reader) (header, error) {
+	hdr := header{}
+	if _, err := reader.Read(hdr[:]); err != nil {
+		return hdr, fmt.Errorf("couldn't read header: %v", err)
+	}
+	if err := hdr.Validate(); err != nil {
+		// try old method
+		hdr = NewHeader(sio.AES_256_GCM, KDFUnknown)
+	}
+	return hdr, nil
 }
 
 func (s *Client) Delete(object string) error {
