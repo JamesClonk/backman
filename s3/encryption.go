@@ -48,6 +48,10 @@ func (h header) Validate() error {
 	return nil
 }
 
+func NewHeader(encryption, kdf byte) header {
+	return header{magicByte, versionV10, encryption, kdf}
+}
+
 const (
 	// needed to not collide with underlying sio header
 	magicByte byte = 0xBA

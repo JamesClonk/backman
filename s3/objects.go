@@ -1,6 +1,7 @@
 package s3
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -48,14 +49,18 @@ func (s *Client) UploadWithContext(ctx context.Context, object string, reader io
 	var err error
 	uploadReader := reader
 	if len(config.Get().S3.EncryptionKey) != 0 {
-		key := getKey(config.Get().S3.EncryptionKey, object)
+		hdr := NewHeader(sio.AES_256_GCM, KDFScrypt)
+		key, err := getKey(config.Get().S3.EncryptionKey, object, hdr)
+		if err != nil {
+			return fmt.Errorf("could not get encryption key: %v", err)
+		}
 		uploadReader, err = sio.EncryptReader(reader, sio.Config{Key: key, CipherSuites: []byte{sio.AES_256_GCM}})
 		if err != nil {
 			log.Debugf("failed to encrypt reader: %v", err)
 			return err
 		}
+		uploadReader = io.MultiReader(bytes.NewBuffer(hdr[:]), uploadReader)
 	}
-
 	n, err := s.Client.PutObjectWithContext(ctx, s.BucketName, object, uploadReader, size, minio.PutObjectOptions{ContentType: "application/gzip"})
 	if err != nil {
 		return err
