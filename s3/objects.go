@@ -49,7 +49,7 @@ func (s *Client) UploadWithContext(ctx context.Context, object string, reader io
 	var err error
 	uploadReader := reader
 	if len(config.Get().S3.EncryptionKey) != 0 {
-		hdr := NewHeader(sio.AES_256_GCM, KDFScrypt)
+		hdr := newHeader(sio.AES_256_GCM, kdfScrypt)
 		if err := hdr.Validate(); err != nil {
 			return fmt.Errorf("header is invalid: %v", err)
 		}
@@ -110,18 +110,6 @@ func (s *Client) DownloadWithContext(ctx context.Context, object string) (io.Rea
 		return ioutil.NopCloser(decrypted), nil
 	}
 	return reader, nil
-}
-
-func readHeader(reader io.Reader) (header, error) {
-	hdr := header{}
-	if _, err := reader.Read(hdr[:]); err != nil {
-		return hdr, fmt.Errorf("couldn't read header: %v", err)
-	}
-	if err := hdr.Validate(); err != nil {
-		// try old method
-		hdr = NewHeader(sio.AES_256_GCM, KDFUnknown)
-	}
-	return hdr, nil
 }
 
 func (s *Client) Delete(object string) error {

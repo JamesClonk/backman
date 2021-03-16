@@ -3,69 +3,41 @@ package s3
 import (
 	"bytes"
 	"github.com/minio/sio"
-	"reflect"
 	"testing"
 )
 
-func Test_getKey(t *testing.T) {
-	type args struct {
-		masterKey string
-		object    string
-		hdr       header
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    []byte
-		wantErr bool
-	}{
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := generateKey(tt.args.masterKey, tt.args.object, tt.args.hdr)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("getKey() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("getKey() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestEncryptionDecryption(t *testing.T) {
-	tests := []struct{
-		name string
-		masterkey string
-		object string
-		hdr header
+	tests := []struct {
+		name        string
+		masterkey   string
+		object      string
+		hdr         header
 		writeHeader bool
 	}{
 		{
-			name: "old md5 kdf",
+			name:      "old md5 kdf",
 			masterkey: "test",
-			object: "some-bucket/my-file.ext",
-			hdr: NewHeader(sio.AES_256_GCM, KDFOldMD5),
+			object:    "some-bucket/my-file.ext",
+			hdr:       newHeader(sio.AES_256_GCM, kdfOldMD5),
 		},
 		{
-			name: "old scrypt kdf",
+			name:      "old scrypt kdf",
 			masterkey: "test",
-			object: "some-bucket/my-file.ext",
-			hdr: NewHeader(sio.AES_256_GCM, KDFOldScryptHKDF),
+			object:    "some-bucket/my-file.ext",
+			hdr:       newHeader(sio.AES_256_GCM, kdfOldScryptHKDF),
 		},
 		{
-			name: "new scrypt kdf",
-			masterkey: "test",
-			object: "some-bucket/my-file.ext",
-			hdr: NewHeader(sio.AES_256_GCM, KDFScrypt),
+			name:        "new scrypt kdf",
+			masterkey:   "test",
+			object:      "some-bucket/my-file.ext",
+			hdr:         newHeader(sio.AES_256_GCM, kdfScrypt),
 			writeHeader: true,
 		},
 	}
 
-	for _, tt := range tests{
+	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var testdata= []byte("testdata")
+			var testdata = []byte("testdata")
 			var encBuf = &bytes.Buffer{}
 			enckey, err := generateKey(tt.masterkey, tt.object, tt.hdr)
 			if err != nil {
