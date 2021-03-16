@@ -50,7 +50,10 @@ func (s *Client) UploadWithContext(ctx context.Context, object string, reader io
 	uploadReader := reader
 	if len(config.Get().S3.EncryptionKey) != 0 {
 		hdr := NewHeader(sio.AES_256_GCM, KDFScrypt)
-		key, err := getKey(config.Get().S3.EncryptionKey, object, hdr)
+		if err := hdr.Validate(); err != nil {
+			return fmt.Errorf("header is invalid: %v", err)
+		}
+		key, err := generateKey(config.Get().S3.EncryptionKey, object, hdr)
 		if err != nil {
 			return fmt.Errorf("could not get encryption key: %v", err)
 		}
@@ -99,24 +102,11 @@ func (s *Client) DownloadWithContext(ctx context.Context, object string) (io.Rea
 		var cipher []byte
 		if err := hdr.Validate(); err != nil {
 			// try old method
-			cipher = []byte{sio.AES_256_GCM}
-			key = getKeyPre123(masterKey)
-			if errOld := tryOldDecryption(key, reader); errOld != nil {
-				// try intermediate method
-				key = getKey124(masterKey, object)
-				if errInt := tryOldDecryption(key, reader); errInt != nil {
-					return nil, err
-				}
-			}
-		} else {
-			if _, err := reader.Seek(int64(len(hdr)), 0); err != nil {
-				return nil, fmt.Errorf("couldn't reset reader: %v", err)
-			}
-			key, err = getKey(masterKey, object, hdr)
-			if err != nil {
-				return nil, fmt.Errorf("couldn't derive key: %v", err)
-			}
-			cipher = []byte{hdr.Encryption()}
+			hdr = NewHeader(sio.AES_256_GCM, KDFOld)
+		}
+		key, err := getKey(masterKey, object, hdr, reader)
+		if err != nil {
+			return nil, fmt.Errorf("could not derive key: %v", err)
 		}
 
 		decrypted, err := sio.DecryptReader(reader, sio.Config{Key: key, CipherSuites: cipher})

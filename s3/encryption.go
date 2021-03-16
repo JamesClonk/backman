@@ -4,9 +4,7 @@ import (
 	"crypto/md5"
 	"crypto/sha256"
 	"encoding/hex"
-	"errors"
 	"fmt"
-	"github.com/minio/minio-go/v6"
 	"github.com/minio/sio"
 	"github.com/swisscom/backman/log"
 	"golang.org/x/crypto/hkdf"
@@ -62,7 +60,8 @@ const (
 )
 
 const (
-	KDFScrypt = iota // N=32768, r=8 and p=1.
+	KDFOld = iota
+	KDFScrypt // N=32768, r=8 and p=1.
 )
 
 
@@ -95,7 +94,7 @@ func getKey124(password, object string) []byte {
 	return key[:]
 }
 
-func tryOldDecryption(key []byte, reader *minio.Object) error {
+func tryOldDecryption(key []byte, reader io.ReadSeeker) error {
 	// reset reader to read from beginning
 	if _, err := reader.Seek(0, 0); err != nil {
 		return err
@@ -108,15 +107,38 @@ func tryOldDecryption(key []byte, reader *minio.Object) error {
 	if _, err := decrypter.Read(peak); err != nil {
 		return err
 	}
+	// reset again
+	if _, err := reader.Seek(0, 0); err != nil {
+		return err
+	}
 	return nil
 }
 
-func getKey(masterKey string, object string, hdr header) ([]byte, error) {
+func getKey(masterKey string, object string, hdr header, reader io.ReadSeeker) ([]byte, error) {
+	switch hdr.KDF() {
+	case KDFScrypt:
+		return getKeyScrypt(masterKey, object)
+	case KDFOld:
+		// this is only for backwards compatibility
+		key := getKeyPre123(masterKey)
+		if err := tryOldDecryption(key, reader); err != nil {
+			key = getKey124(masterKey, object)
+			if err := tryOldDecryption(key, reader); err != nil {
+				return nil, fmt.Errorf("couldn't get key for headerless encryption: %v", err)
+			}
+			return key, nil
+		}
+		return key, nil
+	}
+	return nil, fmt.Errorf("no valid kdf: %v", hdr.KDF())
+}
+
+func generateKey(masterKey string, object string, hdr header) ([]byte, error) {
 	switch hdr.KDF() {
 	case KDFScrypt:
 		return getKeyScrypt(masterKey, object)
 	}
-	return nil, errors.New("no valid encryption parameters found")
+	return nil, fmt.Errorf("no valid kdf: %v", hdr.KDF())
 }
 
 func getKeyScrypt(masterKey, object string) ([]byte, error) {
