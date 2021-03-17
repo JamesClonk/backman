@@ -5,12 +5,13 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"io"
+	"path/filepath"
+
 	"github.com/minio/sio"
 	"github.com/swisscom/backman/log"
 	"golang.org/x/crypto/hkdf"
 	"golang.org/x/crypto/scrypt"
-	"io"
-	"path/filepath"
 )
 
 // header is the header identifying the encryption and kdf used
@@ -63,10 +64,10 @@ const (
 )
 
 const (
-	kdfUnknown byte = iota
-	kdfOldMD5       // needed for backwards compatibility
-	kdfOldScryptHKDF // needed for backwards compatibility
-	kdfScrypt = 0x10 // N=32768, r=8 and p=1.
+	kdfUnknown       byte   = iota
+	kdfOldMD5               // needed for backwards compatibility
+	kdfOldScryptHKDF        // needed for backwards compatibility
+	kdfScrypt        = 0x10 // N=32768, r=8 and p=1.
 )
 
 // getKey returns a key derived from the given masterKey, object and header
@@ -81,7 +82,7 @@ func getKey(masterKey string, object string, hdr header, reader io.ReadSeeker) (
 		if err := tryOldDecryption(key, reader); err != nil {
 			key = generateKey124(masterKey, object)
 			if err := tryOldDecryption(key, reader); err != nil {
-				return nil, fmt.Errorf("couldn't get key for headerless encryption: %v", err)
+				return nil, fmt.Errorf("could not get key for headerless encryption: %v", err)
 			}
 			return key, nil
 		}
@@ -121,7 +122,9 @@ func generateKeyScrypt(masterKey, object string) ([]byte, error) {
 // This is not secure and mainly kept for being able to decrypt old backups
 func generateKeyPre123(masterKey string) []byte {
 	hasher := md5.New()
-	hasher.Write([]byte(masterKey))
+	if n, err := hasher.Write([]byte(masterKey)); err != nil || n <= 0 {
+		log.Fatalf("could not generate encryption key: %v", err)
+	}
 	return []byte(hex.EncodeToString(hasher.Sum(nil)))
 }
 
@@ -177,7 +180,7 @@ func tryOldDecryption(key []byte, reader io.ReadSeeker) error {
 func readHeader(reader io.Reader) (header, error) {
 	hdr := header{}
 	if _, err := reader.Read(hdr[:]); err != nil {
-		return hdr, fmt.Errorf("couldn't read header: %v", err)
+		return hdr, fmt.Errorf("could not read header: %v", err)
 	}
 	if err := hdr.Validate(); err != nil {
 		// try old method

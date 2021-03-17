@@ -59,8 +59,7 @@ func (s *Client) UploadWithContext(ctx context.Context, object string, reader io
 		}
 		uploadReader, err = sio.EncryptReader(reader, sio.Config{Key: key, CipherSuites: []byte{hdr.Encryption()}})
 		if err != nil {
-			log.Debugf("failed to encrypt reader: %v", err)
-			return err
+			return fmt.Errorf("failed to encrypt reader: %v", err)
 		}
 		uploadReader = io.MultiReader(bytes.NewBuffer(hdr[:]), uploadReader)
 	}
@@ -104,8 +103,7 @@ func (s *Client) DownloadWithContext(ctx context.Context, object string) (io.Rea
 
 		decrypted, err := sio.DecryptReader(reader, sio.Config{Key: key, CipherSuites: []byte{hdr.Encryption()}})
 		if err != nil {
-			log.Debugf("failed to decrypt reader: %v", err)
-			return nil, err
+			return nil, fmt.Errorf("failed to decrypt reader: %v", err)
 		}
 		return ioutil.NopCloser(decrypted), nil
 	}

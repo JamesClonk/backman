@@ -86,8 +86,8 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 
 	uploadfile, err := os.Open(localFilenameGzipped)
 	if err != nil {
-		state.BackupFailure(service)
 		log.Errorf("could not open local redis dump [%s]: %v", localFilenameGzipped, err)
+		state.BackupFailure(service)
 		return fmt.Errorf("redis dump: %v", err)
 	}
 	defer uploadfile.Close()
@@ -95,8 +95,8 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	objectPath := fmt.Sprintf("%s/%s/%s", service.Label, service.Name, filename)
 	err = s3.UploadWithContext(uploadCtx, objectPath, uploadfile, -1)
 	if err != nil {
-		state.BackupFailure(service)
 		log.Errorf("could not upload service backup [%s] to S3: %v", service.Name, err)
+		state.BackupFailure(service)
 	}
 
 	// delete local file again

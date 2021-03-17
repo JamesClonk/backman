@@ -2,8 +2,9 @@ package s3
 
 import (
 	"bytes"
-	"github.com/minio/sio"
 	"testing"
+
+	"github.com/minio/sio"
 )
 
 func TestEncryptionDecryption(t *testing.T) {
