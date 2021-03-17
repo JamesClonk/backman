@@ -1,21 +1,17 @@
 package s3
 
 import (
+	"bytes"
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"path/filepath"
 	"sort"
 
 	"github.com/minio/minio-go/v6"
 	"github.com/minio/sio"
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
-	"golang.org/x/crypto/hkdf"
-	"golang.org/x/crypto/scrypt"
 )
 
 func (s *Client) List(folderPath string) ([]minio.ObjectInfo, error) {
@@ -53,14 +49,20 @@ func (s *Client) UploadWithContext(ctx context.Context, object string, reader io
 	var err error
 	uploadReader := reader
 	if len(config.Get().S3.EncryptionKey) != 0 {
-		key := getKey(config.Get().S3.EncryptionKey, object)
-		uploadReader, err = sio.EncryptReader(reader, sio.Config{Key: key, CipherSuites: []byte{sio.AES_256_GCM}})
-		if err != nil {
-			log.Debugf("failed to encrypt reader: %v", err)
-			return err
+		hdr := newHeader(sio.AES_256_GCM, kdfScrypt)
+		if err := hdr.Validate(); err != nil {
+			return fmt.Errorf("header is invalid: %v", err)
 		}
+		key, err := generateKey(config.Get().S3.EncryptionKey, object, hdr)
+		if err != nil {
+			return fmt.Errorf("could not get encryption key: %v", err)
+		}
+		uploadReader, err = sio.EncryptReader(reader, sio.Config{Key: key, CipherSuites: []byte{hdr.Encryption()}})
+		if err != nil {
+			return fmt.Errorf("failed to encrypt reader: %v", err)
+		}
+		uploadReader = io.MultiReader(bytes.NewBuffer(hdr[:]), uploadReader)
 	}
-
 	n, err := s.Client.PutObjectWithContext(ctx, s.BucketName, object, uploadReader, size, minio.PutObjectOptions{ContentType: "application/gzip"})
 	if err != nil {
 		return err
@@ -88,13 +90,20 @@ func (s *Client) DownloadWithContext(ctx context.Context, object string) (io.Rea
 	if err != nil {
 		return nil, err
 	}
-
-	if len(config.Get().S3.EncryptionKey) > 0 {
-		key := getKey(config.Get().S3.EncryptionKey, object)
-		decrypted, err := sio.DecryptReader(reader, sio.Config{Key: key, CipherSuites: []byte{sio.AES_256_GCM}})
+	masterKey := config.Get().S3.EncryptionKey
+	if len(masterKey) > 0 {
+		hdr, err := readHeader(reader)
 		if err != nil {
-			log.Debugf("failed to decrypt reader: %v", err)
 			return nil, err
+		}
+		key, err := getKey(masterKey, object, hdr, reader)
+		if err != nil {
+			return nil, fmt.Errorf("could not derive key: %v", err)
+		}
+
+		decrypted, err := sio.DecryptReader(reader, sio.Config{Key: key, CipherSuites: []byte{hdr.Encryption()}})
+		if err != nil {
+			return nil, fmt.Errorf("failed to decrypt reader: %v", err)
 		}
 		return ioutil.NopCloser(decrypted), nil
 	}
@@ -107,27 +116,4 @@ func (s *Client) Delete(object string) error {
 		return err
 	}
 	return nil
-}
-
-func getKey(password, object string) []byte {
-	nonce := filepath.Base(object)
-
-	hasher := sha256.New()
-	if n, err := hasher.Write([]byte(fmt.Sprintf("%s%s", password, nonce))); err != nil || n <= 0 {
-		log.Fatalf("could not get salt: %v", err)
-	}
-	salt := hex.EncodeToString(hasher.Sum(nil))
-
-	masterKey, err := scrypt.Key([]byte(password), []byte(salt), 32768, 8, 1, 32)
-	if err != nil {
-		log.Fatalf("could not get master key: %v", err)
-	}
-
-	// derive encryption key, using filename as nonce (filenames contain timestamps and are unique per backman deployment)
-	var key [32]byte
-	kdf := hkdf.New(sha256.New, []byte(masterKey), []byte(nonce)[:], nil)
-	if _, err := io.ReadFull(kdf, key[:]); err != nil {
-		log.Fatalf("failed to derive encryption key: %v", err)
-	}
-	return key[:]
 }
