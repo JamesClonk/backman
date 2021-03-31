@@ -43,9 +43,11 @@ type ServiceConfig struct {
 		Days  int
 		Files int
 	}
-	DisableColumnStatistics bool   `json:"disable_column_statistics"`
-	ForceImport             bool   `json:"force_import"`
-	LocalBackupPath         string `json:"local_backup_path"`
+	DisableColumnStatistics bool     `json:"disable_column_statistics"`
+	ForceImport             bool     `json:"force_import"`
+	LocalBackupPath         string   `json:"local_backup_path"`
+	BackupOptions           []string `json:"backup_options"`
+	RestoreOptions          []string `json:"restore_options"`
 }
 
 type TimeoutDuration struct {
@@ -165,6 +167,12 @@ func Get() *Config {
 				}
 				if len(serviceConfig.LocalBackupPath) > 0 {
 					mergedServiceConfig.LocalBackupPath = serviceConfig.LocalBackupPath
+				}
+				if len(serviceConfig.BackupOptions) > 0 {
+					mergedServiceConfig.BackupOptions = serviceConfig.BackupOptions
+				}
+				if len(serviceConfig.RestoreOptions) > 0 {
+					mergedServiceConfig.RestoreOptions = serviceConfig.RestoreOptions
 				}
 				config.Services[serviceName] = mergedServiceConfig
 			}
