@@ -60,7 +60,8 @@ func (s *Service) parseServices() {
 	for _, services := range s.App.Services {
 		for _, service := range services {
 			// exclude S3 storage service, don't try to parse it as a service for backups
-			if service.Name == config.Get().S3.ServiceName || service.Label == config.Get().S3.ServiceLabel {
+			if service.Name == config.Get().S3.ServiceName ||
+				(service.Label == config.Get().S3.ServiceLabel && service.Label != "user-provided") {
 				continue
 			}
 
