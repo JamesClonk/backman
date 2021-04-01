@@ -46,7 +46,6 @@ func (s *Client) UploadWithContext(ctx context.Context, object string, reader io
 		size = -1
 	}
 
-	var err error
 	uploadReader := reader
 	if len(config.Get().S3.EncryptionKey) != 0 {
 		hdr := newHeader(sio.AES_256_GCM, kdfScrypt)
@@ -63,6 +62,7 @@ func (s *Client) UploadWithContext(ctx context.Context, object string, reader io
 		}
 		uploadReader = io.MultiReader(bytes.NewBuffer(hdr[:]), uploadReader)
 	}
+
 	n, err := s.Client.PutObjectWithContext(ctx, s.BucketName, object, uploadReader, size, minio.PutObjectOptions{ContentType: "application/gzip"})
 	if err != nil {
 		return err
@@ -90,13 +90,13 @@ func (s *Client) DownloadWithContext(ctx context.Context, object string) (io.Rea
 	if err != nil {
 		return nil, err
 	}
-	masterKey := config.Get().S3.EncryptionKey
-	if len(masterKey) > 0 {
+
+	if len(config.Get().S3.EncryptionKey) > 0 {
 		hdr, err := readHeader(reader)
 		if err != nil {
 			return nil, err
 		}
-		key, err := getKey(masterKey, object, hdr, reader)
+		key, err := getKey(config.Get().S3.EncryptionKey, object, hdr, reader)
 		if err != nil {
 			return nil, fmt.Errorf("could not derive key: %v", err)
 		}
