@@ -14,13 +14,13 @@ func ParseServiceType(serviceType string) ServiceType {
 	switch serviceType {
 	case "postgres", "pg", "psql", "postgresql", "elephantsql", "citusdb":
 		return Postgres
-	case "mysql", "mariadb", "mariadbent", "pxc", "galera", "mysql-database", "mariadb-k8s-database":
+	case "mysql", "mariadb", "mariadbent", "pxc", "galera", "mysql-database", "mariadb-k8s-database", "mysql-k8s", "mariadb-k8s":
 		return MySQL
-	case "mongo", "mongodb", "mongodb-2", "mongodbent", "mongodbent-database", "mangodb":
+	case "mongo", "mongodb", "mongodb-2", "mongodbent", "mongodbent-database", "mangodb", "mongodb-k8s":
 		return MongoDB
 	case "redis", "redis-2", "redisent", "redis-enterprise", "redis-ha", "redis-k8s":
 		return Redis
-	case "elastic", "es", "elasticsearch":
+	case "elastic", "es", "elasticsearch", "ece":
 		return Elasticsearch
 	}
 	return -1

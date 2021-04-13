@@ -29,11 +29,12 @@ type Config struct {
 }
 
 type S3Config struct {
-	DisableSSL    bool   `json:"disable_ssl"`
-	ServiceLabel  string `json:"service_label"`
-	ServiceName   string `json:"service_name"`
-	BucketName    string `json:"bucket_name"`
-	EncryptionKey string `json:"encryption_key"`
+	DisableSSL          bool   `json:"disable_ssl"`
+	SkipSSLVerification bool   `json:"skip_ssl_verification"`
+	ServiceLabel        string `json:"service_label"`
+	ServiceName         string `json:"service_name"`
+	BucketName          string `json:"bucket_name"`
+	EncryptionKey       string `json:"encryption_key"`
 }
 
 type ServiceConfig struct {
@@ -132,6 +133,9 @@ func Get() *Config {
 			}
 			if envConfig.S3.DisableSSL {
 				config.S3.DisableSSL = envConfig.S3.DisableSSL
+			}
+			if envConfig.S3.SkipSSLVerification {
+				config.S3.SkipSSLVerification = envConfig.S3.SkipSSLVerification
 			}
 			if len(envConfig.S3.ServiceLabel) > 0 {
 				config.S3.ServiceLabel = envConfig.S3.ServiceLabel

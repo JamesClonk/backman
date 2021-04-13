@@ -1,6 +1,11 @@
 package s3
 
 import (
+	"crypto/tls"
+	"net"
+	"net/http"
+	"time"
+
 	cfenv "github.com/cloudfoundry-community/go-cfenv"
 	"github.com/minio/minio-go/v6"
 	"github.com/swisscom/backman/config"
@@ -51,6 +56,24 @@ func New(app *cfenv.App) *Client {
 	minioClient, err := minio.NewV4(endpoint, accessKeyID, secretAccessKey, useSSL)
 	if err != nil {
 		log.Fatalf("%v", err)
+	}
+
+	if config.Get().S3.SkipSSLVerification {
+		log.Debugln("disabling S3 client SSL verification ...")
+		minioClient.SetCustomTransport(&http.Transport{
+			Proxy: http.ProxyFromEnvironment,
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+			DialContext: (&net.Dialer{
+				Timeout:   30 * time.Second,
+				KeepAlive: 30 * time.Second,
+			}).DialContext,
+			MaxIdleConns:          100,
+			IdleConnTimeout:       90 * time.Second,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
+		})
 	}
 
 	// check if bucket exists and is accessible and if not create it, or fail
