@@ -14,6 +14,8 @@ type Service struct {
 	DisableColumnStatistics bool
 	ForceImport             bool
 	LocalBackupPath         string
+	BackupOptions           []string
+	RestoreOptions          []string
 }
 type Retention struct {
 	Days  int
