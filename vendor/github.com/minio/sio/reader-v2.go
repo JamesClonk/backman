@@ -15,7 +15,10 @@
 package sio
 
 import (
+	"errors"
 	"io"
+	"io/ioutil"
+	"sync"
 )
 
 type encReaderV20 struct {
@@ -175,4 +178,115 @@ func (r *decReaderV20) Read(p []byte) (n int, err error) {
 		}
 	}
 	return n, nil
+}
+
+// decryptBufferV20 will append plaintext to dst and return the result.
+func decryptBufferV20(dst, src []byte, config *Config) ([]byte, error) {
+	ad, err := newAuthDecV20(config)
+	if err != nil {
+		return nil, err
+	}
+	for len(src) > 0 {
+		buffer := packageV20(src)
+		// Truncate to max package size
+		if len(buffer) > maxPackageSize {
+			buffer = buffer[:maxPackageSize]
+		}
+
+		// Make space in dst
+		payloadLen := buffer.Header().Length()
+		if cap(dst) >= len(dst)+payloadLen {
+			dst = dst[:len(dst)+payloadLen]
+		} else {
+			dst = append(dst, make([]byte, payloadLen)...)
+		}
+
+		// Write directly to dst.
+		if err = ad.Open(dst[len(dst)-payloadLen:], buffer); err != nil {
+			return nil, err // decryption failed
+		}
+		// Forward to next block.
+		src = src[buffer.Length():]
+	}
+	if !ad.finalized {
+		return nil, errUnexpectedEOF
+	}
+	return dst, nil
+}
+
+type decReaderAtV20 struct {
+	src io.ReaderAt
+
+	ad      authDecV20
+	bufPool sync.Pool
+}
+
+// decryptReaderAtV20 returns an io.ReaderAt wrapping the given io.ReaderAt.
+// The returned io.ReaderAt decrypts everything it reads using DARE 2.0.
+func decryptReaderAtV20(src io.ReaderAt, config *Config) (*decReaderAtV20, error) {
+	ad, err := newAuthDecV20(config)
+	if err != nil {
+		return nil, err
+	}
+	r := &decReaderAtV20{
+		ad:  ad,
+		src: src,
+	}
+	r.bufPool = sync.Pool{
+		New: func() interface{} {
+			b := make([]byte, maxPackageSize)
+			return &b
+		},
+	}
+	return r, nil
+}
+
+func (r *decReaderAtV20) ReadAt(p []byte, offset int64) (n int, err error) {
+	if offset < 0 {
+		return 0, errors.New("sio: DecReaderAt.ReadAt: offset is negative")
+	}
+
+	t := offset / int64(maxPayloadSize)
+	if t+1 > (1<<32)-1 {
+		return 0, errUnexpectedSize
+	}
+
+	buffer := r.bufPool.Get().(*[]byte)
+	defer r.bufPool.Put(buffer)
+	decReader := decReaderV20{
+		authDecV20: r.ad,
+		src:        &sectionReader{r.src, t * maxPackageSize},
+		buffer:     packageV20(*buffer),
+		offset:     0,
+	}
+	decReader.SeqNum = uint32(t)
+	if k := offset % int64(maxPayloadSize); k > 0 {
+		if _, err := io.CopyN(ioutil.Discard, &decReader, k); err != nil {
+			return 0, err
+		}
+	}
+
+	for n < len(p) && err == nil {
+		var nn int
+		nn, err = (&decReader).Read(p[n:])
+		n += nn
+	}
+	if err == io.EOF && n == len(p) {
+		err = nil
+	}
+	return n, err
+}
+
+// Use a custom sectionReader since io.SectionReader
+// demands a read limit.
+
+type sectionReader struct {
+	r   io.ReaderAt
+	off int64
+}
+
+func (r *sectionReader) Read(p []byte) (int, error) {
+	n, err := r.r.ReadAt(p, r.off)
+	r.off += int64(n)
+	return n, err
 }

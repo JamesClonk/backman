@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
-	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -37,6 +36,13 @@ type (
 		// "/users/*/orders/*": "/user/$1/order/$2",
 		Rewrite map[string]string
 
+		// RegexRewrite defines rewrite rules using regexp.Rexexp with captures
+		// Every capture group in the values can be retrieved by index e.g. $1, $2 and so on.
+		// Example:
+		// "^/old/[0.9]+/":     "/new",
+		// "^/api/.+?/(.*)":    "/v2/$1",
+		RegexRewrite map[*regexp.Regexp]string
+
 		// Context key to store selected ProxyTarget into context.
 		// Optional. Default value "target".
 		ContextKey string
@@ -45,7 +51,8 @@ type (
 		// Examples: If custom TLS certificates are required.
 		Transport http.RoundTripper
 
-		rewriteRegex map[*regexp.Regexp]string
+		// ModifyResponse defines function to modify response from ProxyTarget.
+		ModifyResponse func(*http.Response) error
 	}
 
 	// ProxyTarget defines the upstream target.
@@ -92,15 +99,14 @@ func proxyRaw(t *ProxyTarget, c echo.Context) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		in, _, err := c.Response().Hijack()
 		if err != nil {
-			c.Error(fmt.Errorf("proxy raw, hijack error=%v, url=%s", t.URL, err))
+			c.Set("_error", fmt.Sprintf("proxy raw, hijack error=%v, url=%s", t.URL, err))
 			return
 		}
 		defer in.Close()
 
 		out, err := net.Dial("tcp", t.URL.Host)
 		if err != nil {
-			he := echo.NewHTTPError(http.StatusBadGateway, fmt.Sprintf("proxy raw, dial error=%v, url=%s", t.URL, err))
-			c.Error(he)
+			c.Set("_error", echo.NewHTTPError(http.StatusBadGateway, fmt.Sprintf("proxy raw, dial error=%v, url=%s", t.URL, err)))
 			return
 		}
 		defer out.Close()
@@ -108,8 +114,7 @@ func proxyRaw(t *ProxyTarget, c echo.Context) http.Handler {
 		// Write header
 		err = r.Write(out)
 		if err != nil {
-			he := echo.NewHTTPError(http.StatusBadGateway, fmt.Sprintf("proxy raw, request header copy error=%v, url=%s", t.URL, err))
-			c.Error(he)
+			c.Set("_error", echo.NewHTTPError(http.StatusBadGateway, fmt.Sprintf("proxy raw, request header copy error=%v, url=%s", t.URL, err)))
 			return
 		}
 
@@ -123,7 +128,7 @@ func proxyRaw(t *ProxyTarget, c echo.Context) http.Handler {
 		go cp(in, out)
 		err = <-errCh
 		if err != nil && err != io.EOF {
-			c.Logger().Errorf("proxy raw, copy body error=%v, url=%s", t.URL, err)
+			c.Set("_error", fmt.Errorf("proxy raw, copy body error=%v, url=%s", t.URL, err))
 		}
 	})
 }
@@ -205,12 +210,14 @@ func ProxyWithConfig(config ProxyConfig) echo.MiddlewareFunc {
 	if config.Balancer == nil {
 		panic("echo: proxy middleware requires balancer")
 	}
-	config.rewriteRegex = map[*regexp.Regexp]string{}
 
-	// Initialize
-	for k, v := range config.Rewrite {
-		k = strings.Replace(k, "*", "(\\S*)", -1)
-		config.rewriteRegex[regexp.MustCompile(k)] = v
+	if config.Rewrite != nil {
+		if config.RegexRewrite == nil {
+			config.RegexRewrite = make(map[*regexp.Regexp]string)
+		}
+		for k, v := range rewriteRulesRegex(config.Rewrite) {
+			config.RegexRewrite[k] = v
+		}
 	}
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -224,16 +231,14 @@ func ProxyWithConfig(config ProxyConfig) echo.MiddlewareFunc {
 			tgt := config.Balancer.Next(c)
 			c.Set(config.ContextKey, tgt)
 
-			// Rewrite
-			for k, v := range config.rewriteRegex {
-				replacer := captureTokens(k, req.URL.Path)
-				if replacer != nil {
-					req.URL.Path = replacer.Replace(v)
-				}
+			if err := rewriteURL(config.RegexRewrite, req); err != nil {
+				return err
 			}
 
 			// Fix header
-			if req.Header.Get(echo.HeaderXRealIP) == "" {
+			// Basically it's not good practice to unconditionally pass incoming x-real-ip header to upstream.
+			// However, for backward compatibility, legacy behavior is preserved unless you configure Echo#IPExtractor.
+			if req.Header.Get(echo.HeaderXRealIP) == "" || c.Echo().IPExtractor != nil {
 				req.Header.Set(echo.HeaderXRealIP, c.RealIP())
 			}
 			if req.Header.Get(echo.HeaderXForwardedProto) == "" {
@@ -250,6 +255,9 @@ func ProxyWithConfig(config ProxyConfig) echo.MiddlewareFunc {
 			case req.Header.Get(echo.HeaderAccept) == "text/event-stream":
 			default:
 				proxyHTTP(tgt, c, config).ServeHTTP(res, req)
+			}
+			if e, ok := c.Get("_error").(error); ok {
+				err = e
 			}
 
 			return
