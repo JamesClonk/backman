@@ -17,6 +17,7 @@ type State struct {
 	Service   util.Service  `json:",omitempty"`
 	Operation string        `json:",omitempty"`
 	Status    string        `json:",omitempty"`
+	Filename  string        `json:",omitempty"`
 	At        time.Time     `json:",omitempty"`
 	Duration  time.Duration `json:",omitempty"`
 }

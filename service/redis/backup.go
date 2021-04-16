@@ -27,7 +27,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	redisMutex.Lock()
 	defer redisMutex.Unlock()
 
-	state.BackupStart(service)
+	state.BackupStart(service, filename)
 
 	credentials := GetCredentials(binding)
 
@@ -57,11 +57,11 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 
 	if err := cmd.Start(); err != nil {
 		log.Errorf("could not run redis dump: %v", err)
-		state.BackupFailure(service)
+		state.BackupFailure(service, filename)
 		return fmt.Errorf("redis dump: %v", err)
 	}
 	if err := cmd.Wait(); err != nil {
-		state.BackupFailure(service)
+		state.BackupFailure(service, filename)
 		// check for timeout error
 		if ctx.Err() == context.DeadlineExceeded {
 			return fmt.Errorf("redis dump: timeout: %v", ctx.Err())
@@ -76,7 +76,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	cmd = exec.CommandContext(ctx, "gzip", localFilename)
 	if err := cmd.Run(); err != nil {
 		log.Errorf("could not gzip redis dump [%s]: %v", localFilename, err)
-		state.BackupFailure(service)
+		state.BackupFailure(service, filename)
 		return fmt.Errorf("redis dump: %v", err)
 	}
 
@@ -87,7 +87,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	uploadfile, err := os.Open(localFilenameGzipped)
 	if err != nil {
 		log.Errorf("could not open local redis dump [%s]: %v", localFilenameGzipped, err)
-		state.BackupFailure(service)
+		state.BackupFailure(service, filename)
 		return fmt.Errorf("redis dump: %v", err)
 	}
 	defer uploadfile.Close()
@@ -96,14 +96,14 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	err = s3.UploadWithContext(uploadCtx, objectPath, uploadfile, -1)
 	if err != nil {
 		log.Errorf("could not upload service backup [%s] to S3: %v", service.Name, err)
-		state.BackupFailure(service)
+		state.BackupFailure(service, filename)
 	}
 
 	// delete local file again
 	defer os.Remove(localFilenameGzipped)
 
 	if err == nil {
-		state.BackupSuccess(service)
+		state.BackupSuccess(service, filename)
 	}
 	return err
 }

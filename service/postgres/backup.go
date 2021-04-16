@@ -31,7 +31,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	pgMutex.Lock()
 	defer pgMutex.Unlock()
 
-	state.BackupStart(service)
+	state.BackupStart(service, filename)
 
 	credentials := GetCredentials(binding)
 	os.Setenv("PGUSER", credentials.Username)
@@ -71,7 +71,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 
 		if err := cmd.Run(); err != nil {
 			log.Errorf("could not run postgres dump: %v", err)
-			state.BackupFailure(service)
+			state.BackupFailure(service, filename)
 			defer os.Remove(backupFilename)
 
 			// check for timeout error
@@ -85,7 +85,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 		// gzip file
 		if err := exec.CommandContext(ctx, "gzip", backupFilename).Run(); err != nil {
 			log.Errorf("could not gzip postgres backup file: %v", err)
-			state.BackupFailure(service)
+			state.BackupFailure(service, filename)
 			return err
 		}
 		time.Sleep(1 * time.Second)
@@ -94,7 +94,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 		backupFile, err := os.Open(backupFilenameGz)
 		if err != nil {
 			log.Errorf("could not open postgres backup file for s3 upload: %v", err)
-			state.BackupFailure(service)
+			state.BackupFailure(service, filename)
 			return err
 		}
 		defer backupFile.Close()
@@ -105,12 +105,12 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 		objectPath := fmt.Sprintf("%s/%s/%s", service.Label, service.Name, filename)
 		if err := s3.UploadWithContext(uploadCtx, objectPath, backupFile, -1); err != nil {
 			log.Errorf("could not upload service backup [%s] to S3: %v", service.Name, err)
-			state.BackupFailure(service)
+			state.BackupFailure(service, filename)
 		}
 		time.Sleep(1 * time.Second)
 
 		if err == nil {
-			state.BackupSuccess(service)
+			state.BackupSuccess(service, filename)
 		}
 		return err
 
@@ -122,7 +122,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 		outPipe, err := cmd.StdoutPipe()
 		if err != nil {
 			log.Errorf("could not get stdout pipe for postgres dump: %v", err)
-			state.BackupFailure(service)
+			state.BackupFailure(service, filename)
 			return err
 		}
 		defer outPipe.Close()
@@ -158,7 +158,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 			err = s3.UploadWithContext(uploadCtx, objectPath, pr, -1)
 			if err != nil {
 				log.Errorf("could not upload service backup [%s] to S3: %v", service.Name, err)
-				state.BackupFailure(service)
+				state.BackupFailure(service, filename)
 			}
 		}()
 		time.Sleep(2 * time.Second) // wait for upload goroutine to be ready
@@ -169,12 +169,12 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 
 		if err := cmd.Start(); err != nil {
 			log.Errorf("could not run postgres dump: %v", err)
-			state.BackupFailure(service)
+			state.BackupFailure(service, filename)
 			return err
 		}
 
 		if err := cmd.Wait(); err != nil {
-			state.BackupFailure(service)
+			state.BackupFailure(service, filename)
 			// check for timeout error
 			if ctx.Err() == context.DeadlineExceeded {
 				return fmt.Errorf("postgres dump: timeout: %v", ctx.Err())
@@ -186,7 +186,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 
 		uploadWait.Wait() // wait for upload to have finished
 		if err == nil {
-			state.BackupSuccess(service)
+			state.BackupSuccess(service, filename)
 		}
 		return err
 	}

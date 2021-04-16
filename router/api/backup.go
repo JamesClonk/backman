@@ -107,7 +107,7 @@ func (h *Handler) GetBackup(c echo.Context) error {
 // schemes: http, https
 //
 // responses:
-//   202:
+//   202: service
 func (h *Handler) CreateBackup(c echo.Context) error {
 	serviceType := c.Param("service_type")
 	serviceName, err := url.QueryUnescape(c.Param("service_name"))
@@ -132,7 +132,7 @@ func (h *Handler) CreateBackup(c echo.Context) error {
 			log.Errorf("requested backup for service [%s] failed: %v", serviceName, err)
 		}
 	}()
-	return c.JSON(http.StatusAccepted, nil)
+	return c.JSON(http.StatusAccepted, cfService)
 }
 
 // swagger:route GET /api/v1/backup/{service_type}/{service_name}/{filename}/download backup downloadBackup

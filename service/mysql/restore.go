@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/cloudfoundry-community/go-cfenv"
@@ -24,7 +25,8 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 	mysqlMutex.Lock()
 	defer mysqlMutex.Unlock()
 
-	state.RestoreStart(service)
+	filename := filepath.Base(objectPath)
+	state.RestoreStart(service, filename)
 
 	credentials := GetCredentials(binding)
 	os.Setenv("MYSQL_PWD", credentials.Password)
@@ -44,6 +46,8 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 		command = append(command, "--force")
 	}
 
+	command = append(command, service.RestoreOptions...)
+
 	log.Debugf("executing mysql restore command: %v", strings.Join(command, " "))
 	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
 
@@ -54,14 +58,14 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 	reader, err := s3.DownloadWithContext(downloadCtx, objectPath)
 	if err != nil {
 		log.Errorf("could not download service backup [%s] from S3: %v", service.Name, err)
-		state.RestoreFailure(service)
+		state.RestoreFailure(service, filename)
 		return err
 	}
 	defer reader.Close()
 	gr, err := gzip.NewReader(reader)
 	if err != nil {
 		log.Errorf("could not open gzip reader: %v", err)
-		state.RestoreFailure(service)
+		state.RestoreFailure(service, filename)
 		return err
 	}
 	defer gr.Close()
@@ -73,12 +77,12 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 
 	if err := cmd.Start(); err != nil {
 		log.Errorf("could not run mysql restore: %v", err)
-		state.RestoreFailure(service)
+		state.RestoreFailure(service, filename)
 		return err
 	}
 
 	if err := cmd.Wait(); err != nil {
-		state.RestoreFailure(service)
+		state.RestoreFailure(service, filename)
 		// check for timeout error
 		if ctx.Err() == context.DeadlineExceeded {
 			return fmt.Errorf("mysql restore: timeout: %v", ctx.Err())
@@ -87,7 +91,7 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 	}
 
 	if err == nil {
-		state.RestoreSuccess(service)
+		state.RestoreSuccess(service, filename)
 	}
 	return err
 }
