@@ -10,7 +10,7 @@ import (
 	"github.com/swisscom/backman/service/util"
 )
 
-// swagger:route POST /api/v1/restore/{service_type}/{service_name} restore restoreBackup
+// swagger:route POST /api/v1/restore/{service_type}/{service_name}/{filename} restore restoreBackup
 // Triggers a restore for given service.
 //
 // produces:
@@ -19,7 +19,7 @@ import (
 // schemes: http, https
 //
 // responses:
-//   202:
+//   202: service
 func (h *Handler) RestoreBackup(c echo.Context) error {
 	serviceType := c.Param("service_type")
 	serviceName, err := url.QueryUnescape(c.Param("service_name"))
@@ -64,5 +64,8 @@ func (h *Handler) RestoreBackup(c echo.Context) error {
 			log.Errorf("requested restore for service [%s] failed: %v", serviceName, err)
 		}
 	}()
-	return c.JSON(http.StatusAccepted, nil)
+	if len(targetService.Name) > 0 {
+		return c.JSON(http.StatusAccepted, targetService)
+	}
+	return c.JSON(http.StatusAccepted, cfService)
 }

@@ -45,12 +45,26 @@ definitions:
     x-go-package: github.com/swisscom/backman/service/util
   Service:
     properties:
+      BackupOptions:
+        items:
+          type: string
+        type: array
+      DisableColumnStatistics:
+        type: boolean
+      ForceImport:
+        type: boolean
       Label:
+        type: string
+      LocalBackupPath:
         type: string
       Name:
         type: string
       Plan:
         type: string
+      RestoreOptions:
+        items:
+          type: string
+        type: array
       Retention:
         $ref: '#/definitions/Retention'
       Schedule:
@@ -98,7 +112,8 @@ paths:
       produces:
       - application/json
       responses:
-        "202": {}
+        "202":
+          $ref: '#/responses/service'
       schemes:
       - http
       - https
@@ -111,7 +126,8 @@ paths:
       produces:
       - application/json
       responses:
-        "204": {}
+        "204":
+          description: ""
       schemes:
       - http
       - https
@@ -137,7 +153,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: ""
       schemes:
       - http
       - https
@@ -158,13 +175,14 @@ paths:
       summary: Lists all backup objects.
       tags:
       - backup
-  /api/v1/restore/{service_type}/{service_name}:
+  /api/v1/restore/{service_type}/{service_name}/{filename}:
     post:
       operationId: restoreBackup
       produces:
       - application/json
       responses:
-        "202": {}
+        "202":
+          $ref: '#/responses/service'
       schemes:
       - http
       - https
@@ -215,6 +233,7 @@ paths:
       - state
 responses:
   backup:
+    description: ""
     headers:
       Files:
         items:
@@ -224,18 +243,34 @@ responses:
     schema:
       $ref: '#/definitions/Service'
   backups:
+    description: ""
     schema:
       items:
         $ref: '#/definitions/Backup'
       type: array
   service:
+    description: ""
     headers:
+      BackupOptions:
+        items:
+          type: string
+        type: array
+      DisableColumnStatistics:
+        type: boolean
+      ForceImport:
+        type: boolean
       Label:
+        type: string
+      LocalBackupPath:
         type: string
       Name:
         type: string
       Plan:
         type: string
+      RestoreOptions:
+        items:
+          type: string
+        type: array
       Retention: {}
       Schedule:
         type: string
@@ -247,11 +282,13 @@ responses:
     schema:
       $ref: '#/definitions/Retention'
   services:
+    description: ""
     schema:
       items:
         $ref: '#/definitions/Service'
       type: array
   state:
+    description: ""
     headers:
       At:
         format: date-time
@@ -265,6 +302,7 @@ responses:
     schema:
       $ref: '#/definitions/Duration'
   states:
+    description: ""
     schema:
       items:
         $ref: '#/definitions/State'
