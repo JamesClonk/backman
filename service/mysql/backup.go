@@ -30,7 +30,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	mysqlMutex.Lock()
 	defer mysqlMutex.Unlock()
 
-	state.BackupStart(service)
+	state.BackupStart(service, filename)
 
 	credentials := GetCredentials(binding)
 	os.Setenv("MYSQL_PWD", credentials.Password)
@@ -67,7 +67,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	outPipe, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Errorf("could not get stdout pipe for mysqldump: %v", err)
-		state.BackupFailure(service)
+		state.BackupFailure(service, filename)
 		return err
 	}
 	defer outPipe.Close()
@@ -103,7 +103,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 		err = s3.UploadWithContext(uploadCtx, objectPath, pr, -1)
 		if err != nil {
 			log.Errorf("could not upload service backup [%s] to S3: %v", service.Name, err)
-			state.BackupFailure(service)
+			state.BackupFailure(service, filename)
 		}
 		time.Sleep(3 * time.Second) // wait for backup goroutine to have finished
 	}()
@@ -115,12 +115,12 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 
 	if err := cmd.Start(); err != nil {
 		log.Errorf("could not run mysqldump: %v", err)
-		state.BackupFailure(service)
+		state.BackupFailure(service, filename)
 		return err
 	}
 
 	if err := cmd.Wait(); err != nil {
-		state.BackupFailure(service)
+		state.BackupFailure(service, filename)
 		// check for timeout error
 		if ctx.Err() == context.DeadlineExceeded {
 			return fmt.Errorf("mysqldump: timeout: %v", ctx.Err())
@@ -133,7 +133,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 
 	uploadWait.Wait() // wait for upload to have finished
 	if err == nil {
-		state.BackupSuccess(service)
+		state.BackupSuccess(service, filename)
 	}
 	return err
 }

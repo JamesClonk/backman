@@ -84,6 +84,8 @@ definitions:
         type: string
       Duration:
         $ref: '#/definitions/Duration'
+      Filename:
+        type: string
       Operation:
         type: string
       Service:
@@ -294,6 +296,8 @@ responses:
         format: date-time
         type: string
       Duration: {}
+      Filename:
+        type: string
       Operation:
         type: string
       Service: {}

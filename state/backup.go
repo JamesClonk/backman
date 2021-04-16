@@ -47,7 +47,7 @@ func BackupQueue(service util.Service) {
 	backupQueuedState.WithLabelValues(service.Label, service.Name).Inc()
 }
 
-func BackupStart(service util.Service) {
+func BackupStart(service util.Service, filename string) {
 	backupQueuedState.WithLabelValues(service.Label, service.Name).Dec()
 	backupRunningState.WithLabelValues(service.Label, service.Name).Set(1)
 	backupRuns.WithLabelValues(service.Label, service.Name).Inc()
@@ -56,11 +56,12 @@ func BackupStart(service util.Service) {
 		State{
 			Operation: "backup",
 			Status:    "running",
+			Filename:  filename,
 			At:        time.Now(),
 		})
 }
 
-func BackupFailure(service util.Service) {
+func BackupFailure(service util.Service, filename string) {
 	backupRunningState.WithLabelValues(service.Label, service.Name).Set(0)
 	backupFailures.WithLabelValues(service.Label, service.Name).Inc()
 
@@ -69,12 +70,13 @@ func BackupFailure(service util.Service) {
 		State{
 			Operation: "backup",
 			Status:    "failure",
+			Filename:  filename,
 			At:        time.Now(),
 			Duration:  time.Since(state.At),
 		})
 }
 
-func BackupSuccess(service util.Service) {
+func BackupSuccess(service util.Service, filename string) {
 	backupRunningState.WithLabelValues(service.Label, service.Name).Set(0)
 	backupSuccess.WithLabelValues(service.Label, service.Name).Inc()
 
@@ -83,6 +85,7 @@ func BackupSuccess(service util.Service) {
 		State{
 			Operation: "backup",
 			Status:    "success",
+			Filename:  filename,
 			At:        time.Now(),
 			Duration:  time.Since(state.At),
 		})

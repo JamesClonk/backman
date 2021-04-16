@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 
 	"github.com/cloudfoundry-community/go-cfenv"
 	"github.com/swisscom/backman/log"
@@ -15,7 +16,8 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 	state.RestoreQueue(service)
 
 	log.Errorln("restoring redis is not supported, please contact your redis database administrator")
-	state.RestoreFailure(service)
+	filename := filepath.Base(objectPath)
+	state.RestoreFailure(service, filename)
 
 	return fmt.Errorf("redis restore: unsupported")
 }

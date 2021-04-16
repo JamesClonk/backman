@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/cloudfoundry-community/go-cfenv"
@@ -22,7 +23,8 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 	mongoMutex.Lock()
 	defer mongoMutex.Unlock()
 
-	state.RestoreStart(service)
+	filename := filepath.Base(objectPath)
+	state.RestoreStart(service, filename)
 
 	uri, _ := binding.CredentialString("uri")
 
@@ -44,7 +46,7 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 	reader, err := s3.DownloadWithContext(downloadCtx, objectPath)
 	if err != nil {
 		log.Errorf("could not download service backup [%s] from S3: %v", service.Name, err)
-		state.RestoreFailure(service)
+		state.RestoreFailure(service, filename)
 		return err
 	}
 	defer reader.Close()
@@ -56,12 +58,12 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 
 	if err := cmd.Start(); err != nil {
 		log.Errorf("could not run mongorestore: %v", err)
-		state.RestoreFailure(service)
+		state.RestoreFailure(service, filename)
 		return err
 	}
 
 	if err := cmd.Wait(); err != nil {
-		state.RestoreFailure(service)
+		state.RestoreFailure(service, filename)
 		// check for timeout error
 		if ctx.Err() == context.DeadlineExceeded {
 			return fmt.Errorf("mongorestore: timeout: %v", ctx.Err())
@@ -70,7 +72,7 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 	}
 
 	if err == nil {
-		state.RestoreSuccess(service)
+		state.RestoreSuccess(service, filename)
 	}
 	return err
 }

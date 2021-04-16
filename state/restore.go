@@ -41,7 +41,7 @@ func RestoreQueue(service util.Service) {
 	restoreQueuedState.WithLabelValues(service.Label, service.Name).Inc()
 }
 
-func RestoreStart(service util.Service) {
+func RestoreStart(service util.Service, filename string) {
 	restoreQueuedState.WithLabelValues(service.Label, service.Name).Dec()
 	restoreRunningState.WithLabelValues(service.Label, service.Name).Set(1)
 	restoreRuns.WithLabelValues(service.Label, service.Name).Inc()
@@ -50,11 +50,12 @@ func RestoreStart(service util.Service) {
 		State{
 			Operation: "restore",
 			Status:    "running",
+			Filename:  filename,
 			At:        time.Now(),
 		})
 }
 
-func RestoreFailure(service util.Service) {
+func RestoreFailure(service util.Service, filename string) {
 	restoreRunningState.WithLabelValues(service.Label, service.Name).Set(0)
 	restoreFailures.WithLabelValues(service.Label, service.Name).Inc()
 
@@ -63,12 +64,13 @@ func RestoreFailure(service util.Service) {
 		State{
 			Operation: "restore",
 			Status:    "failure",
+			Filename:  filename,
 			At:        time.Now(),
 			Duration:  time.Since(state.At),
 		})
 }
 
-func RestoreSuccess(service util.Service) {
+func RestoreSuccess(service util.Service, filename string) {
 	restoreRunningState.WithLabelValues(service.Label, service.Name).Set(0)
 	restoreSuccess.WithLabelValues(service.Label, service.Name).Inc()
 
@@ -77,6 +79,7 @@ func RestoreSuccess(service util.Service) {
 		State{
 			Operation: "restore",
 			Status:    "success",
+			Filename:  filename,
 			At:        time.Now(),
 			Duration:  time.Since(state.At),
 		})
