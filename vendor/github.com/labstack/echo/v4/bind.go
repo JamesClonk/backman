@@ -30,18 +30,39 @@ type (
 	}
 )
 
-// Bind implements the `Binder#Bind` function.
-func (b *DefaultBinder) Bind(i interface{}, c Context) (err error) {
+// BindPathParams binds path params to bindable object
+func (b *DefaultBinder) BindPathParams(c Context, i interface{}) error {
+	names := c.ParamNames()
+	values := c.ParamValues()
+	params := map[string][]string{}
+	for i, name := range names {
+		params[name] = []string{values[i]}
+	}
+	if err := b.bindData(i, params, "param"); err != nil {
+		return NewHTTPError(http.StatusBadRequest, err.Error()).SetInternal(err)
+	}
+	return nil
+}
+
+// BindQueryParams binds query params to bindable object
+func (b *DefaultBinder) BindQueryParams(c Context, i interface{}) error {
+	if err := b.bindData(i, c.QueryParams(), "query"); err != nil {
+		return NewHTTPError(http.StatusBadRequest, err.Error()).SetInternal(err)
+	}
+	return nil
+}
+
+// BindBody binds request body contents to bindable object
+// NB: then binding forms take note that this implementation uses standard library form parsing
+// which parses form data from BOTH URL and BODY if content type is not MIMEMultipartForm
+// See non-MIMEMultipartForm: https://golang.org/pkg/net/http/#Request.ParseForm
+// See MIMEMultipartForm: https://golang.org/pkg/net/http/#Request.ParseMultipartForm
+func (b *DefaultBinder) BindBody(c Context, i interface{}) (err error) {
 	req := c.Request()
 	if req.ContentLength == 0 {
-		if req.Method == http.MethodGet || req.Method == http.MethodDelete {
-			if err = b.bindData(i, c.QueryParams(), "query"); err != nil {
-				return NewHTTPError(http.StatusBadRequest, err.Error()).SetInternal(err)
-			}
-			return
-		}
-		return NewHTTPError(http.StatusBadRequest, "Request body can't be empty")
+		return
 	}
+
 	ctype := req.Header.Get(HeaderContentType)
 	switch {
 	case strings.HasPrefix(ctype, MIMEApplicationJSON):
@@ -73,14 +94,50 @@ func (b *DefaultBinder) Bind(i interface{}, c Context) (err error) {
 	default:
 		return ErrUnsupportedMediaType
 	}
-	return
+	return nil
 }
 
-func (b *DefaultBinder) bindData(ptr interface{}, data map[string][]string, tag string) error {
-	typ := reflect.TypeOf(ptr).Elem()
-	val := reflect.ValueOf(ptr).Elem()
+// Bind implements the `Binder#Bind` function.
+// Binding is done in following order: 1) path params; 2) query params; 3) request body. Each step COULD override previous
+// step binded values. For single source binding use their own methods BindBody, BindQueryParams, BindPathParams.
+func (b *DefaultBinder) Bind(i interface{}, c Context) (err error) {
+	if err := b.BindPathParams(c, i); err != nil {
+		return err
+	}
+	// Issue #1670 - Query params are binded only for GET/DELETE and NOT for usual request with body (POST/PUT/PATCH)
+	// Reasoning here is that parameters in query and bind destination struct could have UNEXPECTED matches and results due that.
+	// i.e. is `&id=1&lang=en` from URL same as `{"id":100,"lang":"de"}` request body and which one should have priority when binding.
+	// This HTTP method check restores pre v4.1.11 behavior and avoids different problems when query is mixed with body
+	if c.Request().Method == http.MethodGet || c.Request().Method == http.MethodDelete {
+		if err = b.BindQueryParams(c, i); err != nil {
+			return err
+		}
+	}
+	return b.BindBody(c, i)
+}
 
+// bindData will bind data ONLY fields in destination struct that have EXPLICIT tag
+func (b *DefaultBinder) bindData(destination interface{}, data map[string][]string, tag string) error {
+	if destination == nil || len(data) == 0 {
+		return nil
+	}
+	typ := reflect.TypeOf(destination).Elem()
+	val := reflect.ValueOf(destination).Elem()
+
+	// Map
+	if typ.Kind() == reflect.Map {
+		for k, v := range data {
+			val.SetMapIndex(reflect.ValueOf(k), reflect.ValueOf(v[0]))
+		}
+		return nil
+	}
+
+	// !struct
 	if typ.Kind() != reflect.Struct {
+		if tag == "param" || tag == "query" {
+			// incompatible type, data is probably to be found in the body
+			return nil
+		}
 		return errors.New("binding element must be a struct")
 	}
 
@@ -94,14 +151,15 @@ func (b *DefaultBinder) bindData(ptr interface{}, data map[string][]string, tag 
 		inputFieldName := typeField.Tag.Get(tag)
 
 		if inputFieldName == "" {
-			inputFieldName = typeField.Name
-			// If tag is nil, we inspect if the field is a struct.
-			if _, ok := bindUnmarshaler(structField); !ok && structFieldKind == reflect.Struct {
+			// If tag is nil, we inspect if the field is a not BindUnmarshaler struct and try to bind data into it (might contains fields with tags).
+			// structs that implement BindUnmarshaler are binded only when they have explicit tag
+			if _, ok := structField.Addr().Interface().(BindUnmarshaler); !ok && structFieldKind == reflect.Struct {
 				if err := b.bindData(structField.Addr().Interface(), data, tag); err != nil {
 					return err
 				}
-				continue
 			}
+			// does not have explicit tag and is not an ordinary struct - so move to next field
+			continue
 		}
 
 		inputValue, exists := data[inputFieldName]
@@ -110,9 +168,8 @@ func (b *DefaultBinder) bindData(ptr interface{}, data map[string][]string, tag 
 			// url params are bound case sensitive which is inconsistent.  To
 			// fix this we must check all of the map values in a
 			// case-insensitive search.
-			inputFieldName = strings.ToLower(inputFieldName)
 			for k, v := range data {
-				if strings.ToLower(k) == inputFieldName {
+				if strings.EqualFold(k, inputFieldName) {
 					inputValue = v
 					exists = true
 					break
@@ -202,40 +259,13 @@ func unmarshalField(valueKind reflect.Kind, val string, field reflect.Value) (bo
 	}
 }
 
-// bindUnmarshaler attempts to unmarshal a reflect.Value into a BindUnmarshaler
-func bindUnmarshaler(field reflect.Value) (BindUnmarshaler, bool) {
-	ptr := reflect.New(field.Type())
-	if ptr.CanInterface() {
-		iface := ptr.Interface()
-		if unmarshaler, ok := iface.(BindUnmarshaler); ok {
-			return unmarshaler, ok
-		}
-	}
-	return nil, false
-}
-
-// textUnmarshaler attempts to unmarshal a reflect.Value into a TextUnmarshaler
-func textUnmarshaler(field reflect.Value) (encoding.TextUnmarshaler, bool) {
-	ptr := reflect.New(field.Type())
-	if ptr.CanInterface() {
-		iface := ptr.Interface()
-		if unmarshaler, ok := iface.(encoding.TextUnmarshaler); ok {
-			return unmarshaler, ok
-		}
-	}
-	return nil, false
-}
-
 func unmarshalFieldNonPtr(value string, field reflect.Value) (bool, error) {
-	if unmarshaler, ok := bindUnmarshaler(field); ok {
-		err := unmarshaler.UnmarshalParam(value)
-		field.Set(reflect.ValueOf(unmarshaler).Elem())
-		return true, err
+	fieldIValue := field.Addr().Interface()
+	if unmarshaler, ok := fieldIValue.(BindUnmarshaler); ok {
+		return true, unmarshaler.UnmarshalParam(value)
 	}
-	if unmarshaler, ok := textUnmarshaler(field); ok {
-		err := unmarshaler.UnmarshalText([]byte(value))
-		field.Set(reflect.ValueOf(unmarshaler).Elem())
-		return true, err
+	if unmarshaler, ok := fieldIValue.(encoding.TextUnmarshaler); ok {
+		return true, unmarshaler.UnmarshalText([]byte(value))
 	}
 
 	return false, nil

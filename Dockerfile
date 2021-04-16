@@ -5,7 +5,13 @@ RUN echo "debconf debconf/frontend select noninteractive" | debconf-set-selectio
   export DEBIAN_FRONTEND=noninteractive && \
   apt-get -y $package_args update && \
   apt-get -y $package_args dist-upgrade && \
-  apt-get -y $package_args install curl ca-certificates gnupg tzdata golang git
+  apt-get -y $package_args install curl ca-certificates gnupg tzdata git
+RUN curl --location --output go.tar.gz "https://golang.org/dl/go1.16.3.linux-amd64.tar.gz" && \
+  echo "951a3c7c6ce4e56ad883f97d9db74d3d6d80d5fec77455c6ada6c1f7ac4776d2  go.tar.gz" | sha256sum -c  && \
+  tar -C /usr/local -xzf go.tar.gz && \
+  rm go.tar.gz 
+
+ENV PATH=$PATH:/usr/local/go/bin
 
 WORKDIR /go/src/github.com/swisscom/backman
 COPY . .
@@ -27,7 +33,7 @@ RUN curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
   echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.4 multiverse" > /etc/apt/sources.list.d/mongodb-org-4.4.list
 RUN curl -sL https://deb.nodesource.com/setup_lts.x | bash -
 RUN apt-get -y $package_args update && \
-  apt-get -y $package_args install mysql-client postgresql-client-12 mongodb-org-tools=4.4.0 mongodb-org-shell=4.4.0 redis-tools nodejs openssh-server bash vim && \
+  apt-get -y $package_args install mysql-client postgresql-client-12 mongodb-org-tools=4.4.5 mongodb-org-shell=4.4.5 redis-tools nodejs openssh-server bash vim && \
   apt-get clean && \
   find /usr/share/doc/*/* ! -name copyright | xargs rm -rf && \
   rm -rf \

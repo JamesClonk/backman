@@ -26,6 +26,9 @@ type (
 		// It may be used to define a custom JWT error.
 		ErrorHandler JWTErrorHandler
 
+		// ErrorHandlerWithContext is almost identical to ErrorHandler, but it's passed the current context.
+		ErrorHandlerWithContext JWTErrorHandlerWithContext
+
 		// Signing key to validate token. Used as fallback if SigningKeys has length 0.
 		// Required. This or SigningKeys.
 		SigningKey interface{}
@@ -54,6 +57,7 @@ type (
 		// - "query:<name>"
 		// - "param:<name>"
 		// - "cookie:<name>"
+		// - "form:<name>"
 		TokenLookup string
 
 		// AuthScheme to be used in the Authorization header.
@@ -69,6 +73,9 @@ type (
 	// JWTErrorHandler defines a function which is executed for an invalid token.
 	JWTErrorHandler func(error) error
 
+	// JWTErrorHandlerWithContext is almost identical to JWTErrorHandler, but it's passed the current context.
+	JWTErrorHandlerWithContext func(error, echo.Context) error
+
 	jwtExtractor func(echo.Context) (string, error)
 )
 
@@ -80,6 +87,7 @@ const (
 // Errors
 var (
 	ErrJWTMissing = echo.NewHTTPError(http.StatusBadRequest, "missing or malformed jwt")
+	ErrJWTInvalid = echo.NewHTTPError(http.StatusUnauthorized, "invalid or expired jwt")
 )
 
 var (
@@ -160,6 +168,8 @@ func JWTWithConfig(config JWTConfig) echo.MiddlewareFunc {
 		extractor = jwtFromParam(parts[1])
 	case "cookie":
 		extractor = jwtFromCookie(parts[1])
+	case "form":
+		extractor = jwtFromForm(parts[1])
 	}
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -176,6 +186,10 @@ func JWTWithConfig(config JWTConfig) echo.MiddlewareFunc {
 			if err != nil {
 				if config.ErrorHandler != nil {
 					return config.ErrorHandler(err)
+				}
+
+				if config.ErrorHandlerWithContext != nil {
+					return config.ErrorHandlerWithContext(err, c)
 				}
 				return err
 			}
@@ -199,9 +213,12 @@ func JWTWithConfig(config JWTConfig) echo.MiddlewareFunc {
 			if config.ErrorHandler != nil {
 				return config.ErrorHandler(err)
 			}
+			if config.ErrorHandlerWithContext != nil {
+				return config.ErrorHandlerWithContext(err, c)
+			}
 			return &echo.HTTPError{
-				Code:     http.StatusUnauthorized,
-				Message:  "invalid or expired jwt",
+				Code:     ErrJWTInvalid.Code,
+				Message:  ErrJWTInvalid.Message,
 				Internal: err,
 			}
 		}
@@ -250,5 +267,16 @@ func jwtFromCookie(name string) jwtExtractor {
 			return "", ErrJWTMissing
 		}
 		return cookie.Value, nil
+	}
+}
+
+// jwtFromForm returns a `jwtExtractor` that extracts token from the form field.
+func jwtFromForm(name string) jwtExtractor {
+	return func(c echo.Context) (string, error) {
+		field := c.FormValue(name)
+		if field == "" {
+			return "", ErrJWTMissing
+		}
+		return field, nil
 	}
 }
