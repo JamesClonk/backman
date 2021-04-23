@@ -16,6 +16,9 @@ import (
 type Client struct {
 	Client     *minio.Client
 	BucketName string
+	Endpoint   string
+	AccessKey  string
+	SecretKey  string
 }
 
 func New(app *cfenv.App) *Client {
@@ -95,5 +98,8 @@ func New(app *cfenv.App) *Client {
 	return &Client{
 		Client:     minioClient,
 		BucketName: bucketName,
+		Endpoint:   endpoint,
+		AccessKey:  accessKeyID,
+		SecretKey:  secretAccessKey,
 	}
 }

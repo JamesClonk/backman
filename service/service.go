@@ -126,11 +126,12 @@ func (s *Service) parseServices() {
 					Days:  retentionDays,
 					Files: retentionFiles,
 				},
+				DirectS3:                config.Get().Services[service.Name].DirectS3,
 				DisableColumnStatistics: config.Get().Services[service.Name].DisableColumnStatistics,
 				ForceImport:             config.Get().Services[service.Name].ForceImport,
 				LocalBackupPath:         config.Get().Services[service.Name].LocalBackupPath,
-        BackupOptions:           config.Get().Services[service.Name].BackupOptions,
-        RestoreOptions:          config.Get().Services[service.Name].RestoreOptions,
+				BackupOptions:           config.Get().Services[service.Name].BackupOptions,
+				RestoreOptions:          config.Get().Services[service.Name].RestoreOptions,
 			}
 			s.Services = append(s.Services, newService)
 		}

@@ -38,6 +38,7 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 	var command []string
 	command = append(command, "psql")
 	command = append(command, "--quiet")
+	command = append(command, service.RestoreOptions...)
 	command = append(command, credentials.Database)
 
 	log.Debugf("executing postgres restore command: %v", strings.Join(command, " "))

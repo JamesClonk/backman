@@ -47,6 +47,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	command = append(command, credentials.Password)
 	command = append(command, "--rdb")
 	command = append(command, localFilename)
+	command = append(command, service.BackupOptions...)
 
 	log.Debugf("executing redis backup command: %v", strings.Join(command, " "))
 	cmd := exec.CommandContext(ctx, command[0], command[1:]...)

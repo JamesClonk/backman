@@ -44,6 +44,7 @@ type ServiceConfig struct {
 		Days  int
 		Files int
 	}
+	DirectS3                bool     `json:"direct_s3"`
 	DisableColumnStatistics bool     `json:"disable_column_statistics"`
 	ForceImport             bool     `json:"force_import"`
 	LocalBackupPath         string   `json:"local_backup_path"`
@@ -162,6 +163,9 @@ func Get() *Config {
 				}
 				if serviceConfig.Retention.Files > 0 {
 					mergedServiceConfig.Retention.Files = serviceConfig.Retention.Files
+				}
+				if serviceConfig.DirectS3 {
+					mergedServiceConfig.DirectS3 = serviceConfig.DirectS3
 				}
 				if serviceConfig.DisableColumnStatistics {
 					mergedServiceConfig.DisableColumnStatistics = serviceConfig.DisableColumnStatistics
