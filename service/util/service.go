@@ -11,6 +11,7 @@ type Service struct {
 	Timeout                 time.Duration
 	Schedule                string
 	Retention               Retention
+	DirectS3                bool
 	DisableColumnStatistics bool
 	ForceImport             bool
 	LocalBackupPath         string

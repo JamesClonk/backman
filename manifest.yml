@@ -23,7 +23,7 @@ applications:
 
   # ### push either as docker image
   docker:
-    image: jamesclonk/backman:1.27.2 # choose version from https://hub.docker.com/r/jamesclonk/backman/tags, or 'latest'
+    image: jamesclonk/backman:1.28.0 # choose version from https://hub.docker.com/r/jamesclonk/backman/tags, or 'latest'
   # ### or as buildpack/src
   # buildpacks:
   # - https://github.com/cloudfoundry/apt-buildpack
@@ -61,6 +61,9 @@ applications:
             "retention": {
               "files": 500
             }
+          },
+          "my-elasticsearch": {
+            "direct_s3": true
           },
           "my_mysql_db": {
             "timeout": "35m",

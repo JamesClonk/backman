@@ -41,6 +41,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	command = append(command, "secondary")
 	command = append(command, "--gzip")
 	command = append(command, "--archive")
+	command = append(command, service.BackupOptions...)
 
 	log.Debugf("executing mongodb backup command: %v", strings.Join(command, " "))
 	cmd := exec.CommandContext(ctx, command[0], command[1:]...)

@@ -45,7 +45,6 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 	if service.ForceImport {
 		command = append(command, "--force")
 	}
-
 	command = append(command, service.RestoreOptions...)
 
 	log.Debugf("executing mysql restore command: %v", strings.Join(command, " "))

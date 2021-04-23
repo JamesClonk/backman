@@ -11,6 +11,9 @@
 		"bucket_name": "my-database-backups"
 	},
 	"services": {
+		"my-elasticsearch": {
+			"direct_s3": true
+		},
 		"my_postgres_db": {
 			"schedule": "0 0 2,18 * * *",
 			"timeout": "2h",

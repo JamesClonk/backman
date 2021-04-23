@@ -50,6 +50,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	}
 	command = append(command, "-c")
 	command = append(command, "--no-password")
+	command = append(command, service.BackupOptions...)
 
 	// store backup file locally first, before uploading it onto s3
 	if len(service.LocalBackupPath) > 0 {
