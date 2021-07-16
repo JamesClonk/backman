@@ -20,9 +20,10 @@ type Config struct {
 	LoggingTimestamp   bool   `json:"logging_timestamp"`
 	Username           string
 	Password           string
-	DisableWeb         bool `json:"disable_web"`
-	DisableMetrics     bool `json:"disable_metrics"`
-	UnprotectedMetrics bool `json:"unprotected_metrics"`
+	DisableWeb         bool               `json:"disable_web"`
+	DisableMetrics     bool               `json:"disable_metrics"`
+	UnprotectedMetrics bool               `json:"unprotected_metrics"`
+	Notifications      NotificationConfig `json:"notifications"`
 	S3                 S3Config
 	Services           map[string]ServiceConfig
 	Foreground         bool
@@ -50,6 +51,14 @@ type ServiceConfig struct {
 	LocalBackupPath         string   `json:"local_backup_path"`
 	BackupOptions           []string `json:"backup_options"`
 	RestoreOptions          []string `json:"restore_options"`
+}
+
+type NotificationConfig struct {
+	Teams *TeamsNotificationConfig `json:"teams,omitempty"`
+}
+
+type TeamsNotificationConfig struct {
+	Webhook string `json:"webhook"`
 }
 
 type TimeoutDuration struct {
@@ -195,16 +204,22 @@ func Get() *Config {
 		}
 
 		// use username & password from env if defined
-		if len(os.Getenv("BACKMAN_USERNAME")) > 0 {
-			config.Username = os.Getenv("BACKMAN_USERNAME")
+		if os.Getenv(BackmanUsername) != "" {
+			config.Username = os.Getenv(BackmanUsername)
 		}
-		if len(os.Getenv("BACKMAN_PASSWORD")) > 0 {
-			config.Password = os.Getenv("BACKMAN_PASSWORD")
+		if os.Getenv(BackmanPassword) != "" {
+			config.Password = os.Getenv(BackmanPassword)
 		}
 
 		// use s3 encryption key from env if defined
-		if len(os.Getenv("BACKMAN_ENCRYPTION_KEY")) > 0 {
-			config.S3.EncryptionKey = os.Getenv("BACKMAN_ENCRYPTION_KEY")
+		if os.Getenv(BackmanEncryptionKey) != "" {
+			config.S3.EncryptionKey = os.Getenv(BackmanEncryptionKey)
+		}
+
+		if os.Getenv(BackmanTeamsWebhook) != "" {
+			config.Notifications.Teams = &TeamsNotificationConfig{
+				Webhook: os.Getenv(BackmanTeamsWebhook),
+			}
 		}
 	})
 	return &config

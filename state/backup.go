@@ -1,6 +1,7 @@
 package state
 
 import (
+	"github.com/swisscom/backman/notification"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -58,7 +59,8 @@ func BackupStart(service util.Service, filename string) {
 			Status:    "running",
 			Filename:  filename,
 			At:        time.Now(),
-		})
+	})
+	notification.Manager().Send(notification.BackupStarted, service, filename)
 }
 
 func BackupFailure(service util.Service, filename string) {
@@ -73,7 +75,8 @@ func BackupFailure(service util.Service, filename string) {
 			Filename:  filename,
 			At:        time.Now(),
 			Duration:  time.Since(state.At),
-		})
+	})
+	notification.Manager().Send(notification.BackupFailed, service, filename)
 }
 
 func BackupSuccess(service util.Service, filename string) {
@@ -89,4 +92,6 @@ func BackupSuccess(service util.Service, filename string) {
 			At:        time.Now(),
 			Duration:  time.Since(state.At),
 		})
+
+	notification.Manager().Send(notification.BackupSuccessful, service, filename)
 }
