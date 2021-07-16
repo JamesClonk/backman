@@ -141,6 +141,9 @@ func Get() *Config {
 			if envConfig.UnprotectedMetrics {
 				config.UnprotectedMetrics = envConfig.UnprotectedMetrics
 			}
+			if envConfig.Notifications.Teams != nil && len(envConfig.Notifications.Teams.Webhook) > 0 {
+				config.Notifications.Teams = envConfig.Notifications.Teams
+			}
 			if envConfig.S3.DisableSSL {
 				config.S3.DisableSSL = envConfig.S3.DisableSSL
 			}
@@ -216,6 +219,7 @@ func Get() *Config {
 			config.S3.EncryptionKey = os.Getenv(BackmanEncryptionKey)
 		}
 
+		// use teams webhook url from env if defined
 		if os.Getenv(BackmanTeamsWebhook) != "" {
 			config.Notifications.Teams = &TeamsNotificationConfig{
 				Webhook: os.Getenv(BackmanTeamsWebhook),
