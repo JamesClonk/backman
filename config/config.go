@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -58,7 +59,8 @@ type NotificationConfig struct {
 }
 
 type TeamsNotificationConfig struct {
-	Webhook string `json:"webhook"`
+	Webhook string   `json:"webhook"`
+	Events  []string `json:"events"`
 }
 
 type TimeoutDuration struct {
@@ -221,8 +223,15 @@ func Get() *Config {
 
 		// use teams webhook url from env if defined
 		if os.Getenv(BackmanTeamsWebhook) != "" {
+			var events []string
+			eventsString := os.Getenv(BackmanTeamsEvents)
+			if eventsString != "" {
+				events = strings.Split(eventsString, ",")
+			}
+
 			config.Notifications.Teams = &TeamsNotificationConfig{
 				Webhook: os.Getenv(BackmanTeamsWebhook),
+				Events:  events,
 			}
 		}
 	})
