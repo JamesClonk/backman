@@ -239,8 +239,6 @@ func Get() *Config {
 
 			config.Notifications.Teams.Events = events
 		}
-
-		log.Println("teams webhook: ", config.Notifications.Teams.Webhook)
 	})
 	return &config
 }

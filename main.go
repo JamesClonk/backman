@@ -5,6 +5,7 @@ import (
 
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
+	"github.com/swisscom/backman/notifications"
 	"github.com/swisscom/backman/router"
 	"github.com/swisscom/backman/scheduler"
 	"github.com/swisscom/backman/service"
@@ -17,6 +18,9 @@ func main() {
 
 	// init services
 	service.Get()
+
+	// init notifications manager
+	notifications.Manager()
 
 	// check if an immediate backup/restore should run, in non-background mode. otherwise continue and start scheduler
 	if runNow() {

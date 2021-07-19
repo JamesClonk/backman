@@ -1,15 +1,15 @@
-package notification_test
+package notifications
 
 import (
 	"testing"
 
-	"github.com/swisscom/backman/notification"
+	"github.com/swisscom/backman/notifications/events"
 	"github.com/swisscom/backman/service/util"
 )
 
 func TestSendNotificationBackupSucceeded(t *testing.T) {
-	n := notification.Manager()
-	n.Send(notification.BackupSuccess, util.Service{
+	n := Manager()
+	n.Send(events.BackupSuccess, util.Service{
 		Name:                    "some-mongodb",
 		Label:                   "label",
 		Plan:                    "small3rs",
@@ -25,7 +25,7 @@ func TestSendNotificationBackupSucceeded(t *testing.T) {
 		RestoreOptions:          nil,
 	}, "some-mongodb_20210714144020.gz")
 
-	n.Send(notification.BackupFailed, util.Service{
+	n.Send(events.BackupFailed, util.Service{
 		Name:                    "some-mongodb",
 		Label:                   "label",
 		Plan:                    "small3rs",

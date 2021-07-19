@@ -1,4 +1,4 @@
-package notification
+package events
 
 type Event string
 
