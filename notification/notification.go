@@ -39,6 +39,22 @@ func (s Service) sendTeamsNotification(event Event, service util.Service, filena
 	teamsClient := *s.teamsApi
 	var card *goteamsnotify.MessageCard
 	var err error
+
+	found := false
+	for _, v := range s.config.Teams.Events {
+		if v == string(event) {
+			found = true
+		}
+	}
+
+	if !found {
+		log.Infof(
+			"not sending a teams notification for %s because you decided to exclude this event",
+			event,
+		)
+		return nil
+	}
+
 	switch event {
 	case BackupStarted:
 		card, err = getMessageCard(
