@@ -55,7 +55,7 @@ type ServiceConfig struct {
 }
 
 type NotificationConfig struct {
-	Teams *TeamsNotificationConfig `json:"teams,omitempty"`
+	Teams TeamsNotificationConfig `json:"teams,omitempty"`
 }
 
 type TeamsNotificationConfig struct {
@@ -143,8 +143,11 @@ func Get() *Config {
 			if envConfig.UnprotectedMetrics {
 				config.UnprotectedMetrics = envConfig.UnprotectedMetrics
 			}
-			if envConfig.Notifications.Teams != nil && len(envConfig.Notifications.Teams.Webhook) > 0 {
-				config.Notifications.Teams = envConfig.Notifications.Teams
+			if len(envConfig.Notifications.Teams.Webhook) > 0 {
+				config.Notifications.Teams.Webhook = envConfig.Notifications.Teams.Webhook
+			}
+			if len(envConfig.Notifications.Teams.Events) > 0 {
+				config.Notifications.Teams.Events = envConfig.Notifications.Teams.Events
 			}
 			if envConfig.S3.DisableSSL {
 				config.S3.DisableSSL = envConfig.S3.DisableSSL
@@ -223,17 +226,21 @@ func Get() *Config {
 
 		// use teams webhook url from env if defined
 		if os.Getenv(BackmanTeamsWebhook) != "" {
+			config.Notifications.Teams.Webhook = os.Getenv(BackmanTeamsWebhook)
+		}
+
+		// use teams events configuration from env if defined
+		if os.Getenv(BackmanTeamsEvents) != "" {
 			var events []string
 			eventsString := os.Getenv(BackmanTeamsEvents)
 			if eventsString != "" {
 				events = strings.Split(eventsString, ",")
 			}
 
-			config.Notifications.Teams = &TeamsNotificationConfig{
-				Webhook: os.Getenv(BackmanTeamsWebhook),
-				Events:  events,
-			}
+			config.Notifications.Teams.Events = events
 		}
+
+		log.Println("teams webhook: ", config.Notifications.Teams.Webhook)
 	})
 	return &config
 }
