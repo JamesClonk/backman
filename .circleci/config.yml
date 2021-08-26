@@ -42,14 +42,9 @@ jobs:
     - run:
         name: install binary
         command: |
-          chmod +x /home/circleci/project/project
-          cp /home/circleci/project/project /home/circleci/project/backman
           chmod +x /home/circleci/project/backman
-          cp /home/circleci/project/project /home/circleci/project/scripts/backman
-          chmod +x /home/circleci/project/scripts/backman
-          sudo cp /home/circleci/project/project /usr/local/bin/backman
+          sudo cp /home/circleci/project/backman /usr/local/bin/backman
           sudo chmod +x /usr/local/bin/backman
-          ls -la /home/circleci/project
 
     # minIO server
     - run:

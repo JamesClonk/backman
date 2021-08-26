@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := run
 SHELL := /bin/bash
-APP ?= $(shell basename $$(pwd))
+APP = backman
 COMMIT_SHA = $(shell git rev-parse --short HEAD)
 DOCKER_TAG = latest
 
