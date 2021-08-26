@@ -39,6 +39,12 @@ jobs:
 
     # build binary
     - run: make build
+    - run:
+        name: install binary
+        command: |
+          chmod +x /home/circleci/project/project
+          cp /home/circleci/project/project /usr/local/bin/backman
+          cp /home/circleci/project/project /home/circleci/project/backman
 
     # minIO server
     - run:
@@ -53,6 +59,13 @@ jobs:
           MINIO_UPDATE: 'off'
           MINIO_ACCESS_KEY: 6d611e2d-330b-4e52-a27c-59064d6e8a62
           MINIO_SECRET_KEY: eW9sbywgeW91IGhhdmUganVzdCBiZWVuIHRyb2xsZWQh
+
+    # killall
+    - run:
+        name: install killall
+        command: |
+          sudo apt-get update
+          sudo apt-get -y install psmisc
 
     # jq
     - run:
