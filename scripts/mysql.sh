@@ -94,8 +94,9 @@ mysql -h 127.0.0.1 -u root -D mysql -e 'select my_column from test_example' | gr
 # trigger restore
 FILENAME=$(curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/mysql/my_mysql_db | jq -r .Files[0].Filename)
 curl -X POST http://john:doe@127.0.0.1:9990/api/v1/restore/mysql/my_mysql_db/${FILENAME}
+sleep 2
 curl -s http://john:doe@127.0.0.1:9990/api/v1/state/mysql/my_mysql_db | grep '"Operation":"restore"' | grep '"Status":"running"'
-sleep 33
+sleep 22
 curl -s http://john:doe@127.0.0.1:9990/api/v1/state/mysql/my_mysql_db | grep '"Operation":"restore"' | grep '"Status":"success"'
 sleep 5
 
