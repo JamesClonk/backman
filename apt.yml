@@ -8,6 +8,6 @@ repos:
 packages:
 - mysql-client
 - postgresql-client-12
-- mongodb-org-tools=4.4.0
-- mongodb-org-shell=4.4.0
+- mongodb-org-tools=4.4.8
+- mongodb-org-shell=4.4.8
 - redis-tools
