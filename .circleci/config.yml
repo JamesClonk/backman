@@ -85,15 +85,6 @@ jobs:
           sudo apt-get -y install postgresql-client-12
     - run: make postgres-test
 
-    # mongodb integration tests
-    - run:
-        name: install MongoDB client
-        command: |
-          sudo apt-get install -y libcurl4
-          wget https://repo.mongodb.org/apt/debian/dists/stretch/mongodb-org/5.0/main/binary-amd64/mongodb-org-tools_5.0_amd64.deb -qO mongodb-org-tools_5.0_amd64.deb
-          sudo dpkg -i --ignore-depends=libcurl3 mongodb-org-tools_5.0_amd64.deb
-    - run: make mongodb-test
-
     # mysql integration tests
     - run:
         name: install MySQL client
@@ -105,3 +96,13 @@ jobs:
         name: install Redis client
         command: sudo apt install -y redis-tools
     - run: make redis-test
+
+    # mongodb integration tests
+    - run:
+        name: install MongoDB client
+        command: |
+          wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
+          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
+          sudo apt-get update
+          sudo apt-get install -y mongodb-org=5.0.2 mongodb-org-database=5.0.2 mongodb-org-server=5.0.2 mongodb-org-shell=5.0.2 mongodb-org-mongos=5.0.2 mongodb-org-tools=5.0.2
+    - run: make mongodb-test
