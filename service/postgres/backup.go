@@ -81,7 +81,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 			}
 			return fmt.Errorf("postgres dump: %v", err)
 		}
-		time.Sleep(1 * time.Second)
+		time.Sleep(2 * time.Second)
 
 		// gzip file
 		if err := exec.CommandContext(ctx, "gzip", backupFilename).Run(); err != nil {
@@ -89,7 +89,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 			state.BackupFailure(service, filename)
 			return err
 		}
-		time.Sleep(1 * time.Second)
+		time.Sleep(2 * time.Second)
 
 		// get io.reader for backup file
 		backupFile, err := os.Open(backupFilenameGz)
@@ -108,7 +108,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 			log.Errorf("could not upload service backup [%s] to S3: %v", service.Name, err)
 			state.BackupFailure(service, filename)
 		}
-		time.Sleep(1 * time.Second)
+		time.Sleep(2 * time.Second)
 
 		if err == nil {
 			state.BackupSuccess(service, filename)
@@ -162,7 +162,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 				state.BackupFailure(service, filename)
 			}
 		}()
-		time.Sleep(2 * time.Second) // wait for upload goroutine to be ready
+		time.Sleep(5 * time.Second) // wait for upload goroutine to be ready
 
 		// capture and read stderr in case an error occurs
 		var errBuf bytes.Buffer

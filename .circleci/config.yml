@@ -24,7 +24,7 @@ jobs:
         MYSQL_DATABASE: mysql
         MYSQL_ROOT_PASSWORD: my-secret-pw
 
-    - image: circleci/mongo:5
+    - image: circleci/mongo:4.4
       environment:
         MONGO_INITDB_ROOT_USERNAME: mongoadmin
         MONGO_INITDB_ROOT_PASSWORD: super-secret
@@ -85,24 +85,24 @@ jobs:
           sudo apt-get -y install postgresql-client-12
     - run: make postgres-test
 
-    # mysql integration tests
-    - run:
-        name: install MySQL client
-        command: sudo apt install -y mariadb-client
-    - run: make mysql-test
-
     # redis integration tests
     - run:
         name: install Redis client
         command: sudo apt install -y redis-tools
     - run: make redis-test
 
+    # mysql integration tests
+    - run:
+        name: install MySQL client
+        command: sudo apt install -y mariadb-client
+    - run: make mysql-test
+
     # mongodb integration tests
     - run:
         name: install MongoDB client
         command: |
-          wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
-          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
+          wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
+          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
           sudo apt-get update
-          sudo apt-get install -y mongodb-org-shell=5.0.2 mongodb-database-tools=100.4.1
+          sudo apt-get install -y mongodb-org-tools=4.4.8 mongodb-org-shell=4.4.8
     - run: make mongodb-test

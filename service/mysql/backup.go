@@ -104,9 +104,9 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 			log.Errorf("could not upload service backup [%s] to S3: %v", service.Name, err)
 			state.BackupFailure(service, filename)
 		}
-		time.Sleep(3 * time.Second) // wait for backup goroutine to have finished
+		time.Sleep(7 * time.Second) // wait for backup goroutine to have finished
 	}()
-	time.Sleep(3 * time.Second) // wait for upload goroutine to be ready
+	time.Sleep(7 * time.Second) // wait for upload goroutine to be ready
 
 	// capture and read stderr in case an error occurs
 	var errBuf bytes.Buffer
@@ -128,11 +128,12 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 		log.Errorln(strings.TrimRight(errBuf.String(), "\r\n"))
 		return fmt.Errorf("mysqldump: %v", err)
 	}
-	time.Sleep(3 * time.Second) // wait for backup goroutine to have finished
+	time.Sleep(7 * time.Second) // wait for backup goroutine to have finished
 
 	uploadWait.Wait() // wait for upload to have finished
 	if err == nil {
 		state.BackupSuccess(service, filename)
 	}
+	time.Sleep(5 * time.Second) // wait for upload to have finished
 	return err
 }
