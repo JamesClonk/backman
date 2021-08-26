@@ -10,7 +10,7 @@ jobs:
   build:
     docker:
     # primary image for building app
-    - image: circleci/golang:1.15
+    - image: cimg/go:1.16-node
 
     # service images available at `host: localhost`
     - image: circleci/postgres:12-alpine
@@ -24,7 +24,7 @@ jobs:
         MYSQL_DATABASE: mysql
         MYSQL_ROOT_PASSWORD: my-secret-pw
 
-    - image: circleci/mongo:3.6
+    - image: circleci/mongo:5
       environment:
         MONGO_INITDB_ROOT_USERNAME: mongoadmin
         MONGO_INITDB_ROOT_PASSWORD: super-secret
@@ -79,12 +79,8 @@ jobs:
         name: install MongoDB client
         command: |
           sudo apt-get install -y libcurl4
-          wget https://repo.mongodb.org/apt/debian/dists/stretch/mongodb-org/3.6/main/binary-amd64/mongodb-org-server_3.6.14_amd64.deb -qO mongodb-org-server_3.6.14_amd64.deb
-          sudo dpkg -i --ignore-depends=libcurl3 mongodb-org-server_3.6.14_amd64.deb
-          wget https://repo.mongodb.org/apt/debian/dists/stretch/mongodb-org/3.6/main/binary-amd64/mongodb-org-shell_3.6.14_amd64.deb -qO mongodb-org-shell_3.6.14_amd64.deb
-          sudo dpkg -i --ignore-depends=libcurl3 mongodb-org-shell_3.6.14_amd64.deb
-          wget https://repo.mongodb.org/apt/debian/dists/stretch/mongodb-org/4.2/main/binary-amd64/mongodb-org-tools_4.2.0_amd64.deb -qO mongodb-org-tools_4.2.0_amd64.deb
-          sudo dpkg -i --ignore-depends=libcurl3 mongodb-org-tools_4.2.0_amd64.deb
+          wget https://repo.mongodb.org/apt/debian/dists/stretch/mongodb-org/5.0/main/binary-amd64/mongodb-org-tools_5.0_amd64.deb -qO mongodb-org-tools_5.0_amd64.deb
+          sudo dpkg -i --ignore-depends=libcurl3 mongodb-org-tools_5.0_amd64.deb
     - run: make mongodb-test
 
     # mysql integration tests
