@@ -44,7 +44,7 @@ sleep 5
 # starting backman
 killall backman || true
 ./backman 2>&1 &
-sleep 5
+sleep 10
 
 set -x
 if [ $(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:9990) != "401" ]; then
@@ -68,16 +68,17 @@ mysql -h 127.0.0.1 -u root -D mysql <<EOF
 CREATE TABLE test_example (my_column text);
 INSERT INTO test_example (my_column) VALUES ('my_backup_value');
 EOF
-sleep 2
+sleep 5
 
 # trigger new backup
 curl -X POST http://john:doe@127.0.0.1:9990/api/v1/backup/mysql/my_mysql_db
 curl -s http://john:doe@127.0.0.1:9990/api/v1/state/mysql/my_mysql_db | grep '"Operation":"backup"' | grep '"Status":"running"'
-sleep 15
+sleep 44
 curl -s http://john:doe@127.0.0.1:9990/api/v1/state/mysql/my_mysql_db | grep '"Operation":"backup"' | grep '"Status":"success"'
 
 # read from mysql
 mysql -h 127.0.0.1 -u root -D mysql -e 'select my_column from test_example' | grep 'my_backup_value'
+sleep 5
 
 # download backup and check for completeness
 FILENAME=$(curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/mysql/my_mysql_db | jq -r .Files[0].Filename)
@@ -86,7 +87,7 @@ curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/mysql/my_mysql_db/${FILENAM
 # delete from mysql
 mysql -h 127.0.0.1 -u root -D mysql -e 'delete from test_example'
 mysql -h 127.0.0.1 -u root -D mysql -e "insert into test_example (my_column) values ('backup_different')"
-sleep 2
+sleep 5
 mysql -h 127.0.0.1 -u root -D mysql -e 'select my_column from test_example' | grep -v 'my_backup_value'
 
 # trigger restore
@@ -95,6 +96,7 @@ curl -X POST http://john:doe@127.0.0.1:9990/api/v1/restore/mysql/my_mysql_db/${F
 curl -s http://john:doe@127.0.0.1:9990/api/v1/state/mysql/my_mysql_db | grep '"Operation":"restore"' | grep '"Status":"running"'
 sleep 15
 curl -s http://john:doe@127.0.0.1:9990/api/v1/state/mysql/my_mysql_db | grep '"Operation":"restore"' | grep '"Status":"success"'
+sleep 5
 
 # read from mysql
 mysql -h 127.0.0.1 -u root -D mysql -e 'select my_column from test_example' | grep -v 'backup_different'
@@ -102,5 +104,5 @@ mysql -h 127.0.0.1 -u root -D mysql -e 'select my_column from test_example' | gr
 
 # delete backup
 curl -X DELETE http://john:doe@127.0.0.1:9990/api/v1/backup/mysql/my_mysql_db/${FILENAME}
-sleep 10
+sleep 11
 curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/mysql/my_mysql_db | grep -v 'Filename'

@@ -10,7 +10,7 @@ jobs:
   build:
     docker:
     # primary image for building app
-    - image: circleci/golang:1.15
+    - image: cimg/go:1.16-node
 
     # service images available at `host: localhost`
     - image: circleci/postgres:12-alpine
@@ -24,14 +24,12 @@ jobs:
         MYSQL_DATABASE: mysql
         MYSQL_ROOT_PASSWORD: my-secret-pw
 
-    - image: circleci/mongo:3.6
+    - image: circleci/mongo:4.4
       environment:
         MONGO_INITDB_ROOT_USERNAME: mongoadmin
         MONGO_INITDB_ROOT_PASSWORD: super-secret
 
     - image: circleci/redis:5.0
-
-    working_directory: /go/src/github.com/swisscom/backman
 
     steps:
     - checkout
@@ -41,6 +39,12 @@ jobs:
 
     # build binary
     - run: make build
+    - run:
+        name: install binary
+        command: |
+          chmod +x /home/circleci/project/backman
+          sudo cp /home/circleci/project/backman /usr/local/bin/backman
+          sudo chmod +x /usr/local/bin/backman
 
     # minIO server
     - run:
@@ -55,6 +59,13 @@ jobs:
           MINIO_UPDATE: 'off'
           MINIO_ACCESS_KEY: 6d611e2d-330b-4e52-a27c-59064d6e8a62
           MINIO_SECRET_KEY: eW9sbywgeW91IGhhdmUganVzdCBiZWVuIHRyb2xsZWQh
+
+    # killall
+    - run:
+        name: install killall
+        command: |
+          sudo apt-get update
+          sudo apt-get -y install psmisc
 
     # jq
     - run:
@@ -78,23 +89,20 @@ jobs:
     - run:
         name: install MongoDB client
         command: |
-          sudo apt-get install -y libcurl4
-          wget https://repo.mongodb.org/apt/debian/dists/stretch/mongodb-org/3.6/main/binary-amd64/mongodb-org-server_3.6.14_amd64.deb -qO mongodb-org-server_3.6.14_amd64.deb
-          sudo dpkg -i --ignore-depends=libcurl3 mongodb-org-server_3.6.14_amd64.deb
-          wget https://repo.mongodb.org/apt/debian/dists/stretch/mongodb-org/3.6/main/binary-amd64/mongodb-org-shell_3.6.14_amd64.deb -qO mongodb-org-shell_3.6.14_amd64.deb
-          sudo dpkg -i --ignore-depends=libcurl3 mongodb-org-shell_3.6.14_amd64.deb
-          wget https://repo.mongodb.org/apt/debian/dists/stretch/mongodb-org/4.2/main/binary-amd64/mongodb-org-tools_4.2.0_amd64.deb -qO mongodb-org-tools_4.2.0_amd64.deb
-          sudo dpkg -i --ignore-depends=libcurl3 mongodb-org-tools_4.2.0_amd64.deb
+          wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
+          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
+          sudo apt-get update
+          sudo apt-get install -y mongodb-database-tools=100.5.0 mongodb-org-tools=5.0.2 mongodb-org-shell=5.0.2
     - run: make mongodb-test
-
-    # mysql integration tests
-    - run:
-        name: install MySQL client
-        command: sudo apt install -y mariadb-client
-    - run: make mysql-test
 
     # redis integration tests
     - run:
         name: install Redis client
         command: sudo apt install -y redis-tools
     - run: make redis-test
+
+    # mysql integration tests
+    - run:
+        name: install MySQL client
+        command: sudo apt install -y mariadb-client
+    - run: make mysql-test

@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := run
 SHELL := /bin/bash
-APP ?= $(shell basename $$(pwd))
+APP = backman
 COMMIT_SHA = $(shell git rev-parse --short HEAD)
 DOCKER_TAG = latest
 
@@ -13,12 +13,12 @@ help:
 .PHONY: run
 ## run: runs main.go with the race detector
 run:
-	source .env; source .env_*; go run -race main.go
+	source .env; source .env_*; source .env_teams; go run -race main.go
 
 .PHONY: gin
 ## gin: runs main.go via gin (hot reloading)
 gin:
-	source .env; source .env_*; gin --all --immediate run main.go
+	source .env; source .env_*; source .env_teams;  gin --all --immediate run main.go
 
 .PHONY: build
 ## build: builds the application

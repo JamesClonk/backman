@@ -49,6 +49,12 @@ These here are the default values backman will use if not configured via JSON:
 	"disable_web": false,
 	"disable_metrics": false,
 	"unprotected_metrics": false,
+	"notifications": {
+		"teams": {
+			"webhook": "https://example.webhook.office.com/webhookb2/deadbeef/IncomingWebhook/beefdead/deadbeef",
+			"events": ["backup-success", "backup-failed"]
+		}
+	},
 	"s3": {
 		"service_label": "dynstrg",
 		"encryption_key":"a_super_strong_key"
@@ -85,6 +91,8 @@ Possible JSON properties:
 - `disable_web`: optional, disable web interface and api
 - `disable_metrics`: optional, disable Prometheus metrics endpoint
 - `unprotected_metrics`: optional, disable HTTP basic auth protection for Prometheus metrics endpoint
+- `notifications.teams.webhook`: optional, setting a webhook URL will enable MS Teams notifications about backups
+- `notifications.teams.events`: optional, list of events to send a Teams notification for. Can be *backup-started*, *backup-success*, *backup-failed*. Sends a notification for all events if empty.
 - `s3.disable_ssl`: optional, S3 client connections will use HTTP instead of HTTPS
 - `s3.skip_ssl_verification`: optional, S3 client will still use HTTPS but skips certificate verification
 - `s3.service_label`: optional, defines which service label backman will look for to find the S3-compatible object storage

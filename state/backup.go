@@ -5,6 +5,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/swisscom/backman/notifications"
+	"github.com/swisscom/backman/notifications/events"
 	"github.com/swisscom/backman/service/util"
 )
 
@@ -59,6 +61,7 @@ func BackupStart(service util.Service, filename string) {
 			Filename:  filename,
 			At:        time.Now(),
 		})
+	notifications.Manager().Send(events.BackupStarted, service, filename)
 }
 
 func BackupFailure(service util.Service, filename string) {
@@ -74,6 +77,7 @@ func BackupFailure(service util.Service, filename string) {
 			At:        time.Now(),
 			Duration:  time.Since(state.At),
 		})
+	notifications.Manager().Send(events.BackupFailed, service, filename)
 }
 
 func BackupSuccess(service util.Service, filename string) {
@@ -89,4 +93,6 @@ func BackupSuccess(service util.Service, filename string) {
 			At:        time.Now(),
 			Duration:  time.Since(state.At),
 		})
+
+	notifications.Manager().Send(events.BackupSuccess, service, filename)
 }
