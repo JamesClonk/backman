@@ -9,8 +9,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/hako/durafmt v0.0.0-20210316092057-3a2c319c1acd
 	github.com/klauspost/cpuid/v2 v2.0.6 // indirect
-	github.com/labstack/echo/v4 v4.2.2
-	github.com/mattn/go-colorable v0.1.8 // indirect
+	github.com/labstack/echo/v4 v4.6.1
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/minio-go/v6 v6.0.57
 	github.com/minio/sha256-simd v1.0.0 // indirect
@@ -20,9 +19,7 @@ require (
 	github.com/prometheus/common v0.20.0 // indirect
 	github.com/robfig/cron v1.2.0
 	github.com/sirupsen/logrus v1.8.1
-	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
-	golang.org/x/net v0.0.0-20210410081132-afb366fc7cd1 // indirect
-	golang.org/x/sys v0.0.0-20210412220455-f1c623a9e750 // indirect
+	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
 )
