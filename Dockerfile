@@ -6,10 +6,10 @@ RUN echo "debconf debconf/frontend select noninteractive" | debconf-set-selectio
   apt-get -y $package_args update && \
   apt-get -y $package_args dist-upgrade && \
   apt-get -y $package_args install curl ca-certificates gnupg tzdata git
-RUN curl --location --output go.tar.gz "https://golang.org/dl/go1.16.7.linux-amd64.tar.gz" && \
-  echo "7fe7a73f55ba3e2285da36f8b085e5c0159e9564ef5f63ee0ed6b818ade8ef04  go.tar.gz" | sha256sum -c  && \
+RUN curl --location --output go.tar.gz "https://golang.org/dl/go1.16.9.linux-amd64.tar.gz" && \
+  echo "d2c095c95f63c2a3ef961000e0ecb9d81d5c68b6ece176e2a8a2db82dc02931c  go.tar.gz" | sha256sum -c  && \
   tar -C /usr/local -xzf go.tar.gz && \
-  rm go.tar.gz 
+  rm go.tar.gz
 
 ENV PATH=$PATH:/usr/local/go/bin
 
