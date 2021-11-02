@@ -39,7 +39,7 @@ RUN apt-get -y $package_args update && \
   rm -rf \
   /usr/share/man/* /usr/share/info/* \
   /var/lib/apt/lists/* /tmp/*
-RUN npm install elasticdump -g
+RUN npm install -g npm elasticdump
 
 RUN mongorestore --version
 
