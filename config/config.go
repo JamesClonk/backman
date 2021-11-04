@@ -48,6 +48,7 @@ type ServiceConfig struct {
 	}
 	DirectS3                bool     `json:"direct_s3"`
 	DisableColumnStatistics bool     `json:"disable_column_statistics"`
+	LogStdErr               bool     `json:"log_stderr"`
 	ForceImport             bool     `json:"force_import"`
 	LocalBackupPath         string   `json:"local_backup_path"`
 	BackupOptions           []string `json:"backup_options"`
@@ -186,6 +187,9 @@ func Get() *Config {
 				}
 				if serviceConfig.DisableColumnStatistics {
 					mergedServiceConfig.DisableColumnStatistics = serviceConfig.DisableColumnStatistics
+				}
+				if serviceConfig.LogStdErr {
+					mergedServiceConfig.LogStdErr = serviceConfig.LogStdErr
 				}
 				if serviceConfig.ForceImport {
 					mergedServiceConfig.ForceImport = serviceConfig.ForceImport

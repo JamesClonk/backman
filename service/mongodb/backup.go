@@ -95,6 +95,9 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 		state.BackupFailure(service, filename)
 		// check for timeout error
 		if ctx.Err() == context.DeadlineExceeded {
+			if service.LogStdErr {
+				log.Errorln(strings.TrimRight(errBuf.String(), "\r\n"))
+			}
 			return fmt.Errorf("mongodump: timeout: %v", ctx.Err())
 		}
 
@@ -105,6 +108,10 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	uploadWait.Wait() // wait for upload to have finished
 	if err == nil {
 		state.BackupSuccess(service, filename)
+	}
+
+	if service.LogStdErr {
+		log.Infoln(strings.TrimRight(errBuf.String(), "\r\n"))
 	}
 	return err
 }

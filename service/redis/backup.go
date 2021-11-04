@@ -65,11 +65,18 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 		state.BackupFailure(service, filename)
 		// check for timeout error
 		if ctx.Err() == context.DeadlineExceeded {
+			if service.LogStdErr {
+				log.Errorln(strings.TrimRight(errBuf.String(), "\r\n"))
+			}
 			return fmt.Errorf("redis dump: timeout: %v", ctx.Err())
 		}
 
 		log.Errorln(strings.TrimRight(errBuf.String(), "\r\n"))
 		return fmt.Errorf("redis dump: %v", err)
+	}
+
+	if service.LogStdErr {
+		log.Infoln(strings.TrimRight(errBuf.String(), "\r\n"))
 	}
 
 	// gzip file

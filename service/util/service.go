@@ -14,6 +14,7 @@ type Service struct {
 	DirectS3                bool
 	DisableColumnStatistics bool
 	ForceImport             bool
+	LogStdErr               bool
 	LocalBackupPath         string
 	BackupOptions           []string
 	RestoreOptions          []string

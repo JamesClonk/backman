@@ -128,6 +128,7 @@ func (s *Service) parseServices() {
 				},
 				DirectS3:                config.Get().Services[service.Name].DirectS3,
 				DisableColumnStatistics: config.Get().Services[service.Name].DisableColumnStatistics,
+				LogStdErr:               config.Get().Services[service.Name].LogStdErr,
 				ForceImport:             config.Get().Services[service.Name].ForceImport,
 				LocalBackupPath:         config.Get().Services[service.Name].LocalBackupPath,
 				BackupOptions:           config.Get().Services[service.Name].BackupOptions,
