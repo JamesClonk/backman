@@ -30,6 +30,9 @@
 		"other_postgres_db": {
 			"timeout": "2h15m"
 		},
+		"my_mongodb": {
+			"log_stderr": true
+		},
 		"mongodb-for-backend": {
 			"schedule": "0 45 0/4 * * *",
 			"retention": {
