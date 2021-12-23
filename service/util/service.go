@@ -16,6 +16,7 @@ type Service struct {
 	ForceImport             bool
 	LogStdErr               bool
 	LocalBackupPath         string
+	IgnoreTables            []string
 	BackupOptions           []string
 	RestoreOptions          []string
 }

@@ -54,6 +54,9 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	if len(credentials.Database) > 0 {
 		command = append(command, "--no-create-db")
 		command = append(command, credentials.Database)
+		for _, ignoreTable := range service.IgnoreTables {
+			command = append(command, "--ignore-table="+credentials.Database+"."+ignoreTable)
+		}
 	} else {
 		command = append(command, "--all-databases")
 	}
