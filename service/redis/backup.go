@@ -89,7 +89,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	}
 
 	// upload file
-	uploadCtx, uploadCancel := context.WithCancel(context.Background()) // allows upload to be cancelable, in case backup times out
+	uploadCtx, uploadCancel := context.WithCancel(ctx) // allows upload to be cancelable, in case backup times out
 	defer uploadCancel()
 
 	uploadfile, err := os.Open(localFilenameGzipped)
