@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -54,21 +55,40 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 	defer downloadCancel()                                 // cancel download in case Restore() exits before downloadWait is done
 
 	// un-gzipping for stdin
-	reader, err := s3.DownloadWithContext(downloadCtx, objectPath)
+	s3Reader, err := s3.DownloadWithContext(downloadCtx, objectPath)
 	if err != nil {
 		log.Errorf("could not download service backup [%s] from S3: %v", service.Name, err)
 		state.RestoreFailure(service, filename)
 		return err
 	}
-	defer reader.Close()
-	gr, err := gzip.NewReader(reader)
+	defer s3Reader.Close()
+	gzipReader, err := gzip.NewReader(s3Reader)
 	if err != nil {
 		log.Errorf("could not open gzip reader: %v", err)
 		state.RestoreFailure(service, filename)
 		return err
 	}
-	defer gr.Close()
-	cmd.Stdin = bufio.NewReader(gr)
+	defer gzipReader.Close()
+
+	// Reads are buffered to be at least buff size long
+	backupReader := bufio.NewReaderSize(gzipReader, 65536 /* default 4096 seems small for a backup file */)
+	stdin, err := cmd.StdinPipe()
+	if err != nil {
+		log.Errorf("could not open stdin pipe: %v", err)
+		state.RestoreFailure(service, filename)
+		return err
+	}
+
+	// Pipe data from the backup reader to cmd's stdin
+	go func() {
+		defer stdin.Close()
+		bytesRead, err := io.Copy(stdin, backupReader)
+		if err != nil {
+			log.Errorf("could not copy backup to cmd's stdin: %v", err)
+			return
+		}
+		log.Infof("Copied %d bytes of backup", bytesRead)
+	}()
 
 	// print out stdout/stderr
 	cmd.Stdout = os.Stdout
