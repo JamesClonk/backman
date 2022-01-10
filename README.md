@@ -105,6 +105,7 @@ Possible JSON properties:
 - `services.<service-instance>.force_import`: optional / MySQL-specific. Set to `true` to use the `--force` flag for mysql, ignoring any errors that might occur while importing backups
 - `services.<service-instance>.log_stderr`: optional. Outputs stderr of backup process to stdout in case of errors or timeouts
 - `services.<service-instance>.local_backup_path`: optional / PostgreSQL-specific, path where to store backup files locally first before uploading them. Otherwise streams directly to S3 if not specified
+- `services.<service-instance>.ignore_tables`: optional / MySQL-specific, array of table names to be ignored for the backup
 - `services.<service-instance>.backup_options`: optional, allows specifying additional parameters and flags for service backup executable
 - `services.<service-instance>.restore_options`: optional, allows specifying additional parameters and flags for service restore executable
 

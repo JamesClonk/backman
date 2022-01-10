@@ -51,6 +51,7 @@ type ServiceConfig struct {
 	LogStdErr               bool     `json:"log_stderr"`
 	ForceImport             bool     `json:"force_import"`
 	LocalBackupPath         string   `json:"local_backup_path"`
+	IgnoreTables            []string `json:"ignore_tables"`
 	BackupOptions           []string `json:"backup_options"`
 	RestoreOptions          []string `json:"restore_options"`
 }
@@ -196,6 +197,9 @@ func Get() *Config {
 				}
 				if len(serviceConfig.LocalBackupPath) > 0 {
 					mergedServiceConfig.LocalBackupPath = serviceConfig.LocalBackupPath
+				}
+				if len(serviceConfig.IgnoreTables) > 0 {
+					mergedServiceConfig.IgnoreTables = serviceConfig.IgnoreTables
 				}
 				if len(serviceConfig.BackupOptions) > 0 {
 					mergedServiceConfig.BackupOptions = serviceConfig.BackupOptions
