@@ -30,7 +30,7 @@ backman also supports running as a one-off task inside Cloud Foundry. Simply pus
 
 ## Configuration
 
-backman can be configured via JSON configuration, either with a file `config.json` in it's root directory, or by the environment variable `BACKMAN_CONFIG`.
+backman can be configured via JSON configuration, either with a file `config.json` in its root directory, or by the environment variable `BACKMAN_CONFIG`.
 Values configured in `BACKMAN_CONFIG` take precedence over `config.json`.
 By default backman will assume useful values for all services/backups unless configured otherwise.
 
