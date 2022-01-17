@@ -40,8 +40,8 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 	log.Debugf("executing mongodb restore command: %v", strings.Join(command, " "))
 	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
 
-	downloadCtx, downloadCancel := context.WithCancel(context.Background()) // allows download to be cancelable, in case restore times out
-	defer downloadCancel()                                                  // cancel download in case Restore() exits before downloadWait is done
+	downloadCtx, downloadCancel := context.WithCancel(ctx) // allows download to be cancelable, in case restore times out
+	defer downloadCancel()                                 // cancel download in case Restore() exits before downloadWait is done
 
 	// streaming from S3 for stdin
 	reader, err := s3.DownloadWithContext(downloadCtx, objectPath)

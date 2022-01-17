@@ -54,6 +54,9 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	if len(credentials.Database) > 0 {
 		command = append(command, "--no-create-db")
 		command = append(command, credentials.Database)
+		for _, ignoreTable := range service.IgnoreTables {
+			command = append(command, "--ignore-table="+credentials.Database+"."+ignoreTable)
+		}
 	} else {
 		command = append(command, "--all-databases")
 	}
@@ -72,8 +75,8 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	defer outPipe.Close()
 
 	var uploadWait sync.WaitGroup
-	uploadCtx, uploadCancel := context.WithCancel(context.Background()) // allows upload to be cancelable, in case backup times out
-	defer uploadCancel()                                                // cancel upload in case Backup() exits before uploadWait is done
+	uploadCtx, uploadCancel := context.WithCancel(ctx) // allows upload to be cancelable, in case backup times out
+	defer uploadCancel()                               // cancel upload in case Backup() exits before uploadWait is done
 
 	// start upload in background, streaming output onto S3
 	uploadWait.Add(1)

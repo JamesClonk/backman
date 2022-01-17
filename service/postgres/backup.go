@@ -101,7 +101,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 		defer backupFile.Close()
 
 		// upload file to s3
-		uploadCtx, uploadCancel := context.WithCancel(context.Background()) // allows upload to be cancelable, in case backup times out
+		uploadCtx, uploadCancel := context.WithCancel(ctx) // allows upload to be cancelable, in case backup times out
 		defer uploadCancel()
 		objectPath := fmt.Sprintf("%s/%s/%s", service.Label, service.Name, filename)
 		if err := s3.UploadWithContext(uploadCtx, objectPath, backupFile, -1); err != nil {
@@ -129,8 +129,8 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 		defer outPipe.Close()
 
 		var uploadWait sync.WaitGroup
-		uploadCtx, uploadCancel := context.WithCancel(context.Background()) // allows upload to be cancelable, in case backup times out
-		defer uploadCancel()                                                // cancel upload in case Backup() exits before uploadWait is done
+		uploadCtx, uploadCancel := context.WithCancel(ctx) // allows upload to be cancelable, in case backup times out
+		defer uploadCancel()                               // cancel upload in case Backup() exits before uploadWait is done
 
 		// start upload in background, streaming output onto S3
 		uploadWait.Add(1)

@@ -6,8 +6,8 @@ RUN echo "debconf debconf/frontend select noninteractive" | debconf-set-selectio
   apt-get -y $package_args update && \
   apt-get -y $package_args dist-upgrade && \
   apt-get -y $package_args install curl ca-certificates gnupg tzdata git
-RUN curl --location --output go.tar.gz "https://golang.org/dl/go1.16.9.linux-amd64.tar.gz" && \
-  echo "d2c095c95f63c2a3ef961000e0ecb9d81d5c68b6ece176e2a8a2db82dc02931c  go.tar.gz" | sha256sum -c  && \
+RUN curl --location --output go.tar.gz "https://go.dev/dl/go1.16.13.linux-amd64.tar.gz" && \
+  echo "275fc03c90c13b0bbff13125a43f1f7a9f9c00a0d5a9f2d5b16dbc2fa2c6e12a  go.tar.gz" | sha256sum -c  && \
   tar -C /usr/local -xzf go.tar.gz && \
   rm go.tar.gz
 
@@ -29,11 +29,11 @@ RUN echo "debconf debconf/frontend select noninteractive" | debconf-set-selectio
 
 RUN curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
   curl https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - && \
-  echo "deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
-  echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/5.0 multiverse" > /etc/apt/sources.list.d/mongodb-org-5.0.list
+  echo "deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
+  echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" > /etc/apt/sources.list.d/mongodb-org-5.0.list
 RUN curl -sL https://deb.nodesource.com/setup_lts.x | bash -
 RUN apt-get -y $package_args update && \
-  apt-get -y $package_args install mysql-client postgresql-client-12 mongodb-database-tools=100.5.0 mongodb-org-tools=5.0.2 mongodb-org-shell=5.0.2 redis-tools nodejs openssh-server bash vim && \
+  apt-get -y $package_args install mysql-client postgresql-client-12 mongodb-database-tools=100.5.1 mongodb-org-tools=5.0.5 mongodb-org-shell=5.0.5 redis-tools nodejs openssh-server bash vim && \
   apt-get clean && \
   find /usr/share/doc/*/* ! -name copyright | xargs rm -rf && \
   rm -rf \

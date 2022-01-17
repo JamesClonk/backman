@@ -131,6 +131,7 @@ func (s *Service) parseServices() {
 				LogStdErr:               config.Get().Services[service.Name].LogStdErr,
 				ForceImport:             config.Get().Services[service.Name].ForceImport,
 				LocalBackupPath:         config.Get().Services[service.Name].LocalBackupPath,
+				IgnoreTables:            config.Get().Services[service.Name].IgnoreTables,
 				BackupOptions:           config.Get().Services[service.Name].BackupOptions,
 				RestoreOptions:          config.Get().Services[service.Name].RestoreOptions,
 			}
