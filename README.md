@@ -1,3 +1,5 @@
+## Note: this project has been moved to https://github.com/swisscom/backman and will not be maintained here anymore.
+
 # :minidisc: backman
 
 [![CircleCI](https://circleci.com/gh/swisscom/backman.svg?style=svg)](https://circleci.com/gh/swisscom/backman)
