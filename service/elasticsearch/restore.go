@@ -39,7 +39,7 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 	}
 
 	u, _ := url.Parse(host)
-	connectstring := fmt.Sprintf("%s://%s:%s@%s", u.Scheme, url.QueryEscape(username), url.QueryEscape(password), u.Host)
+	connectstring := fmt.Sprintf("%s://%s:%s@%s", u.Scheme, url.PathEscape(username), url.PathEscape(password), u.Host)
 
 	// prepare elasticsearch restore command
 	var command []string
