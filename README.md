@@ -46,6 +46,7 @@ These here are the default values backman will use if not configured via JSON:
 	"logging_timestamp": false,
 	"disable_web": false,
 	"disable_metrics": false,
+	"disable_restore": false,
 	"unprotected_metrics": false,
 	"notifications": {
 		"teams": {
@@ -88,6 +89,7 @@ Possible JSON properties:
 - `password`: optional, HTTP basic auth password
 - `disable_web`: optional, disable web interface and api
 - `disable_metrics`: optional, disable Prometheus metrics endpoint
+- `disable_restore`: optional, disable restore function on API and web. It can be used to mitigate damage in case backman credentials are leaked. Enable it just before you might need to restore.
 - `unprotected_metrics`: optional, disable HTTP basic auth protection for Prometheus metrics endpoint
 - `notifications.teams.webhook`: optional, setting a webhook URL will enable MS Teams notifications about backups
 - `notifications.teams.events`: optional, list of events to send a Teams notification for. Can be *backup-started*, *backup-success*, *backup-failed*. Sends a notification for all events if empty.

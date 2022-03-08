@@ -23,6 +23,7 @@ type Config struct {
 	Password           string
 	DisableWeb         bool               `json:"disable_web"`
 	DisableMetrics     bool               `json:"disable_metrics"`
+	DisableRestore     bool               `json:"disable_restore"`
 	UnprotectedMetrics bool               `json:"unprotected_metrics"`
 	Notifications      NotificationConfig `json:"notifications"`
 	S3                 S3Config
@@ -141,6 +142,9 @@ func Get() *Config {
 			}
 			if envConfig.DisableMetrics {
 				config.DisableMetrics = envConfig.DisableMetrics
+			}
+			if envConfig.DisableRestore {
+				config.DisableRestore = envConfig.DisableRestore
 			}
 			if envConfig.UnprotectedMetrics {
 				config.UnprotectedMetrics = envConfig.UnprotectedMetrics
