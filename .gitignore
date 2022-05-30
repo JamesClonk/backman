@@ -43,3 +43,4 @@ backman
 /tmp
 _fixtures/*
 /.idea/
+snyk.sarif
