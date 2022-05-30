@@ -100,10 +100,14 @@
 										<i class="icon icon-024-download-cloud" aria-hidden="true"></i>
 										<span class="toolbar__label"><small>Download</small></span>
 									</button>
-									{{ if not (eq (ServiceType .Service.Label).String "Redis") }}<button class="toolbar__item item--show padding-v-0 restore-button" aria-label="Restore" v-on:click="showRestoreDialog(file.Filename)">
-										<i class="icon icon-delivery-2" aria-hidden="true"></i>
-										<span class="toolbar__label"><small>Restore</small></span>
-									</button>{{ end }}
+									{{ if not (eq (ServiceType .Service.Label).String "Redis") }}
+										{{ if not Config.DisableRestore }}
+											<button class="toolbar__item item--show padding-v-0 restore-button" aria-label="Restore" v-on:click="showRestoreDialog(file.Filename)">
+												<i class="icon icon-delivery-2" aria-hidden="true"></i>
+												<span class="toolbar__label"><small>Restore</small></span>
+											</button>
+										{{ end }}
+									{{ end }}
 									<button class="toolbar__item item--show padding-v-0 delete-button" aria-label="Delete" v-on:click="showDeleteDialog(file.Filename)">
 										<i class="icon icon-008-bin" aria-hidden="true"></i>
 										<span class="toolbar__label"><small>Delete</small></span>

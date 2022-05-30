@@ -53,8 +53,10 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	g.POST("/backup/:service_type/:service_name", h.CreateBackup)
 	g.DELETE("/backup/:service_type/:service_name/:file", h.DeleteBackup)
 
-	g.POST("/restore/:service_type/:service_name/:file", h.RestoreBackup)
-	g.POST("/restore/:service_type/:service_name/:file/:target_name", h.RestoreBackup)
+	if !config.Get().DisableRestore {
+		g.POST("/restore/:service_type/:service_name/:file", h.RestoreBackup)
+		g.POST("/restore/:service_type/:service_name/:file/:target_name", h.RestoreBackup)
+	}
 
 	g.GET("/state/:service_type/:service_name", h.GetState)
 }

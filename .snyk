@@ -1,0 +1,241 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.0
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-UBUNTU2004-E2FSPROGS-2770719:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-KRB5-1570244:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-KRB5-1533536:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-MYSQL80-2354332:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-REDIS-1728682:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-REDIS-1728637:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-REDIS-1728602:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-REDIS-1728517:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-REDIS-1728532:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-PERL-1930907:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-REDIS-1144480:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-REDIS-1728274:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-REDIS-1728304:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-SQLITE3-581593:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2812575:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2812611:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2812617:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2813624:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2407989:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2412631:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2423416:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2804488:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2392360:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2401002:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2406762:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2436950:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2387683:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2387686:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2388756:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2388811:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2399606:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2356687:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2356677:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2356819:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2387618:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2387678:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2356672:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2329999:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2326950:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-WGET-1278730:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-KRB5-579303:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-HEIMDAL-1766738:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-GMP-1921284:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-GLIBC-1297554:
+    - '*':
+        reason: Unfixable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-COREUTILS-583876:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-OPENSSH-1726887:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-OPENSSH-1047872:
+    - '*':
+        reason: Unfixable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-PCRE2-2810784:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-PCRE3-580031:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-SQLITE3-1070691:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-SHADOW-577863:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-PYTHON38-1075582:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2394534:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2413417:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-SQLITE3-1070680:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-PYTHON38-2767631:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-PCRE2-2810795:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2330016:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-1925159:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+patch: {}

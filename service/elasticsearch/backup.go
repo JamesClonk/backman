@@ -42,7 +42,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	}
 
 	u, _ := url.Parse(host)
-	connectstring := fmt.Sprintf("%s://%s:%s@%s", u.Scheme, username, password, u.Host)
+	connectstring := fmt.Sprintf("%s://%s:%s@%s", u.Scheme, url.PathEscape(username), url.PathEscape(password), u.Host)
 	objectPath := fmt.Sprintf("%s/%s/%s", service.Label, service.Name, filename)
 
 	// prepare elasticdump command
