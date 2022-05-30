@@ -21,12 +21,13 @@ jobs:
       run: docker build -t jamesclonk/backman:develop .
     - name: run snyk to check docker image for vulnerabilities
       continue-on-error: true
-      uses: snyk/actions/docker@14818c4695ecc4045f33c9cee9e795a788711ca4
+      uses: snyk/actions/docker@dc22abdbe8ec00e2a925256fef96f319ca5510ce
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
         image: jamesclonk/backman:develop
-        args: --policy-path=.
+        sarif: true
+        args: --policy-path=. --file=Dockerfile
     - name: upload results to github code scanning
       uses: github/codeql-action/upload-sarif@v2
       with:
