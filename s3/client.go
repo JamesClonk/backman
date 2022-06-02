@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	cfenv "github.com/cloudfoundry-community/go-cfenv"
@@ -24,16 +25,27 @@ type Client struct {
 func New(app *cfenv.App) *Client {
 	// setup minio/s3 client
 	var s3Service cfenv.Service
-	if len(config.Get().S3.ServiceName) > 0 {
-		// determine s3 service via provided service name
+	if len(config.Get().S3.ServiceName) > 0 { // determine s3 service via provided service name
 		s, err := app.Services.WithName(config.Get().S3.ServiceName)
 		if err != nil {
 			log.Fatalf("could not get s3 service [%s] from VCAP environment: %v", config.Get().S3.ServiceName, err)
 		}
 		s3Service = *s
-	} else {
-		// determine s3 service via provided service label
-		s3Services, err := app.Services.WithLabel(config.Get().S3.ServiceLabel)
+
+	} else { // determine s3 service via provided service label
+		var s3Services []cfenv.Service
+		var err error
+
+		s3Services, err = app.Services.WithLabel(config.Get().S3.ServiceLabel)
+		if err != nil && strings.Contains(err.Error(), "no services with label") {
+			s3Services, err = app.Services.WithLabel("dynstrg-2") // try common fallback
+		}
+		if err != nil && strings.Contains(err.Error(), "no services with label") {
+			s3Services, err = app.Services.WithLabel("dynstrg-3") // try another fallback
+		}
+		if err != nil && strings.Contains(err.Error(), "no services with label") {
+			s3Services, err = app.Services.WithLabel("s3") // try another fallback
+		}
 		if err != nil {
 			log.Fatalf("could not get s3 service from VCAP environment: %v", err)
 		}

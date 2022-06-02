@@ -190,6 +190,10 @@ ignore:
     - '*':
         reason: Unfixable
         expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-GLIBC-2415100:
+    - '*':
+        reason: Unfixable
+        expires: 2099-09-09T00:00:00.000Z
   SNYK-UBUNTU2004-PCRE2-2810784:
     - '*':
         reason: Not applicable
@@ -235,6 +239,14 @@ ignore:
         reason: Not applicable
         expires: 2099-09-09T00:00:00.000Z
   SNYK-UBUNTU2004-VIM-1925159:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2849577:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2850717:
     - '*':
         reason: Not applicable
         expires: 2099-09-09T00:00:00.000Z
