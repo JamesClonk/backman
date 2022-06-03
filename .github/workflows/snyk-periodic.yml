@@ -1,9 +1,8 @@
 name: snyk periodic scan
 
-on: workflow_dispatch
-# on:
-#   schedule:
-#   - cron: '0 9 * * 1'
+on:
+  schedule:
+  - cron: '0 9 * * 1'
 
 permissions:
   contents: read
