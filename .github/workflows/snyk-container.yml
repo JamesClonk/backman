@@ -27,7 +27,7 @@ jobs:
       with:
         image: jamesclonk/backman:develop
         sarif: true
-        args: --policy-path=. --file=Dockerfile
+        args: --policy-path=. --file=Dockerfile --app-vulns
     - name: upload results to github code scanning
       uses: github/codeql-action/upload-sarif@v2
       with:

@@ -1,4 +1,4 @@
-name: snyk periodic scan
+name: periodic scanning
 
 on:
   schedule:
@@ -25,7 +25,7 @@ jobs:
       with:
         image: docker.io/jamesclonk/backman:latest
         sarif: true
-        args: --policy-path=. --file=Dockerfile
+        args: --policy-path=. --file=Dockerfile --severity-threshold=medium --app-vulns
     - name: upload results to github code scanning
       uses: github/codeql-action/upload-sarif@v2
       with:
@@ -46,8 +46,33 @@ jobs:
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
-        args: --policy-path=. --file=go.mod --sarif-file-output=snyk.sarif
+        args: --policy-path=. --file=go.mod --sarif-file-output=snyk.sarif --fail-on=all
     - name: upload results to github code scanning
       uses: github/codeql-action/upload-sarif@v2
       with:
         sarif_file: snyk.sarif
+
+  trivy-periodic-container:
+    permissions:
+      contents: read
+      security-events: write
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: master
+    - name: run trivy to check docker image for vulnerabilities
+      continue-on-error: true
+      uses: aquasecurity/trivy-action@4b9b6fb4ef28b31450391a93ade098bb00de584e
+      with:
+        image-ref: docker.io/jamesclonk/backman:latest
+        format: 'sarif'
+        output: 'trivy.sarif'
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH,MEDIUM'
+        ignore-unfixed: true
+        skip-dirs: /root/.npm/_cacache,/etc/ssh
+    - name: upload results to github code scanning
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: trivy.sarif

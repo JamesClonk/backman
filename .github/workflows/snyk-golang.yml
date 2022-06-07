@@ -23,7 +23,7 @@ jobs:
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
-        args: --policy-path=. --file=go.mod --sarif-file-output=snyk.sarif
+        args: --policy-path=. --file=go.mod --sarif-file-output=snyk.sarif --fail-on=all
     - name: upload results to github code scanning
       uses: github/codeql-action/upload-sarif@v2
       with:
