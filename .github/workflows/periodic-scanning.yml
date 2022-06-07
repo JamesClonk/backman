@@ -3,6 +3,7 @@ name: periodic scanning
 on:
   schedule:
   - cron: '0 9 * * 1'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -25,7 +26,7 @@ jobs:
       with:
         image: docker.io/jamesclonk/backman:latest
         sarif: true
-        args: --policy-path=. --file=Dockerfile --severity-threshold=medium --app-vulns
+        args: --policy-path=. --file=Dockerfile --severity-threshold=medium
     - name: upload results to github code scanning
       uses: github/codeql-action/upload-sarif@v2
       with:
