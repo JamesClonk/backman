@@ -250,4 +250,8 @@ ignore:
     - '*':
         reason: Not applicable
         expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2858401:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
 patch: {}

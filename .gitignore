@@ -44,3 +44,4 @@ backman
 _fixtures/*
 /.idea/
 snyk.sarif
+trivy.sarif
