@@ -33,7 +33,7 @@ RUN wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add -
   echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" > /etc/apt/sources.list.d/mongodb-org-5.0.list
 RUN curl -sL https://deb.nodesource.com/setup_lts.x | bash -
 RUN apt-get -y $package_args update && \
-  apt-get -y $package_args install mysql-client postgresql-client-12 mongodb-database-tools=100.5.2 mongodb-org-tools=5.0.6 mongodb-org-shell=5.0.6 redis-tools nodejs openssh-server bash vim && \
+  apt-get -y $package_args install mysql-client postgresql-client-12 mongodb-database-tools=100.5.3 mongodb-org-tools=5.0.9 mongodb-org-shell=5.0.9 redis-tools nodejs openssh-server bash vim && \
   apt-get clean && \
   find /usr/share/doc/*/* ! -name copyright | xargs rm -rf && \
   rm -rf \
