@@ -16,34 +16,33 @@ a backup-manager app for [Cloud Foundry](https://www.cloudfoundry.org/) and [Kub
 
 ## Usage
 
-[How to use backman?](/docs/usage.md)
+- [How to use backman?](/docs/usage.md)
 
 ## Configuration
 
-[How to configure backman?](/docs/configuration.md)
-[Cloud Foundry specific configuration guide](/docs/cloudfoundry/configuration.md)
-[Kubernetes specific configuration guide](/docs/kubernetes/configuration.md)
+- [How to configure backman?](/docs/configuration.md)
+- [Cloud Foundry specific configuration guide](/docs/cloudfoundry/configuration.md)
+- [Kubernetes specific configuration guide](/docs/kubernetes/configuration.md)
 
 ## Deploy
 
-[How to deploy backman on Cloud Foundry?](/docs/cloudfoundry/deployment.md)
-[How to deploy backman on Kubernetes?](/docs/kubernetes/deployment.md)
+- [How to deploy backman on Cloud Foundry?](/docs/cloudfoundry/deployment.md)
+- [How to deploy backman on Kubernetes?](/docs/kubernetes/deployment.md)
 
 ## Metrics
 
-[Metrics in backman](/docs/metrics.md)
+- [Metrics in backman](/docs/metrics.md)
 
 ## API
 
-[How to use the backman API?](/docs/usage.md#The API)
-// TODO: check above link
+- [How to use the backman API?](/docs/usage.md#the-api)
 
 ## Screenshots
 
-* shows all bound service instances
+###### show all configured service instances
 
 ![backman services](https://raw.githubusercontent.com/swisscom/backman/master/static/images/backman_services_listing.png "backman services")
 
-* display service, trigger backups/restores
+###### display service, trigger backups or restores
 
 ![backman service](https://raw.githubusercontent.com/swisscom/backman/master/static/images/backman_service_view.png "backman service")
