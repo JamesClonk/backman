@@ -13,7 +13,7 @@ var (
 	logger *logrus.Logger
 )
 
-func init() {
+func Init() {
 	logger = newLogger(os.Stdout)
 }
 

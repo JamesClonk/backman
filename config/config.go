@@ -12,8 +12,9 @@ import (
 )
 
 var (
-	config Config
-	once   sync.Once
+	config     Config
+	once       sync.Once
+	configFile string = "config.json"
 )
 
 type Config struct {
@@ -95,6 +96,10 @@ func (td *TimeoutDuration) UnmarshalJSON(b []byte) error {
 	}
 }
 
+func SetConfigFile(file string) {
+	configFile = file
+}
+
 func Get() *Config {
 	once.Do(func() {
 		// initialize
@@ -102,20 +107,20 @@ func Get() *Config {
 			Services: make(map[string]ServiceConfig),
 		}
 
-		// first load config file, if it exists
-		if _, err := os.Stat("config.json"); err == nil {
-			data, err := ioutil.ReadFile("config.json")
+		// first, load the config file if it exists
+		if _, err := os.Stat(configFile); err == nil {
+			data, err := ioutil.ReadFile(configFile)
 			if err != nil {
-				log.Println("could not load 'config.json'")
+				log.Printf("could not load '%s'\n", configFile)
 				log.Fatalln(err.Error())
 			}
 			if err := json.Unmarshal(data, &config); err != nil {
-				log.Println("could not parse 'config.json'")
+				log.Printf("could not parse '%s'\n", configFile)
 				log.Fatalln(err.Error())
 			}
 		}
 
-		// now load & overwrite with env provided config, if it exists
+		// now load and overwrite with env provided config, if it exists
 		env := os.Getenv("BACKMAN_CONFIG")
 		if len(env) > 0 {
 			envConfig := Config{}
