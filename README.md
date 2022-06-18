@@ -1,8 +1,11 @@
 # :minidisc: backman
 
-[![CircleCI](https://circleci.com/gh/swisscom/backman.svg?style=svg)](https://circleci.com/gh/swisscom/backman)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](https://github.com/swisscom/backman/blob/master/LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Cloud%20Foundry-lightgrey)](https://developer.swisscom.com/)
+[![CircleCI](https://circleci.com/gh/swisscom/backman/tree/master.svg?style=shield)](https://circleci.com/gh/swisscom/backman/?branch=master)
+[![CircleCI](https://img.shields.io/github/workflow/status/swisscom/backman/snyk%20golang%20scan?label=snyk%20code)](https://github.com/swisscom/backman/actions/workflows/snyk-golang.yml)
+[![CircleCI](https://img.shields.io/github/workflow/status/swisscom/backman/snyk%20container%20scan?label=snyk%20container)](https://github.com/swisscom/backman/actions/workflows/snyk-container.yml)
+[![License](https://img.shields.io/badge/license-Apache--2.0-lightgrey)](https://github.com/swisscom/backman/blob/master/LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Cloud%20Foundry-lightblue)](https://cloudfoundry.org/)
+[![Platform](https://img.shields.io/badge/platform-Kubernetes-blue)](https://kubernetes.io/)
 
 a backup-manager app for [Cloud Foundry](https://www.cloudfoundry.org/) and [Kubernetes](https://kubernetes.io/)
 
