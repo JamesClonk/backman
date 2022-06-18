@@ -45,3 +45,4 @@ _fixtures/*
 /.idea/
 snyk.sarif
 trivy.sarif
+*.sarif
