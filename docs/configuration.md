@@ -1,14 +1,17 @@
 # Configuration
 
-backman can be configured via JSON configuration, either with a file `config.json` in its root directory, or by the environment variable `$BACKMAN_CONFIG`.
+backman can be configured via JSON configuration, either with a file `config.json` in its root directory (or any other location specified with the command parameter `-config <file>`), or by the environment variable `$BACKMAN_CONFIG`.
 Values configured in `$BACKMAN_CONFIG` take precedence over `config.json`.
 By default backman will assume useful values for all services/backups unless configured otherwise.
 
-**Note:** Configuration through `config.json` only makes sense when building your own docker image, otherwise you cannot modify the file. For Cloud Foundry you will therefore most likely configure `$BACKMAN_CONFIG` in your `manifest.yml` or via `cf set-env`.
+> **Note:** Configuration through `config.json` only makes sense when building your own docker image, otherwise you cannot modify the file. For Cloud Foundry you will therefore most likely configure `$BACKMAN_CONFIG` in your `manifest.yml` or via `cf set-env`. If you are using the provided docker image `jamesclonk/backman` (as is default in the manifest) then there will be no configuration file and all configuration options must to be set via environment variables.
+For Kubernetes on the other hand it is very convenient to mount a `config.json` file from a Secret into the container.
 
-If you are using the provided docker image `jamesclonk/backman` (as is default in the manifest) then there will be no configuration file and all configuration options must to be set via environment variables.
+On Cloud Foundry it is generally recommended to use the `$BACKMAN_CONFIG` environment variable for all your configuration needs. See [Cloud Foundry configuration](/docs/cloudfoundry/configuration.md) for further details.
 
-It is generally recommended to use the `$BACKMAN_CONFIG` environment variable for all your configuration needs.
+On Kubernetes you should use a Secret containing the full `config.json` and then mount it as a volume into the container. See [Kubernetes configuration](/docs/kubernetes/configuration.md) for further details.
+
+### Examples
 
 These here are the default values backman will use if not configured otherwise:
 ```json
@@ -92,7 +95,7 @@ backman can be secured through HTTP basic auth, with username and password provi
 	"password": "http_basic_auth_password_xyz"
 }
 ```
-or through the specific environment variables `äBACKMAN_USERNAME` and `äBACKMAN_PASSWORD` (see `manifest.yml`)
+or through the specific environment variables `$BACKMAN_USERNAME` and `$BACKMAN_PASSWORD` (see `manifest.yml`)
 
 Possible JSON properties:
 - `log_level`: optional, specifies log output level, can be *info*, *warn*, *debug*, *error*
@@ -123,7 +126,7 @@ Possible JSON properties:
 - `services.<service-instance>.backup_options`: optional, allows specifying additional parameters and flags for service backup executable
 - `services.<service-instance>.restore_options`: optional, allows specifying additional parameters and flags for service restore executable
 
-It is also possible to configure service bindings and their credentials directly instead of having backman read them from `$VCAP_SERVICES` (see [Cloud Foundry configuration](/docs/cloudfoundry/configuration.md)) or `$SERVICE_BINDING_ROOT/<service>` (see [Kubernetes configuration](/docs/kubernetes/configuration.md)). Read the [servicebinding spec](https://github.com/servicebinding/spec#well-known-secret-entries) for further information on these properties:
+It is also possible to configure service bindings and their credentials directly instead of having backman read them from `$VCAP_SERVICES` or `$SERVICE_BINDING_ROOT/<service>`. Read the [servicebinding spec](https://github.com/servicebinding/spec#well-known-secret-entries) for further information on these properties:
 - `services.<service-instance>.service_binding.type`: specify service type, supported values are *elasticsearch*, *mysql*, *postgres*, *mongodb*, *redis*
 - `services.<service-instance>.service_binding.provider`: optional, specify service provider
 - `services.<service-instance>.service_binding.host`: specify service hostname
@@ -133,4 +136,5 @@ It is also possible to configure service bindings and their credentials directly
 - `services.<service-instance>.service_binding.password`: specify service password credential
 - `services.<service-instance>.service_binding.database`: optional, specify service database to backup
 
-Note: Usage of `s3.encryption_key` is not backward compatible! Backups generated without or with a different encryption key cannot be downloaded or restored anymore.
+
+> **Note**: Usage of `s3.encryption_key` is not backward compatible! Backups generated without or with a different encryption key cannot be downloaded or restored anymore.
