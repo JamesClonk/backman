@@ -97,7 +97,7 @@ backman can be secured through HTTP basic auth, with username and password provi
 ```
 or through the specific environment variables `$BACKMAN_USERNAME` and `$BACKMAN_PASSWORD` (see `manifest.yml`)
 
-Possible JSON properties:
+### JSON properties
 - `log_level`: optional, specifies log output level, can be *info*, *warn*, *debug*, *error*
 - `logging_timestamp`: optional, enable timestamping log output, not needed when deployed on Cloud Foundry
 - `username`: optional, HTTP basic auth username
