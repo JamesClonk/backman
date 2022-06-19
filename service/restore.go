@@ -4,15 +4,15 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/service/elasticsearch"
 	"github.com/swisscom/backman/service/mongodb"
 	"github.com/swisscom/backman/service/mysql"
 	"github.com/swisscom/backman/service/postgres"
-	"github.com/swisscom/backman/service/util"
 )
 
-func (s *Service) Restore(service util.Service, target util.Service, filename string) error {
+func (s *Service) Restore(service config.Service, target config.Service, filename string) error {
 	envService, err := s.App.Services.WithName(service.Name)
 	if err != nil {
 		log.Errorf("could not find service [%s] to restore: %v", service.Name, err)
@@ -30,20 +30,20 @@ func (s *Service) Restore(service util.Service, target util.Service, filename st
 	ctx, cancel := context.WithTimeout(context.Background(), service.Timeout)
 	defer cancel()
 
-	objectPath := fmt.Sprintf("%s/%s/%s", service.Label, service.Name, filename)
+	objectPath := fmt.Sprintf("%s/%s/%s", service.Binding.Type, service.Name, filename)
 	switch service.Type() {
-	case util.MongoDB:
+	case config.MongoDB:
 		err = mongodb.Restore(ctx, s.S3, service, envService, objectPath)
 	// case util.Redis:
 	// 	err = redis.Restore(ctx, s.S3, service, envService, objectPath)
-	case util.MySQL:
+	case config.MySQL:
 		err = mysql.Restore(ctx, s.S3, service, envService, objectPath)
-	case util.Postgres:
+	case config.Postgres:
 		err = postgres.Restore(ctx, s.S3, service, envService, objectPath)
-	case util.Elasticsearch:
+	case config.Elasticsearch:
 		err = elasticsearch.Restore(ctx, s.S3, service, envService, objectPath)
 	default:
-		err = fmt.Errorf("unsupported service type [%s]", service.Label)
+		err = fmt.Errorf("unsupported service type [%s]", service.Binding.Type)
 	}
 
 	if err != nil {

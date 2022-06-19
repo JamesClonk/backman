@@ -7,7 +7,6 @@ import (
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/swisscom/backman/log"
-	"github.com/swisscom/backman/service/util"
 )
 
 // swagger:route POST /api/v1/restore/{service_type}/{service_name}/{filename} restore restoreBackup
@@ -38,7 +37,7 @@ func (h *Handler) RestoreBackup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid filename: %v", err))
 	}
 
-	if !util.IsValidServiceType(serviceType) {
+	if !config.IsValidServiceType(serviceType) {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("unsupported service type: %s", serviceType))
 	}
 
@@ -49,7 +48,7 @@ func (h *Handler) RestoreBackup(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, err.Error())
 	}
 
-	targetService := util.Service{}
+	targetService := config.Service{}
 	if len(targetName) > 0 {
 		targetService = h.Service.GetService(serviceType, targetName)
 		if len(targetService.Name) == 0 {

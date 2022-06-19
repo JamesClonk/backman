@@ -28,7 +28,7 @@ type Config struct {
 	UnprotectedMetrics bool               `json:"unprotected_metrics"`
 	Notifications      NotificationConfig `json:"notifications"`
 	S3                 S3Config
-	Services           map[string]ServiceConfig
+	Services           map[string]Service
 	Foreground         bool
 }
 
@@ -45,37 +45,6 @@ type S3Config struct {
 	Host      string // optional
 	AccessKey string `json:"access_key"` // optional
 	SecretKey string `json:"secret_key"` // optional
-}
-
-type ServiceConfig struct {
-	Schedule  string
-	Timeout   TimeoutDuration
-	Retention struct {
-		Days  int
-		Files int
-	}
-	DirectS3                bool     `json:"direct_s3"`
-	DisableColumnStatistics bool     `json:"disable_column_statistics"`
-	LogStdErr               bool     `json:"log_stderr"`
-	ForceImport             bool     `json:"force_import"`
-	LocalBackupPath         string   `json:"local_backup_path"`
-	IgnoreTables            []string `json:"ignore_tables"`
-	BackupOptions           []string `json:"backup_options"`
-	RestoreOptions          []string `json:"restore_options"`
-	// optional, backman will lookup binding from SERVICE_BINDING_ROOT/<service> or VCAP_SERVICES if not defined here
-	// order of precedence: SERVICE_BINDING_ROOT > VCAP_SERVICES > Config.Services.Binding
-	Binding ServiceBinding `json:"service_binding"` // optional
-}
-
-type ServiceBinding struct {
-	Type     string
-	Provider string
-	Host     string
-	Port     int
-	URI      string
-	Username string
-	Password string
-	Database string
 }
 
 type NotificationConfig struct {
@@ -120,11 +89,15 @@ func SetConfigFile(file string) {
 	configFile = file
 }
 
+func Init() {
+	Get() // initializes config struct
+}
+
 func Get() *Config {
 	once.Do(func() {
 		// initialize
 		config = Config{
-			Services: make(map[string]ServiceConfig),
+			Services: make(map[string]Service),
 		}
 
 		// first, load the config file if it exists

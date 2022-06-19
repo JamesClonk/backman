@@ -11,15 +11,15 @@ import (
 	"sync"
 
 	"github.com/cloudfoundry-community/go-cfenv"
+	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/s3"
-	"github.com/swisscom/backman/service/util"
 	"github.com/swisscom/backman/state"
 )
 
 var redisMutex = &sync.Mutex{}
 
-func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *cfenv.Service, filename string) error {
+func Backup(ctx context.Context, s3 *s3.Client, service config.Service, binding *cfenv.Service, filename string) error {
 	state.BackupQueue(service)
 
 	// lock global redis mutex, only 1 backup of this service-type is allowed to run in parallel
@@ -100,7 +100,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 	}
 	defer uploadfile.Close()
 
-	objectPath := fmt.Sprintf("%s/%s/%s", service.Label, service.Name, filename)
+	objectPath := fmt.Sprintf("%s/%s/%s", service.Binding.Type, service.Name, filename)
 	err = s3.UploadWithContext(uploadCtx, objectPath, uploadfile, -1)
 	if err != nil {
 		log.Errorf("could not upload service backup [%s] to S3: %v", service.Name, err)

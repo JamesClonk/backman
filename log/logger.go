@@ -14,7 +14,7 @@ var (
 )
 
 func Init() {
-	logger = newLogger(os.Stdout)
+	logger = newLogger(os.Stdout) // initialize logger
 }
 
 func newLogger(writer io.Writer) *logrus.Logger {

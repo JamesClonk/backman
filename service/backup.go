@@ -19,7 +19,6 @@ import (
 	"github.com/swisscom/backman/service/mysql"
 	"github.com/swisscom/backman/service/postgres"
 	"github.com/swisscom/backman/service/redis"
-	"github.com/swisscom/backman/service/util"
 )
 
 var (
@@ -40,7 +39,7 @@ var (
 
 // swagger:response backup
 type Backup struct {
-	Service util.Service
+	Service config.Service
 	Files   []File
 }
 type File struct {
@@ -54,7 +53,7 @@ type File struct {
 // swagger:response backups
 type Backups []Backup
 
-func (s *Service) Backup(service util.Service) error {
+func (s *Service) Backup(service config.Service) error {
 	filename := fmt.Sprintf("%s_%s.gz", service.Name, time.Now().Format("20060102150405"))
 
 	envService, err := s.App.Services.WithName(service.Name)
@@ -68,18 +67,18 @@ func (s *Service) Backup(service util.Service) error {
 	defer cancel()
 
 	switch service.Type() {
-	case util.MongoDB:
+	case config.MongoDB:
 		err = mongodb.Backup(ctx, s.S3, service, envService, filename)
-	case util.Redis:
+	case config.Redis:
 		err = redis.Backup(ctx, s.S3, service, envService, filename)
-	case util.MySQL:
+	case config.MySQL:
 		err = mysql.Backup(ctx, s.S3, service, envService, filename)
-	case util.Postgres:
+	case config.Postgres:
 		err = postgres.Backup(ctx, s.S3, service, envService, filename)
-	case util.Elasticsearch:
+	case config.Elasticsearch:
 		err = elasticsearch.Backup(ctx, s.S3, service, envService, filename)
 	default:
-		err = fmt.Errorf("unsupported service type [%s]", service.Label)
+		err = fmt.Errorf("unsupported service type [%s]", service.Binding.Type)
 	}
 	if err != nil {
 		log.Errorf("could not backup service [%s]: %v", service.Name, err)
@@ -96,7 +95,7 @@ func (s *Service) Backup(service util.Service) error {
 			}
 
 			// update backup files state & metrics
-			_, _ = s.GetBackups(service.Label, service.Name)
+			_, _ = s.GetBackups(service.Binding.Type, service.Name)
 		}()
 	}
 	return err
@@ -106,7 +105,7 @@ func (s *Service) GetBackups(serviceType, serviceName string) ([]Backup, error) 
 	backups := make([]Backup, 0)
 
 	for _, service := range s.GetServices(serviceType, serviceName) {
-		objectPath := fmt.Sprintf("%s/%s/", service.Label, service.Name)
+		objectPath := fmt.Sprintf("%s/%s/", service.Binding.Type, service.Name)
 		objects, err := s.S3.List(objectPath)
 		if err != nil {
 			log.Errorf("could not list S3 objects: %v", err)
@@ -142,18 +141,18 @@ func (s *Service) GetBackups(serviceType, serviceName string) ([]Backup, error) 
 	// update backup files metrics
 	for _, backup := range backups {
 		// number of files
-		backupFilesTotal.WithLabelValues(backup.Service.Label, backup.Service.Name).Set(float64(len(backup.Files)))
+		backupFilesTotal.WithLabelValues(backup.Service.Binding.Type, backup.Service.Name).Set(float64(len(backup.Files)))
 
 		// filesize sum of all files
 		var filesizeTotal float64
 		for _, file := range backup.Files {
 			filesizeTotal += float64(file.Size)
 		}
-		backupFilesizeTotal.WithLabelValues(backup.Service.Label, backup.Service.Name).Set(filesizeTotal)
+		backupFilesizeTotal.WithLabelValues(backup.Service.Binding.Type, backup.Service.Name).Set(filesizeTotal)
 
 		// filesize of latest/newest file
 		if len(backup.Files) > 0 {
-			backupLastFilesize.WithLabelValues(backup.Service.Label, backup.Service.Name).Set(float64(backup.Files[0].Size))
+			backupLastFilesize.WithLabelValues(backup.Service.Binding.Type, backup.Service.Name).Set(float64(backup.Files[0].Size))
 		}
 	}
 
@@ -221,8 +220,8 @@ func (s *Service) DeleteBackup(serviceType, serviceName, filename string) error 
 	log.Infof("deleted file [%s]", objectPath)
 
 	// update backup files state & metrics
-	go func(label, name string) {
-		_, _ = s.GetBackups(label, name)
+	go func(serviceType, name string) {
+		_, _ = s.GetBackups(serviceType, name)
 	}(serviceType, serviceName)
 
 	return nil

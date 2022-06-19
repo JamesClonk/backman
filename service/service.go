@@ -13,7 +13,6 @@ import (
 	"github.com/swisscom/backman/service/mysql"
 	"github.com/swisscom/backman/service/postgres"
 	"github.com/swisscom/backman/service/redis"
-	"github.com/swisscom/backman/service/util"
 	"github.com/swisscom/backman/state"
 )
 
@@ -26,7 +25,7 @@ var (
 type Service struct {
 	App      *cfenv.App
 	S3       *s3.Client
-	Services []util.Service
+	Services []config.Service
 }
 
 func init() {
@@ -55,7 +54,7 @@ func Get() *Service {
 }
 
 func (s *Service) parseServices() {
-	s.Services = make([]util.Service, 0)
+	s.Services = make([]config.Service, 0)
 
 	for _, services := range s.App.Services {
 		for _, service := range services {
@@ -67,7 +66,7 @@ func (s *Service) parseServices() {
 
 			// if it is an unrecognized type/label or user-provided service
 			// then try to figure out if it can be identified as a supported service type
-			if !util.IsValidServiceType(service.Label) || service.Label == "user-provided" {
+			if !config.IsValidServiceType(service.Label) || service.Label == "user-provided" {
 				// can it be identified as a custom postgres binding?
 				if postgres.IsPostgresBinding(&service) {
 					service.Label = "postgres"
@@ -76,19 +75,8 @@ func (s *Service) parseServices() {
 				} else if redis.IsRedisBinding(&service) { // or a redis binding?
 					service.Label = "redis"
 				} else {
-					// try to guess it via service tags as a last resort
-					var identified bool
-					for _, tag := range service.Tags {
-						if util.IsValidServiceType(tag) {
-							identified = true
-							service.Label = tag
-							break
-						}
-					}
-					if !identified {
-						log.Errorf("unsupported service type [%s]: could not identify [%s]", service.Label, service.Name)
-						continue // cannot handle this service binding
-					}
+					log.Errorf("unsupported service type [%s]: could not identify [%s]", service.Binding.Type, service.Name)
+					continue // cannot handle this service binding
 				}
 			}
 
@@ -115,14 +103,14 @@ func (s *Service) parseServices() {
 				retentionFiles = 100 // default
 			}
 
-			newService := util.Service{
-				Name:     service.Name,
-				Label:    service.Label,
-				Plan:     service.Plan,
-				Tags:     service.Tags,
+			newService := config.Service{
+				Name: service.Name,
+				// Label:    service.Label,
+				// Plan:     service.Plan,
+				// TODO: service.Binding here, with Plan, Provider and Type
 				Timeout:  timeout.Duration,
 				Schedule: schedule,
-				Retention: util.Retention{
+				Retention: config.Retention{
 					Days:  retentionDays,
 					Files: retentionFiles,
 				},
@@ -146,16 +134,16 @@ func (s *Service) parseServices() {
 		state.RestoreInit(service)
 
 		// init backup files state & metrics in background
-		go func(label, name string) {
-			_, _ = s.GetBackups(label, name)
-		}(service.Label, service.Name)
+		go func(serviceType, name string) {
+			_, _ = s.GetBackups(serviceType, name)
+		}(service.Binding.Type, service.Name)
 	}
 
 	log.Debugf("services loaded: %+v", s.Services)
 }
 
-func (s *Service) GetServices(serviceType, serviceName string) []util.Service {
-	services := make([]util.Service, 0)
+func (s *Service) GetServices(serviceType, serviceName string) []config.Service {
+	services := make([]config.Service, 0)
 	if len(serviceName) > 0 {
 		// list only a specific service binding
 		for _, service := range s.Services {
@@ -168,7 +156,7 @@ func (s *Service) GetServices(serviceType, serviceName string) []util.Service {
 	} else if len(serviceType) > 0 {
 		// list services only for a specific service type
 		for _, service := range s.Services {
-			if service.Label == serviceType {
+			if service.Binding.Type == serviceType {
 				services = append(services, service)
 			}
 		}
@@ -180,11 +168,11 @@ func (s *Service) GetServices(serviceType, serviceName string) []util.Service {
 	return services
 }
 
-func (s *Service) GetService(serviceType, serviceName string) util.Service {
+func (s *Service) GetService(serviceType, serviceName string) config.Service {
 	for _, service := range s.Services {
-		if service.Name == serviceName && service.Label == serviceType {
+		if service.Name == serviceName && service.Binding.Type == serviceType {
 			return service
 		}
 	}
-	return util.Service{}
+	return config.Service{}
 }

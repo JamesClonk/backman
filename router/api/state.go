@@ -22,6 +22,7 @@ import (
 //   200: states
 func (h *Handler) ListStates(c echo.Context) error {
 	states := state.Tracker().List()
+	// TODO: sanitize output, make sure service_bindings are not part of it!
 	return c.JSON(http.StatusOK, states)
 }
 
@@ -48,5 +49,6 @@ func (h *Handler) GetState(c echo.Context) error {
 	if !found {
 		return c.JSON(http.StatusNotFound, fmt.Errorf("service state not found"))
 	}
+	// TODO: sanitize output, make sure service_bindings are not part of it!
 	return c.JSON(http.StatusOK, state)
 }

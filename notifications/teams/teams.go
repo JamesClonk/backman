@@ -8,7 +8,6 @@ import (
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/notifications/events"
-	"github.com/swisscom/backman/service/util"
 )
 
 var (
@@ -55,7 +54,7 @@ func (t *Teams) Type() string {
 	return "Teams"
 }
 
-func (t *Teams) Send(event events.Event, service util.Service, filename string) error {
+func (t *Teams) Send(event events.Event, service config.Service, filename string) error {
 	// only send a notification if webhook URL was specified
 	if len(t.config.Webhook) > 0 {
 		log.Debugf("sending Teams notification for [%s]: %s", service.Name, event)

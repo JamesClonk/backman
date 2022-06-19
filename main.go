@@ -9,7 +9,6 @@ import (
 	"github.com/swisscom/backman/router"
 	"github.com/swisscom/backman/scheduler"
 	"github.com/swisscom/backman/service"
-	"github.com/swisscom/backman/service/util"
 )
 
 var (
@@ -30,6 +29,8 @@ func init() {
 	if len(configFile) > 0 {
 		config.SetConfigFile(configFile)
 	}
+	// initialize config
+	config.Init()
 
 	// setup logger
 	log.Init()
@@ -102,7 +103,7 @@ func runNow() bool {
 			if s.Name == serviceToRestore {
 				// running restore
 				log.Infof("running service restore for [%s/%s] with filename [%s]", s.Label, s.Name, filenameToRestore)
-				if err := service.Get().Restore(s, util.Service{}, filenameToRestore); err != nil {
+				if err := service.Get().Restore(s, config.Service{}, filenameToRestore); err != nil {
 					log.Fatalf("service restore failed: %v", err)
 				}
 				found = true

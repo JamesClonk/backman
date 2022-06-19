@@ -8,13 +8,13 @@ import (
 	"sort"
 	"time"
 
+	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
-	"github.com/swisscom/backman/service/util"
 )
 
-func (s *Service) RetentionCleanup(service util.Service) error {
-	localPath := filepath.Join(service.LocalBackupPath, service.Label, service.Name)
-	folderPath := fmt.Sprintf("%s/%s/", service.Label, service.Name)
+func (s *Service) RetentionCleanup(service config.Service) error {
+	localPath := filepath.Join(service.LocalBackupPath, service.Binding.Type, service.Name)
+	folderPath := fmt.Sprintf("%s/%s/", service.Binding.Type, service.Name)
 	objects, err := s.S3.List(folderPath)
 	if err != nil {
 		return err
@@ -58,7 +58,7 @@ func (s *Service) RetentionCleanup(service util.Service) error {
 	}
 	// cleanup local files too
 	if len(service.LocalBackupPath) > 0 {
-		files, err := ioutil.ReadDir(filepath.Join(service.LocalBackupPath, service.Label, service.Name))
+		files, err := ioutil.ReadDir(filepath.Join(service.LocalBackupPath, service.Binding.Type, service.Name))
 		if err != nil {
 			return err
 		}

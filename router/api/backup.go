@@ -7,7 +7,6 @@ import (
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/swisscom/backman/log"
-	"github.com/swisscom/backman/service/util"
 )
 
 // swagger:route GET /api/v1/backups backup listBackups
@@ -32,6 +31,7 @@ func (h *Handler) ListBackups(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusNotFound, err.Error())
 	}
+	// TODO: sanitize output, make sure service_bindings are not part of it!
 	return c.JSON(http.StatusOK, backups)
 }
 
@@ -62,6 +62,7 @@ func (h *Handler) GetBackups(c echo.Context) error {
 	if len(backups) != 1 {
 		return c.JSON(http.StatusNotFound, fmt.Errorf("backups not found"))
 	}
+	// TODO: sanitize output, make sure service_bindings are not part of it!
 	return c.JSON(http.StatusOK, backups[0])
 }
 
@@ -95,6 +96,7 @@ func (h *Handler) GetBackup(c echo.Context) error {
 	if len(backup.Files) == 0 || len(backup.Files[0].Filename) == 0 {
 		return c.JSON(http.StatusNotFound, fmt.Errorf("file not found"))
 	}
+	// TODO: sanitize output, make sure service_bindings are not part of it!
 	return c.JSON(http.StatusOK, backup)
 }
 
@@ -116,7 +118,7 @@ func (h *Handler) CreateBackup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid service name: %v", err))
 	}
 
-	if !util.IsValidServiceType(serviceType) {
+	if !config.IsValidServiceType(serviceType) {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("unsupported service type: %s", serviceType))
 	}
 
@@ -132,6 +134,7 @@ func (h *Handler) CreateBackup(c echo.Context) error {
 			log.Errorf("requested backup for service [%s] failed: %v", serviceName, err)
 		}
 	}()
+	// TODO: sanitize output, make sure service_bindings are not part of it!
 	return c.JSON(http.StatusAccepted, cfService)
 }
 

@@ -10,20 +10,19 @@ import (
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/service"
-	"github.com/swisscom/backman/service/util"
 )
 
 // Handler holds all objects and configurations used across Web-UI requests
 type Handler struct {
 	Service  *service.Service
-	Services map[string][]util.Service
+	Services map[string][]config.Service
 }
 
 type Page struct {
 	Title       string
-	Service     util.Service
-	Services    map[string][]util.Service
-	AllServices map[string][]util.Service
+	Service     config.Service
+	Services    map[string][]config.Service
+	AllServices map[string][]config.Service
 	Backup      service.Backup
 	Backups     []service.Backup
 	Error       struct {
@@ -36,10 +35,10 @@ type Page struct {
 func New() *Handler {
 	s := service.Get()
 
-	services := make(map[string][]util.Service)
+	services := make(map[string][]config.Service)
 	for _, s := range s.Services {
 		if _, exists := services[s.Label]; !exists {
-			services[s.Label] = make([]util.Service, 0)
+			services[s.Label] = make([]config.Service, 0)
 		}
 		services[s.Label] = append(services[s.Label], s)
 	}
