@@ -27,9 +27,9 @@ applications:
 
   env:
     TZ: Europe/Zurich
-    BACKMAN_USERNAME: ((username)) # optional, could also be configured in config.json or $BACKMAN_CONFIG
-    BACKMAN_PASSWORD: ((password)) # optional, could also be configured in config.json or $BACKMAN_CONFIG
-    # BACKMAN_ENCRYPTION_KEY: "" # data-at-rest-encryption for backups stored on S3, optional, could also be configured in config.json or $BACKMAN_CONFIG
+    BACKMAN_USERNAME: ((username)) # optional, could also be configured in $BACKMAN_CONFIG
+    BACKMAN_PASSWORD: ((password)) # optional, could also be configured in $BACKMAN_CONFIG
+    # BACKMAN_ENCRYPTION_KEY: "" # data-at-rest-encryption for backups stored on S3, optional, could also be configured in $BACKMAN_CONFIG
     BACKMAN_CONFIG: | # please consult /docs/configuration.md and /docs/cloudfoundry/configuration.md
       {
         "log_level": "debug",
