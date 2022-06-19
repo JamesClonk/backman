@@ -108,11 +108,17 @@ or through the specific environment variables `$BACKMAN_USERNAME` and `$BACKMAN_
 - `unprotected_metrics`: optional, disable HTTP basic auth protection for Prometheus metrics endpoint
 - `notifications.teams.webhook`: optional, setting a webhook URL will enable MS Teams notifications about backups
 - `notifications.teams.events`: optional, list of events to send a Teams notification for. Can be *backup-started*, *backup-success*, *backup-failed*. Sends a notification for all events if empty.
+- `s3.host`: optional, S3 hostname/endpoint to use, backman will try to find it within service instances if not specified
+- `s3.access_key`: optional, S3 access-key credential, backman will try to find it within service instances if not specified
+- `s3.secret_key`: optional, S3 secret-key credential, backman will try to find it within service instances if not specified
 - `s3.disable_ssl`: optional, S3 client connections will use HTTP instead of HTTPS
 - `s3.skip_ssl_verification`: optional, S3 client will still use HTTPS but skips certificate verification
-- `s3.service_label`: optional, defines which service label backman will look for to find the S3-compatible object storage
+- `s3.service_type`: optional, defines which service type or label backman will look for in service instances to find the S3-compatible object storage
 - `s3.bucket_name`: optional, bucket to use on S3 storage, backman will use service-instance/binding-name if not configured
 - `s3.encryption_key`: optional, defines the key which will be used to encrypt and decrypt backups as they are stored on the S3 can also be passed as an environment variable with the name `$BACKMAN_ENCRYPTION_KEY`
+
+> **Note**: Usage of `s3.encryption_key` is not backward compatible! Backups generated without or with a different encryption key than before cannot be downloaded or restored anymore.
+
 - `services.<service-instance>.schedule`: optional, defines cron schedule for running backups
 - `services.<service-instance>.timeout`: optional, backman will abort a running backup/restore if timeout is exceeded
 - `services.<service-instance>.retention.days`: optional, specifies how long backman will keep backups on S3 at maximum for this service instance
@@ -135,6 +141,3 @@ It is also possible to configure service bindings and their credentials directly
 - `services.<service-instance>.service_binding.username`: specify service username credential
 - `services.<service-instance>.service_binding.password`: specify service password credential
 - `services.<service-instance>.service_binding.database`: optional, specify service database to backup
-
-
-> **Note**: Usage of `s3.encryption_key` is not backward compatible! Backups generated without or with a different encryption key cannot be downloaded or restored anymore.
