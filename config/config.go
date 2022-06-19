@@ -35,10 +35,16 @@ type Config struct {
 type S3Config struct {
 	DisableSSL          bool   `json:"disable_ssl"`
 	SkipSSLVerification bool   `json:"skip_ssl_verification"`
-	ServiceLabel        string `json:"service_label"`
+	ServiceType         string `json:"service_type"`
+	ServiceLabel        string `json:"service_label"` // fallback for service_type, for backwards compatibility
 	ServiceName         string `json:"service_name"`
 	BucketName          string `json:"bucket_name"`
 	EncryptionKey       string `json:"encryption_key"`
+	// optional values, backman will try to find them in config.Services.Binding or VCAP_SERVICES if not defined here
+	// order of precedence: S3Config.* > Config.Services.Binding > VCAP_SERVICES
+	Host      string // optional
+	AccessKey string `json:"access_key"` // optional
+	SecretKey string `json:"secret_key"` // optional
 }
 
 type ServiceConfig struct {
@@ -56,6 +62,20 @@ type ServiceConfig struct {
 	IgnoreTables            []string `json:"ignore_tables"`
 	BackupOptions           []string `json:"backup_options"`
 	RestoreOptions          []string `json:"restore_options"`
+	// optional, backman will lookup binding from SERVICE_BINDING_ROOT/<service> or VCAP_SERVICES if not defined here
+	// order of precedence: SERVICE_BINDING_ROOT > VCAP_SERVICES > Config.Services.Binding
+	Binding ServiceBinding `json:"service_binding"` // optional
+}
+
+type ServiceBinding struct {
+	Type     string
+	Provider string
+	Host     string
+	Port     int
+	URI      string
+	Username string
+	Password string
+	Database string
 }
 
 type NotificationConfig struct {
@@ -154,17 +174,24 @@ func Get() *Config {
 			if envConfig.UnprotectedMetrics {
 				config.UnprotectedMetrics = envConfig.UnprotectedMetrics
 			}
+
+			// teams notifications
 			if len(envConfig.Notifications.Teams.Webhook) > 0 {
 				config.Notifications.Teams.Webhook = envConfig.Notifications.Teams.Webhook
 			}
 			if len(envConfig.Notifications.Teams.Events) > 0 {
 				config.Notifications.Teams.Events = envConfig.Notifications.Teams.Events
 			}
+
+			// s3
 			if envConfig.S3.DisableSSL {
 				config.S3.DisableSSL = envConfig.S3.DisableSSL
 			}
 			if envConfig.S3.SkipSSLVerification {
 				config.S3.SkipSSLVerification = envConfig.S3.SkipSSLVerification
+			}
+			if len(envConfig.S3.ServiceType) > 0 {
+				config.S3.ServiceType = envConfig.S3.ServiceType
 			}
 			if len(envConfig.S3.ServiceLabel) > 0 {
 				config.S3.ServiceLabel = envConfig.S3.ServiceLabel
@@ -178,6 +205,17 @@ func Get() *Config {
 			if len(envConfig.S3.EncryptionKey) > 0 {
 				config.S3.EncryptionKey = envConfig.S3.EncryptionKey
 			}
+			if len(envConfig.S3.Host) > 0 {
+				config.S3.Host = envConfig.S3.Host
+			}
+			if len(envConfig.S3.AccessKey) > 0 {
+				config.S3.AccessKey = envConfig.S3.AccessKey
+			}
+			if len(envConfig.S3.SecretKey) > 0 {
+				config.S3.SecretKey = envConfig.S3.SecretKey
+			}
+
+			// services
 			for serviceName, serviceConfig := range envConfig.Services {
 				mergedServiceConfig := config.Services[serviceName]
 				if len(serviceConfig.Schedule) > 0 {
@@ -216,16 +254,40 @@ func Get() *Config {
 				if len(serviceConfig.RestoreOptions) > 0 {
 					mergedServiceConfig.RestoreOptions = serviceConfig.RestoreOptions
 				}
+
+				// bindings
+				if len(serviceConfig.Binding.Type) > 0 {
+					mergedServiceConfig.Binding.Type = serviceConfig.Binding.Type
+				}
+				if len(serviceConfig.Binding.Provider) > 0 {
+					mergedServiceConfig.Binding.Provider = serviceConfig.Binding.Provider
+				}
+				if len(serviceConfig.Binding.Host) > 0 {
+					mergedServiceConfig.Binding.Host = serviceConfig.Binding.Host
+				}
+				if serviceConfig.Binding.Port > 0 {
+					mergedServiceConfig.Binding.Port = serviceConfig.Binding.Port
+				}
+				if len(serviceConfig.Binding.URI) > 0 {
+					mergedServiceConfig.Binding.URI = serviceConfig.Binding.URI
+				}
+				if len(serviceConfig.Binding.Username) > 0 {
+					mergedServiceConfig.Binding.Username = serviceConfig.Binding.Username
+				}
+				if len(serviceConfig.Binding.Password) > 0 {
+					mergedServiceConfig.Binding.Password = serviceConfig.Binding.Password
+				}
+				if len(serviceConfig.Binding.Database) > 0 {
+					mergedServiceConfig.Binding.Database = serviceConfig.Binding.Database
+				}
+
 				config.Services[serviceName] = mergedServiceConfig
 			}
 		}
 
-		// ensure we have default values
+		// set loglevel if missing
 		if len(config.LogLevel) == 0 {
 			config.LogLevel = "info"
-		}
-		if len(config.S3.ServiceLabel) == 0 {
-			config.S3.ServiceLabel = "dynstrg"
 		}
 
 		// use username & password from env if defined

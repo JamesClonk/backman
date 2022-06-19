@@ -1,15 +1,16 @@
 # Configuration
 
-backman can be configured via JSON configuration, either with a file `config.json` in its root directory, or by the environment variable `BACKMAN_CONFIG`.
-Values configured in `BACKMAN_CONFIG` take precedence over `config.json`.
+backman can be configured via JSON configuration, either with a file `config.json` in its root directory, or by the environment variable `$BACKMAN_CONFIG`.
+Values configured in `$BACKMAN_CONFIG` take precedence over `config.json`.
 By default backman will assume useful values for all services/backups unless configured otherwise.
 
-**Note:** Configuration via the `config.json` only makes sense when either pushing with buildpacks to CF, or by building your own docker image.
-If you are using the provided docker image `jamesclonk/backman` (as is default in the manifest) then there will be no configuration file and all configuration options need to be set via environment variables.
+**Note:** Configuration through `config.json` only makes sense when building your own docker image, otherwise you cannot modify the file. For Cloud Foundry you will therefore most likely configure `$BACKMAN_CONFIG` in your `manifest.yml` or via `cf set-env`.
 
-It is generally recommended to use the `BACKMAN_CONFIG` environment variable for all your configuration needs.
+If you are using the provided docker image `jamesclonk/backman` (as is default in the manifest) then there will be no configuration file and all configuration options must to be set via environment variables.
 
-These here are the default values backman will use if not configured via JSON:
+It is generally recommended to use the `$BACKMAN_CONFIG` environment variable for all your configuration needs.
+
+These here are the default values backman will use if not configured otherwise:
 ```json
 {
 	"log_level": "info",
@@ -18,6 +19,23 @@ These here are the default values backman will use if not configured via JSON:
 	"disable_metrics": false,
 	"disable_restore": false,
 	"unprotected_metrics": false,
+	"notifications": {},
+	"s3": {
+		"service_type": "s3"
+	},
+	"services": {}
+}
+```
+
+A more comprehensive example of possible configuration options could look like this:
+```json
+{
+	"log_level": "info",
+	"logging_timestamp": false,
+	"disable_web": false,
+	"disable_metrics": false,
+	"disable_restore": true,
+	"unprotected_metrics": false,
 	"notifications": {
 		"teams": {
 			"webhook": "https://example.webhook.office.com/webhookb2/deadbeef/IncomingWebhook/beefdead/deadbeef",
@@ -25,17 +43,41 @@ These here are the default values backman will use if not configured via JSON:
 		}
 	},
 	"s3": {
-		"service_label": "dynstrg",
-		"encryption_key":"a_super_strong_key"
+		"service_type": "dynstrg",
+		"bucket_name": "my-database-backups",
+		"encryption_key":"a_super_strong_key",
+		"skip_ssl_verification": false
 	},
 	"services": {
 		...
-		"<service-instance-name>": {
+		"<service-instance-name-ABC>": {
 			"schedule": "<random-second> <random-minute> <random-hour> * * *",
 			"timeout": "1h",
 			"retention": {
 				"days": 31,
 				"files": 100
+			}
+		},
+		"<service-instance-name-XYZ>": {
+			"retention": {
+				"days": 365,
+				"files": 1000
+			},
+			"disable_column_statistics": true,
+			"force_import": true,
+			"ignore_tables": [ "confidential_table", "temporary_table" ]
+		},
+		"<custom-service>": {
+			"log_stderr": true,
+			"service_binding": {
+				"type": "mysql",
+				"provider": "mariadb",
+				"host": "fancy-db.aws.amazon.com",
+				"port": 3306,
+				"uri": "mysql://my-db-user:db-pass@fancy-db.aws.amazon.com:3306/dbname-to-backup",
+				"username": "my-db-user",
+				"Password": "db-pass",
+				"database": "dbname-to-backup",
 			}
 		}
 		...
@@ -50,7 +92,7 @@ backman can be secured through HTTP basic auth, with username and password provi
 	"password": "http_basic_auth_password_xyz"
 }
 ```
-or through the specific environment variables `BACKMAN_USERNAME` and `BACKMAN_PASSWORD` (see `manifest.yml`)
+or through the specific environment variables `äBACKMAN_USERNAME` and `äBACKMAN_PASSWORD` (see `manifest.yml`)
 
 Possible JSON properties:
 - `log_level`: optional, specifies log output level, can be *info*, *warn*, *debug*, *error*
@@ -67,7 +109,7 @@ Possible JSON properties:
 - `s3.skip_ssl_verification`: optional, S3 client will still use HTTPS but skips certificate verification
 - `s3.service_label`: optional, defines which service label backman will look for to find the S3-compatible object storage
 - `s3.bucket_name`: optional, bucket to use on S3 storage, backman will use service-instance/binding-name if not configured
-- `s3.encryption_key`: optional, defines the key which will be used to encrypt and decrypt backups as they are stored on the S3 can also be passed as an environment variable with the name `BACKMAN_ENCRYPTION_KEY`
+- `s3.encryption_key`: optional, defines the key which will be used to encrypt and decrypt backups as they are stored on the S3 can also be passed as an environment variable with the name `$BACKMAN_ENCRYPTION_KEY`
 - `services.<service-instance>.schedule`: optional, defines cron schedule for running backups
 - `services.<service-instance>.timeout`: optional, backman will abort a running backup/restore if timeout is exceeded
 - `services.<service-instance>.retention.days`: optional, specifies how long backman will keep backups on S3 at maximum for this service instance
@@ -80,5 +122,15 @@ Possible JSON properties:
 - `services.<service-instance>.ignore_tables`: optional / MySQL-specific, array of table names to be ignored for the backup
 - `services.<service-instance>.backup_options`: optional, allows specifying additional parameters and flags for service backup executable
 - `services.<service-instance>.restore_options`: optional, allows specifying additional parameters and flags for service restore executable
+
+It is also possible to configure service bindings and their credentials directly instead of having backman read them from `$VCAP_SERVICES` (see [Cloud Foundry configuration](/docs/cloudfoundry/configuration.md)) or `$SERVICE_BINDING_ROOT/<service>` (see [Kubernetes configuration](/docs/kubernetes/configuration.md)). Read the [servicebinding spec](https://github.com/servicebinding/spec#well-known-secret-entries) for further information on these properties:
+- `services.<service-instance>.service_binding.type`: specify service type, supported values are *elasticsearch*, *mysql*, *postgres*, *mongodb*, *redis*
+- `services.<service-instance>.service_binding.provider`: optional, specify service provider
+- `services.<service-instance>.service_binding.host`: specify service hostname
+- `services.<service-instance>.service_binding.port`: specify service port
+- `services.<service-instance>.service_binding.uri`: specify service URI
+- `services.<service-instance>.service_binding.username`: specify service username credential
+- `services.<service-instance>.service_binding.password`: specify service password credential
+- `services.<service-instance>.service_binding.database`: optional, specify service database to backup
 
 Note: Usage of `s3.encryption_key` is not backward compatible! Backups generated without or with a different encryption key cannot be downloaded or restored anymore.

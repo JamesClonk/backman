@@ -8,8 +8,10 @@ import (
 )
 
 func Test_Config_Get(t *testing.T) {
-	os.Setenv("BACKMAN_PASSWORD", "McClane")
 	_ = os.Chdir("../")
+	SetConfigFile("_fixtures/config.json")
+
+	os.Setenv("BACKMAN_PASSWORD", "McClane")
 
 	c := Get()
 	assert.Equal(t, "debug", c.LogLevel)                                      // .env specifies "debug", overriding "info" from config.json
