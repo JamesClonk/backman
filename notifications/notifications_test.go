@@ -3,20 +3,21 @@ package notifications
 import (
 	"testing"
 
+	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/notifications/events"
-	"github.com/swisscom/backman/service/util"
 )
 
 func TestSendNotificationBackupSucceeded(t *testing.T) {
 	n := Manager()
-	n.Send(events.BackupSuccess, util.Service{
-		Name:                    "some-mongodb",
-		Label:                   "label",
-		Plan:                    "small3rs",
-		Tags:                    nil,
-		Timeout:                 10,
+	n.Send(events.BackupSuccess, config.Service{
+		Name: "some-mongodb",
+		Binding: config.ServiceBinding{
+			Type: "label",
+			Plan: "small3rs",
+		},
+		Timeout:                 config.TimeoutDuration{10},
 		Schedule:                "",
-		Retention:               util.Retention{},
+		Retention:               config.ServiceRetention{},
 		DirectS3:                false,
 		DisableColumnStatistics: false,
 		ForceImport:             false,
@@ -25,14 +26,15 @@ func TestSendNotificationBackupSucceeded(t *testing.T) {
 		RestoreOptions:          nil,
 	}, "some-mongodb_20210714144020.gz")
 
-	n.Send(events.BackupFailed, util.Service{
-		Name:                    "some-mongodb",
-		Label:                   "label",
-		Plan:                    "small3rs",
-		Tags:                    nil,
-		Timeout:                 10,
+	n.Send(events.BackupFailed, config.Service{
+		Name: "some-mongodb",
+		Binding: config.ServiceBinding{
+			Type: "label",
+			Plan: "small3rs",
+		},
+		Timeout:                 config.TimeoutDuration{10},
 		Schedule:                "",
-		Retention:               util.Retention{},
+		Retention:               config.ServiceRetention{},
 		DirectS3:                false,
 		DisableColumnStatistics: false,
 		ForceImport:             false,

@@ -1,6 +1,7 @@
 package config
 
 const BackmanConfig = "BACKMAN_CONFIG"
+const BackmanPort = "PORT"
 const BackmanUsername = "BACKMAN_USERNAME"
 const BackmanPassword = "BACKMAN_PASSWORD"
 const BackmanEncryptionKey = "BACKMAN_ENCRYPTION_KEY"

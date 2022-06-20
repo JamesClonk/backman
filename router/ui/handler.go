@@ -14,7 +14,6 @@ import (
 
 // Handler holds all objects and configurations used across Web-UI requests
 type Handler struct {
-	Service  *service.Service
 	Services map[string][]config.Service
 }
 
@@ -33,18 +32,15 @@ type Page struct {
 }
 
 func New() *Handler {
-	s := service.Get()
-
 	services := make(map[string][]config.Service)
-	for _, s := range s.Services {
-		if _, exists := services[s.Label]; !exists {
-			services[s.Label] = make([]config.Service, 0)
+	for _, s := range config.Get().Services {
+		if _, exists := services[s.Binding.Type]; !exists {
+			services[s.Binding.Type] = make([]config.Service, 0)
 		}
-		services[s.Label] = append(services[s.Label], s)
+		services[s.Binding.Type] = append(services[s.Binding.Type], s)
 	}
 
 	return &Handler{
-		Service:  s,
 		Services: services,
 	}
 }

@@ -9,6 +9,7 @@ import (
 	echo "github.com/labstack/echo/v4"
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
+	"github.com/swisscom/backman/service"
 )
 
 func (h *Handler) ServicesHandler(c echo.Context) error {
@@ -23,7 +24,7 @@ func (h *Handler) ServicesHandler(c echo.Context) error {
 		// reduce services list to specific type only
 		page.Services = make(map[string][]config.Service)
 		page.Services[serviceType] = page.AllServices[serviceType]
-		page.Service.Label = serviceType
+		page.Service.Binding.Type = serviceType
 		page.Title = config.ParseServiceType(serviceType).String()
 	}
 
@@ -58,7 +59,7 @@ func (h *Handler) ServiceHandler(c echo.Context) error {
 	}
 
 	// get backups for service
-	backups, err := h.Service.GetBackups(serviceType, serviceName)
+	backups, err := service.GetBackups(serviceType, serviceName)
 	if err != nil {
 		log.Errorf("%v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("could not read service backups from S3: %v", err))

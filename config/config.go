@@ -7,6 +7,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -23,6 +24,7 @@ var (
 )
 
 type Config struct {
+	Port               int
 	LogLevel           string `json:"log_level"`
 	LoggingTimestamp   bool   `json:"logging_timestamp"`
 	Username           string
@@ -105,6 +107,9 @@ func new() *Config {
 		}
 
 		// merge config values
+		if envConfig.Port > 0 {
+			config.Port = envConfig.Port
+		}
 		if len(envConfig.LogLevel) > 0 {
 			config.LogLevel = envConfig.LogLevel
 		}
@@ -238,6 +243,11 @@ func new() *Config {
 
 			config.Services[serviceName] = mergedServiceConfig
 		}
+	}
+
+	// set port if missing
+	if config.Port == 0 {
+		config.Port, _ = strconv.Atoi(os.Getenv(BackmanPort))
 	}
 
 	// set loglevel if missing

@@ -4,29 +4,18 @@ import (
 	"crypto/subtle"
 	"fmt"
 
-	cfenv "github.com/cloudfoundry-community/go-cfenv"
 	echo "github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/swisscom/backman/config"
-	"github.com/swisscom/backman/s3"
-	"github.com/swisscom/backman/service"
 )
 
 const version = "v1"
 
 // Handler holds all objects and configurations used across API requests
-type Handler struct {
-	App     *cfenv.App
-	S3      *s3.Client
-	Service *service.Service
-}
+type Handler struct{}
 
 func New() *Handler {
-	return &Handler{
-		App:     service.Get().App,
-		S3:      service.Get().S3,
-		Service: service.Get(),
-	}
+	return &Handler{}
 }
 
 func (h *Handler) RegisterRoutes(e *echo.Echo) {

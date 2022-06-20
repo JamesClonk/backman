@@ -43,6 +43,10 @@ func newNotificationService(config *config.Config) *NotificationService {
 	}
 }
 
+func Init() {
+	Manager() // initializes notifications manager
+}
+
 func Manager() *NotificationService {
 	once.Do(func() {
 		notificationService = newNotificationService(config.Get())

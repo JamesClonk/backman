@@ -7,6 +7,7 @@ import (
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/swisscom/backman/log"
+	"github.com/swisscom/backman/service"
 	"github.com/swisscom/backman/state"
 )
 
@@ -44,8 +45,8 @@ func (h *Handler) GetState(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid service name: %v", err))
 	}
 
-	service := h.Service.GetService(serviceType, serviceName)
-	state, found := state.Tracker().Get(service)
+	serviceInstance := service.GetService(serviceType, serviceName)
+	state, found := state.Tracker().Get(serviceInstance)
 	if !found {
 		return c.JSON(http.StatusNotFound, fmt.Errorf("service state not found"))
 	}

@@ -37,17 +37,14 @@ func init() {
 
 	// setup service instances
 	service.Init()
+
+	// init notifications manager
+	notifications.Init()
 }
 
 //go:generate swagger generate spec
 func main() {
 	log.Infoln("starting up backman ...")
-
-	// init services
-	service.Get()
-
-	// init notifications manager
-	notifications.Manager()
 
 	// check if an immediate backup/restore should run, in non-background mode. otherwise continue and start scheduler
 	if runNow() {
@@ -72,17 +69,17 @@ func runNow() bool {
 
 		// find service to backup
 		var found bool
-		for _, s := range service.Get().Services {
+		for _, s := range config.Get().Services {
 			if s.Name == serviceToBackup {
 				// running backup
-				log.Infof("running service backup for [%s/%s]", s.Label, s.Name)
-				if err := service.Get().Backup(s); err != nil {
+				log.Infof("running service backup for [%s/%s]", s.Binding.Type, s.Name)
+				if err := service.CreateBackup(s); err != nil {
 					log.Fatalf("service backup failed: %v", err)
 				}
 				found = true
 
 				// running S3 cleanup
-				if err := service.Get().RetentionCleanup(s); err != nil {
+				if err := service.RetentionCleanup(s); err != nil {
 					log.Errorf("could not cleanup S3 storage for service [%s]: %v", s.Name, err)
 				}
 				break
@@ -102,11 +99,11 @@ func runNow() bool {
 
 		// find service to restore
 		var found bool
-		for _, s := range service.Get().Services {
+		for _, s := range config.Get().Services {
 			if s.Name == serviceToRestore {
 				// running restore
-				log.Infof("running service restore for [%s/%s] with filename [%s]", s.Label, s.Name, filenameToRestore)
-				if err := service.Get().Restore(s, config.Service{}, filenameToRestore); err != nil {
+				log.Infof("running service restore for [%s/%s] with filename [%s]", s.Binding.Type, s.Name, filenameToRestore)
+				if err := service.RestoreBackup(s, config.Service{}, filenameToRestore); err != nil {
 					log.Fatalf("service restore failed: %v", err)
 				}
 				found = true

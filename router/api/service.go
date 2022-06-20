@@ -8,6 +8,7 @@ import (
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/swisscom/backman/log"
+	"github.com/swisscom/backman/service"
 )
 
 // swagger:response service
@@ -46,5 +47,5 @@ func (h *Handler) ListServices(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid service name: %v", err))
 	}
 	// TODO: sanitize output, make sure service_bindings are not part of it!
-	return c.JSON(http.StatusOK, h.Service.GetServices(serviceType, serviceName))
+	return c.JSON(http.StatusOK, service.GetServices(serviceType, serviceName))
 }

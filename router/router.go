@@ -68,5 +68,5 @@ func New() *Router {
 }
 
 func (r *Router) Start() error {
-	return r.echo.Start(fmt.Sprintf(":%d", r.api.App.Port))
+	return r.echo.Start(fmt.Sprintf(":%d", config.Get().Port))
 }

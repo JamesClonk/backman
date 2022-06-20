@@ -6,7 +6,9 @@ import (
 	"net/url"
 
 	echo "github.com/labstack/echo/v4"
+	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
+	"github.com/swisscom/backman/service"
 )
 
 // swagger:route GET /api/v1/backups backup listBackups
@@ -27,7 +29,7 @@ func (h *Handler) ListBackups(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid service name: %v", err))
 	}
 
-	backups, err := h.Service.GetBackups(serviceType, serviceName)
+	backups, err := service.GetBackups(serviceType, serviceName)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, err.Error())
 	}
@@ -53,7 +55,7 @@ func (h *Handler) GetBackups(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid service name: %v", err))
 	}
 
-	backups, err := h.Service.GetBackups(serviceType, serviceName)
+	backups, err := service.GetBackups(serviceType, serviceName)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, err.Error())
 	}
@@ -89,7 +91,7 @@ func (h *Handler) GetBackup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid filename: %v", err))
 	}
 
-	backup, err := h.Service.GetBackup(serviceType, serviceName, filename)
+	backup, err := service.GetBackup(serviceType, serviceName, filename)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, err.Error())
 	}
@@ -122,20 +124,20 @@ func (h *Handler) CreateBackup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("unsupported service type: %s", serviceType))
 	}
 
-	cfService := h.Service.GetService(serviceType, serviceName)
-	if len(cfService.Name) == 0 {
+	serviceInstance := service.GetService(serviceType, serviceName)
+	if len(serviceInstance.Name) == 0 {
 		err := fmt.Errorf("could not find service [%s] to backup", serviceName)
 		log.Errorf("%v", err)
 		return c.JSON(http.StatusNotFound, err.Error())
 	}
 
 	go func() { // async
-		if err := h.Service.Backup(cfService); err != nil {
+		if err := service.CreateBackup(serviceInstance); err != nil {
 			log.Errorf("requested backup for service [%s] failed: %v", serviceName, err)
 		}
 	}()
 	// TODO: sanitize output, make sure service_bindings are not part of it!
-	return c.JSON(http.StatusAccepted, cfService)
+	return c.JSON(http.StatusAccepted, serviceInstance)
 }
 
 // swagger:route GET /api/v1/backup/{service_type}/{service_name}/{filename}/download backup downloadBackup
@@ -161,7 +163,7 @@ func (h *Handler) DownloadBackup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid filename: %v", err))
 	}
 
-	reader, err := h.Service.ReadBackup(serviceType, serviceName, filename)
+	reader, err := service.ReadBackup(serviceType, serviceName, filename)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -192,7 +194,7 @@ func (h *Handler) DeleteBackup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid filename: %v", err))
 	}
 
-	if err := h.Service.DeleteBackup(serviceType, serviceName, filename); err != nil {
+	if err := service.DeleteBackup(serviceType, serviceName, filename); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusNoContent)

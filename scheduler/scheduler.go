@@ -4,6 +4,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/robfig/cron"
+	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/service"
 )
@@ -37,13 +38,13 @@ func StopScheduler() {
 func RegisterBackups() {
 	log.Infoln("registering service backups in scheduler")
 
-	for _, s := range service.Get().Services {
+	for _, s := range config.Get().Services {
 		sCopy := s
 		fn := func() { Run(sCopy) }
 		if err := c.AddFunc(s.Schedule, fn); err != nil {
 			log.Fatalf("could not register service backup [%s] in scheduler: %v", s.Name, err)
 		}
-		log.Infof("service backup for [%s/%s] with schedule [%s] and timeout [%s] registered", s.Label, s.Name, s.Schedule, s.Timeout)
+		log.Infof("service backup for [%s/%s] with schedule [%s] and timeout [%s] registered", s.Binding.Type, s.Name, s.Schedule, s.Timeout)
 	}
 	StartScheduler()
 }
@@ -52,7 +53,7 @@ func Run(s config.Service) {
 	log.Infof("running backup for service [%s]", s.Name)
 	scheduledRuns.Inc()
 
-	if err := service.Get().Backup(s); err != nil {
+	if err := service.CreateBackup(s); err != nil {
 		log.Errorf("scheduled backup for service [%s] failed: %v", s.Name, err)
 		scheduledFailures.Inc()
 	} else {
