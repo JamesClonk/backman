@@ -39,6 +39,7 @@ func validateServices() {
 	for serviceName, service := range config.Get().Services {
 		// remove services without bindings, they are useless to us / invalid
 		if len(service.Binding.Type) == 0 {
+			log.Errorf("ignoring service [%s], it does not seem to have a valid binding", serviceName)
 			delete(config.Get().Services, serviceName)
 			continue
 		}
