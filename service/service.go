@@ -1,21 +1,27 @@
 package service
 
 import (
+	"fmt"
+	"math/rand"
+	"time"
+
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/state"
 )
 
+func init() {
+	rand.Seed(time.Now().UTC().UnixNano())
+}
+
 func Init() {
-	mergeVCAPServices() // finds and merges anything from VCAP_SERVICES into config.Services
+	mergeServiceBindings() // finds and merges SERVICE_BINDING_ROOT/<service> into config.Services
+	mergeVCAPServices()    // finds and merges VCAP_SERVICES into config.Services
+
+	validateServices() // final validation of all service instances in config.Services
 
 	// setup service metrics
 	for _, service := range config.Get().Services {
-		// skip services without bindings, they are useless to us
-		if len(service.Binding.Type) == 0 {
-			continue
-		}
-
 		// init prometheus state metrics to 0
 		state.BackupInit(service)
 		state.RestoreInit(service)
@@ -27,6 +33,40 @@ func Init() {
 	}
 
 	log.Debugf("services loaded: %+v", config.Get().Services)
+}
+
+func validateServices() {
+	for serviceName, service := range config.Get().Services {
+		// remove services without bindings, they are useless to us / invalid
+		if len(service.Binding.Type) == 0 {
+			delete(config.Get().Services, serviceName)
+			continue
+		}
+
+		service.Name = serviceName // service name must be the map-key
+
+		// read timeout for service
+		if service.Timeout.Seconds() <= 1 {
+			service.Timeout.Duration = 1 * time.Hour // default
+		}
+
+		// read crontab schedule for service
+		if len(service.Schedule) == 0 {
+			// create a random schedule for daily backup as a fallback
+			service.Schedule = fmt.Sprintf("%d %d %d * * *", rand.Intn(59), rand.Intn(59), rand.Intn(23))
+		}
+
+		// read retention days & files, with defaults as fallback
+		if service.Retention.Days <= 0 {
+			service.Retention.Days = 31 // default
+		}
+		if service.Retention.Files <= 0 {
+			service.Retention.Files = 100 // default
+		}
+
+		// write values back
+		config.Get().Services[serviceName] = service
+	}
 }
 
 func GetServices(serviceType, serviceName string) []config.Service {
@@ -52,10 +92,6 @@ func GetServices(serviceType, serviceName string) []config.Service {
 		// list all services
 		services := make([]config.Service, 0)
 		for _, service := range config.Get().Services {
-			// skip services without bindings, they are useless to us
-			if len(service.Binding.Type) == 0 {
-				continue
-			}
 			services = append(services, service)
 		}
 		return services

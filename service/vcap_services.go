@@ -27,14 +27,12 @@ func mergeVCAPServices() {
 		if service, found := config.Get().Services[vcapService.Name]; found {
 			// only merge service binding if service already exists in config.Services
 			service.Binding = vcapService.Binding
-			config.Get().Services[service.Name] = service
+			config.Get().Services[vcapService.Name] = service
 		} else {
 			// otherwise insert entire service into config.Services
 			config.Get().Services[vcapService.Name] = vcapService
 		}
 	}
-
-	config.ValidateServices() // ensure services are still configured correctly after we merged into them
 }
 
 func parseVCAPServices() ([]config.Service, error) {
