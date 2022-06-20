@@ -9,16 +9,16 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 
-	"github.com/cloudfoundry-community/go-cfenv"
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/s3"
 	"github.com/swisscom/backman/state"
 )
 
-func Restore(ctx context.Context, s3 *s3.Client, service config.Service, binding *cfenv.Service, objectPath string) error {
+func Restore(ctx context.Context, s3 *s3.Client, service config.Service, target config.Service, objectPath string) error {
 	state.RestoreQueue(service)
 
 	// lock global mysql mutex, only 1 backup/restore operation of this service-type is allowed to run in parallel
@@ -29,19 +29,18 @@ func Restore(ctx context.Context, s3 *s3.Client, service config.Service, binding
 	filename := filepath.Base(objectPath)
 	state.RestoreStart(service, filename)
 
-	credentials := GetCredentials(binding)
-	os.Setenv("MYSQL_PWD", credentials.Password)
+	os.Setenv("MYSQL_PWD", target.Binding.Password)
 
 	// prepare mysql restore command
 	var command []string
 	command = append(command, "mysql")
-	command = append(command, credentials.Database)
+	command = append(command, target.Binding.Database)
 	command = append(command, "-h")
-	command = append(command, credentials.Hostname)
+	command = append(command, target.Binding.Host)
 	command = append(command, "-P")
-	command = append(command, credentials.Port)
+	command = append(command, strconv.Itoa(target.Binding.Port))
 	command = append(command, "-u")
-	command = append(command, credentials.Username)
+	command = append(command, target.Binding.Username)
 	// https://stackoverflow.com/questions/11263018/mysql-ignore-errors-when-importing/25771417#25771417
 	if service.ForceImport {
 		command = append(command, "--force")

@@ -1,5 +1,11 @@
 package config
 
+import (
+	"encoding/json"
+	"errors"
+	"time"
+)
+
 type Service struct {
 	Name                    string
 	Schedule                string
@@ -33,8 +39,37 @@ type ServiceRetention struct {
 	Files int
 }
 
+type TimeoutDuration struct {
+	time.Duration
+}
+
+func (td TimeoutDuration) MarshalJSON() ([]byte, error) {
+	return json.Marshal(td.String())
+}
+
+func (td *TimeoutDuration) UnmarshalJSON(b []byte) error {
+	var v interface{}
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	switch value := v.(type) {
+	case float64:
+		td.Duration = time.Duration(value)
+		return nil
+	case string:
+		var err error
+		td.Duration, err = time.ParseDuration(value)
+		if err != nil {
+			return err
+		}
+		return nil
+	default:
+		return errors.New("invalid duration")
+	}
+}
+
 func (s *Service) Type() ServiceType {
-	return parseServiceType(s.Binding.Type)
+	return ParseServiceType(s.Binding.Type)
 }
 func (s *Service) Key() string {
 	return s.Type().String()
@@ -50,7 +85,7 @@ const (
 	Elasticsearch
 )
 
-func parseServiceType(serviceType string) ServiceType {
+func ParseServiceType(serviceType string) ServiceType {
 	switch serviceType {
 	case "postgres", "pg", "psql", "postgresql", "elephantsql", "citusdb", "aurora", "rds":
 		return Postgres
@@ -67,7 +102,7 @@ func parseServiceType(serviceType string) ServiceType {
 }
 
 func IsValidServiceType(serviceType string) bool {
-	switch parseServiceType(serviceType) {
+	switch ParseServiceType(serviceType) {
 	case Postgres, MySQL, MongoDB, Redis, Elasticsearch:
 		return true
 	}

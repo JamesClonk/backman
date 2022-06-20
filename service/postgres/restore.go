@@ -8,16 +8,16 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 
-	"github.com/cloudfoundry-community/go-cfenv"
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/s3"
 	"github.com/swisscom/backman/state"
 )
 
-func Restore(ctx context.Context, s3 *s3.Client, service config.Service, binding *cfenv.Service, objectPath string) error {
+func Restore(ctx context.Context, s3 *s3.Client, service config.Service, target config.Service, objectPath string) error {
 	state.RestoreQueue(service)
 
 	// lock global postgres mutex, only 1 backup of this service-type is allowed to run in parallel
@@ -28,18 +28,17 @@ func Restore(ctx context.Context, s3 *s3.Client, service config.Service, binding
 	filename := filepath.Base(objectPath)
 	state.RestoreStart(service, filename)
 
-	credentials := GetCredentials(binding)
-	os.Setenv("PGUSER", credentials.Username)
-	os.Setenv("PGPASSWORD", credentials.Password)
-	os.Setenv("PGHOST", credentials.Hostname)
-	os.Setenv("PGPORT", credentials.Port)
+	os.Setenv("PGUSER", target.Binding.Username)
+	os.Setenv("PGPASSWORD", target.Binding.Password)
+	os.Setenv("PGHOST", target.Binding.Host)
+	os.Setenv("PGPORT", strconv.Itoa(target.Binding.Port))
 
 	// prepare postgres restore command
 	var command []string
 	command = append(command, "psql")
 	command = append(command, "--quiet")
 	command = append(command, service.RestoreOptions...)
-	command = append(command, credentials.Database)
+	command = append(command, target.Binding.Database)
 
 	log.Debugf("executing postgres restore command: %v", strings.Join(command, " "))
 	cmd := exec.CommandContext(ctx, command[0], command[1:]...)

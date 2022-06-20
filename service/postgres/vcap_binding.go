@@ -14,16 +14,16 @@ type Credentials struct {
 	Database string
 	Username string
 	Password string
-	Port     string
+	Port     int
 }
 
-func IsPostgresBinding(binding *cfenv.Service) bool {
-	c := GetCredentials(binding)
+func IsVCAPPostgresBinding(binding *cfenv.Service) bool {
+	c := GetVCAPCredentials(binding)
 	if len(c.Hostname) > 0 &&
 		len(c.Database) > 0 &&
 		len(c.Username) > 0 &&
 		len(c.Password) > 0 &&
-		len(c.Port) > 0 {
+		c.Port > 0 {
 		for key := range binding.Credentials {
 			switch key {
 			case "database_uri", "jdbcUrl", "jdbc_url", "url", "uri":
@@ -36,7 +36,7 @@ func IsPostgresBinding(binding *cfenv.Service) bool {
 	return false
 }
 
-func GetCredentials(binding *cfenv.Service) *Credentials {
+func GetVCAPCredentials(binding *cfenv.Service) *Credentials {
 	host, _ := binding.CredentialString("host")
 	hostname, _ := binding.CredentialString("hostname")
 	database, _ := binding.CredentialString("database")
@@ -93,11 +93,12 @@ func GetCredentials(binding *cfenv.Service) *Credentials {
 		}
 	}
 
+	portnum, _ := strconv.Atoi(port)
 	return &Credentials{
 		Hostname: hostname,
 		Database: database,
 		Username: username,
 		Password: password,
-		Port:     port,
+		Port:     portnum,
 	}
 }

@@ -1,9 +1,8 @@
-package mysql
+package redis
 
 import (
 	"net"
 	"net/url"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -12,23 +11,19 @@ import (
 
 type Credentials struct {
 	Hostname string
-	Database string
-	Username string
+	Port     int
 	Password string
-	Port     string
 }
 
-func IsMySQLBinding(binding *cfenv.Service) bool {
-	c := GetCredentials(binding)
+func IsVCAPRedisBinding(binding *cfenv.Service) bool {
+	c := GetVCAPCredentials(binding)
 	if len(c.Hostname) > 0 &&
-		len(c.Database) > 0 &&
-		len(c.Username) > 0 &&
 		len(c.Password) > 0 &&
-		len(c.Port) > 0 {
+		c.Port > 0 {
 		for key := range binding.Credentials {
 			switch key {
-			case "database_uri", "jdbcUrl", "jdbc_url", "url", "uri":
-				if uri, _ := binding.CredentialString(key); len(uri) > 0 && strings.Contains(uri, "mysql://") {
+			case "host", "hostname", "master", "database_uri", "jdbcUrl", "jdbc_url", "url", "uri":
+				if uri, _ := binding.CredentialString(key); len(uri) > 0 && strings.Contains(uri, "redis://") {
 					return true
 				}
 			}
@@ -37,11 +32,9 @@ func IsMySQLBinding(binding *cfenv.Service) bool {
 	return false
 }
 
-func GetCredentials(binding *cfenv.Service) *Credentials {
+func GetVCAPCredentials(binding *cfenv.Service) *Credentials {
 	host, _ := binding.CredentialString("host")
 	hostname, _ := binding.CredentialString("hostname")
-	database, _ := binding.CredentialString("database")
-	username, _ := binding.CredentialString("username")
 	password, _ := binding.CredentialString("password")
 	port, _ := binding.CredentialString("port")
 
@@ -53,6 +46,9 @@ func GetCredentials(binding *cfenv.Service) *Credentials {
 			port = strconv.Itoa(p.(int))
 		}
 	}
+	if len(hostname) == 0 && !strings.Contains(host, ":") {
+		hostname = host
+	}
 
 	// figure out hostname & port from host if still missing
 	if len(hostname) == 0 || len(port) == 0 {
@@ -63,19 +59,13 @@ func GetCredentials(binding *cfenv.Service) *Credentials {
 			}
 		}
 	}
-	if len(hostname) == 0 && len(host) > 0 && !strings.Contains(host, ":") {
-		hostname = host
-	}
 
 	// figure out credentials from URL if still missing
 	for key := range binding.Credentials {
 		switch key {
-		case "database_uri", "jdbcUrl", "jdbc_url", "url", "uri":
-			if uri, _ := binding.CredentialString(key); len(uri) > 0 && strings.Contains(uri, "mysql://") {
+		case "host", "hostname", "master", "database_uri", "jdbcUrl", "jdbc_url", "url", "uri":
+			if uri, _ := binding.CredentialString(key); len(uri) > 0 && strings.Contains(uri, "redis://") {
 				if u, err := url.Parse(uri); err == nil {
-					if len(username) == 0 {
-						username = u.User.Username()
-					}
 					if len(password) == 0 {
 						p, _ := u.User.Password()
 						password = p
@@ -88,22 +78,15 @@ func GetCredentials(binding *cfenv.Service) *Credentials {
 					if len(port) == 0 {
 						port = p
 					}
-
-					if len(database) == 0 {
-						database = strings.TrimPrefix(u.Path, "/")
-						rx := regexp.MustCompile(`([^\?]*)\?.*`) // trim connection options
-						database = rx.ReplaceAllString(database, "${1}")
-					}
 				}
 			}
 		}
 	}
 
+	portnum, _ := strconv.Atoi(port)
 	return &Credentials{
 		Hostname: hostname,
-		Database: database,
-		Username: username,
+		Port:     portnum,
 		Password: password,
-		Port:     port,
 	}
 }

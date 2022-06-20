@@ -5,12 +5,18 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	cfenv "github.com/cloudfoundry-community/go-cfenv"
 	"github.com/minio/minio-go/v6"
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
+)
+
+var (
+	client Client
+	once   sync.Once
 )
 
 // Client is used interact with S3 storage
@@ -22,7 +28,14 @@ type Client struct {
 	SecretKey  string
 }
 
-func New(app *cfenv.App) *Client {
+func Get() *Client {
+	once.Do(func() {
+		client = *new()
+	})
+	return &client
+}
+
+func new() *Client {
 	serviceType := config.Get().S3.ServiceType
 	if len(serviceType) == 0 {
 		serviceType = config.Get().S3.ServiceLabel // use service_label to be backwards compatible to VCAP_SERVICES
@@ -36,6 +49,10 @@ func New(app *cfenv.App) *Client {
 	// TODO: if not, fallback to finding service_type S3 / specific s3.service_name in Config.Services.Binding
 
 	// TODO: if not found either, fallback to old VCAP_SERVICES lookup
+	app, err := cfenv.Current()
+	if err != nil {
+		log.Fatalf("%v", err) // TODO: don't fatal anymore here!!
+	}
 
 	// setup minio/s3 client
 	var s3Service cfenv.Service

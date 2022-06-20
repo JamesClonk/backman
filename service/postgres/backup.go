@@ -10,11 +10,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/cloudfoundry-community/go-cfenv"
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/s3"
@@ -23,7 +23,7 @@ import (
 
 var pgMutex = &sync.Mutex{}
 
-func Backup(ctx context.Context, s3 *s3.Client, service config.Service, binding *cfenv.Service, filename string) error {
+func Backup(ctx context.Context, s3 *s3.Client, service config.Service, filename string) error {
 	state.BackupQueue(service)
 
 	// lock global postgres mutex, only 1 backup of this service-type is allowed to run in parallel
@@ -33,17 +33,16 @@ func Backup(ctx context.Context, s3 *s3.Client, service config.Service, binding 
 
 	state.BackupStart(service, filename)
 
-	credentials := GetCredentials(binding)
-	os.Setenv("PGUSER", credentials.Username)
-	os.Setenv("PGPASSWORD", credentials.Password)
-	os.Setenv("PGHOST", credentials.Hostname)
-	os.Setenv("PGPORT", credentials.Port)
+	os.Setenv("PGUSER", service.Binding.Username)
+	os.Setenv("PGPASSWORD", service.Binding.Password)
+	os.Setenv("PGHOST", service.Binding.Host)
+	os.Setenv("PGPORT", strconv.Itoa(service.Binding.Port))
 
 	// prepare postgres dump command
 	var command []string
-	if len(credentials.Database) > 0 {
+	if len(service.Binding.Database) > 0 {
 		command = append(command, "pg_dump")
-		command = append(command, credentials.Database)
+		command = append(command, service.Binding.Database)
 		command = append(command, "-C")
 	} else {
 		command = append(command, "pg_dumpall")

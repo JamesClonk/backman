@@ -13,7 +13,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cloudfoundry-community/go-cfenv"
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/s3"
@@ -22,7 +21,7 @@ import (
 
 var esMutex = &sync.Mutex{}
 
-func Backup(ctx context.Context, s3 *s3.Client, service config.Service, binding *cfenv.Service, filename string) error {
+func Backup(ctx context.Context, s3 *s3.Client, service config.Service, filename string) error {
 	state.BackupQueue(service)
 
 	// lock global elasticsearch mutex, only 1 backup/restore operation of this service-type is allowed to run in parallel
@@ -31,17 +30,8 @@ func Backup(ctx context.Context, s3 *s3.Client, service config.Service, binding 
 
 	state.BackupStart(service, filename)
 
-	username, _ := binding.CredentialString("full_access_username")
-	password, _ := binding.CredentialString("full_access_password")
-	if len(username) == 0 {
-		username, _ = binding.CredentialString("username")
-	}
-	if len(password) == 0 {
-		password, _ = binding.CredentialString("password")
-	}
-
 	u, _ := url.Parse(service.Binding.Host)
-	connectstring := fmt.Sprintf("%s://%s:%s@%s", u.Scheme, url.PathEscape(username), url.PathEscape(password), u.Host)
+	connectstring := fmt.Sprintf("%s://%s:%s@%s", u.Scheme, url.PathEscape(service.Binding.Username), url.PathEscape(service.Binding.Password), u.Host)
 	objectPath := fmt.Sprintf("%s/%s/%s", service.Binding.Type, service.Name, filename)
 
 	// prepare elasticdump command

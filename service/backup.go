@@ -14,6 +14,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
+	"github.com/swisscom/backman/s3"
 	"github.com/swisscom/backman/service/elasticsearch"
 	"github.com/swisscom/backman/service/mongodb"
 	"github.com/swisscom/backman/service/mysql"
@@ -53,30 +54,25 @@ type File struct {
 // swagger:response backups
 type Backups []Backup
 
-func (s *Service) Backup(service config.Service) error {
+func CreateBackup(service config.Service) error {
 	filename := fmt.Sprintf("%s_%s.gz", service.Name, time.Now().Format("20060102150405"))
 
-	envService, err := s.App.Services.WithName(service.Name)
-	if err != nil {
-		log.Errorf("could not find service [%s] to backup: %v", service.Name, err)
-		return err
-	}
-
 	// ctx to abort backup if this takes longer than defined timeout
-	ctx, cancel := context.WithTimeout(context.Background(), service.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), service.Timeout.Duration)
 	defer cancel()
 
+	var err error
 	switch service.Type() {
 	case config.MongoDB:
-		err = mongodb.Backup(ctx, s.S3, service, envService, filename)
+		err = mongodb.Backup(ctx, s3.Get(), service, filename)
 	case config.Redis:
-		err = redis.Backup(ctx, s.S3, service, envService, filename)
+		err = redis.Backup(ctx, s3.Get(), service, filename)
 	case config.MySQL:
-		err = mysql.Backup(ctx, s.S3, service, envService, filename)
+		err = mysql.Backup(ctx, s3.Get(), service, filename)
 	case config.Postgres:
-		err = postgres.Backup(ctx, s.S3, service, envService, filename)
+		err = postgres.Backup(ctx, s3.Get(), service, filename)
 	case config.Elasticsearch:
-		err = elasticsearch.Backup(ctx, s.S3, service, envService, filename)
+		err = elasticsearch.Backup(ctx, s3.Get(), service, filename)
 	default:
 		err = fmt.Errorf("unsupported service type [%s]", service.Binding.Type)
 	}
@@ -90,23 +86,23 @@ func (s *Service) Backup(service config.Service) error {
 	if !config.Get().Foreground {
 		// cleanup files according to retention policy of service
 		go func() {
-			if err := s.RetentionCleanup(service); err != nil {
+			if err := RetentionCleanup(service); err != nil {
 				log.Errorf("could not cleanup S3 storage for service [%s]: %v", service.Name, err)
 			}
 
 			// update backup files state & metrics
-			_, _ = s.GetBackups(service.Binding.Type, service.Name)
+			_, _ = GetBackups(service.Binding.Type, service.Name)
 		}()
 	}
 	return err
 }
 
-func (s *Service) GetBackups(serviceType, serviceName string) ([]Backup, error) {
+func GetBackups(serviceType, serviceName string) ([]Backup, error) {
 	backups := make([]Backup, 0)
 
-	for _, service := range s.GetServices(serviceType, serviceName) {
+	for _, service := range GetServices(serviceType, serviceName) {
 		objectPath := fmt.Sprintf("%s/%s/", service.Binding.Type, service.Name)
-		objects, err := s.S3.List(objectPath)
+		objects, err := s3.Get().List(objectPath)
 		if err != nil {
 			log.Errorf("could not list S3 objects: %v", err)
 			return nil, err
@@ -159,16 +155,16 @@ func (s *Service) GetBackups(serviceType, serviceName string) ([]Backup, error) 
 	return backups, nil
 }
 
-func (s *Service) GetBackup(serviceType, serviceName, filename string) (*Backup, error) {
+func GetBackup(serviceType, serviceName, filename string) (*Backup, error) {
 	objectPath := fmt.Sprintf("%s/%s/%s", serviceType, serviceName, filename)
 
-	obj, err := s.S3.Stat(objectPath)
+	obj, err := s3.Get().Stat(objectPath)
 	if err != nil {
 		log.Errorf("could not find backup file [%s]: %v", objectPath, err)
 		return nil, err
 	}
 	return &Backup{
-		Service: s.GetService(serviceType, serviceName),
+		Service: GetService(serviceType, serviceName),
 		Files: []File{
 			File{
 				Key:          obj.Key,
@@ -181,18 +177,18 @@ func (s *Service) GetBackup(serviceType, serviceName, filename string) (*Backup,
 	}, err
 }
 
-func (s *Service) BackupExists(serviceType, serviceName, filename string) bool {
-	b, _ := s.GetBackup(serviceType, serviceName, filename)
+func BackupExists(serviceType, serviceName, filename string) bool {
+	b, _ := GetBackup(serviceType, serviceName, filename)
 	return b.Files[0].Size > 0
 }
 
-func (s *Service) ReadBackup(serviceType, serviceName, filename string) (io.Reader, error) {
+func ReadBackup(serviceType, serviceName, filename string) (io.Reader, error) {
 	objectPath := fmt.Sprintf("%s/%s/%s", serviceType, serviceName, filename)
-	return s.S3.Download(objectPath)
+	return s3.Get().Download(objectPath)
 }
 
-func (s *Service) DownloadBackup(serviceType, serviceName, filename string) (*os.File, error) {
-	object, err := s.ReadBackup(serviceType, serviceName, filename)
+func DownloadBackup(serviceType, serviceName, filename string) (*os.File, error) {
+	object, err := ReadBackup(serviceType, serviceName, filename)
 	if err != nil {
 		log.Errorf("could not download backup file [%s]: %v", object, err)
 		return nil, err
@@ -211,9 +207,9 @@ func (s *Service) DownloadBackup(serviceType, serviceName, filename string) (*os
 	return localFile, nil
 }
 
-func (s *Service) DeleteBackup(serviceType, serviceName, filename string) error {
+func DeleteBackup(serviceType, serviceName, filename string) error {
 	objectPath := fmt.Sprintf("%s/%s/%s", serviceType, serviceName, filename)
-	if err := s.S3.Delete(objectPath); err != nil {
+	if err := s3.Get().Delete(objectPath); err != nil {
 		log.Errorf("could not delete S3 object [%s]: %v", objectPath, err)
 		return err
 	}
@@ -221,7 +217,7 @@ func (s *Service) DeleteBackup(serviceType, serviceName, filename string) error 
 
 	// update backup files state & metrics
 	go func(serviceType, name string) {
-		_, _ = s.GetBackups(serviceType, name)
+		_, _ = GetBackups(serviceType, name)
 	}(serviceType, serviceName)
 
 	return nil
