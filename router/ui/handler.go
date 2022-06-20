@@ -34,6 +34,11 @@ type Page struct {
 func New() *Handler {
 	services := make(map[string][]config.Service)
 	for _, s := range config.Get().Services {
+		// skip services without bindings, they are useless to us
+		if len(s.Binding.Type) == 0 {
+			continue
+		}
+
 		if _, exists := services[s.Binding.Type]; !exists {
 			services[s.Binding.Type] = make([]config.Service, 0)
 		}

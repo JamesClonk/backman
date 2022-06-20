@@ -58,6 +58,8 @@ func (h *Handler) RestoreBackup(c echo.Context) error {
 			log.Errorf("%v", err)
 			return c.JSON(http.StatusNotFound, err.Error())
 		}
+	} else {
+		targetService = serviceInstance
 	}
 
 	go func() { // async

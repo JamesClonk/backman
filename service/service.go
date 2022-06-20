@@ -11,6 +11,11 @@ func Init() {
 
 	// setup service metrics
 	for _, service := range config.Get().Services {
+		// skip services without bindings, they are useless to us
+		if len(service.Binding.Type) == 0 {
+			continue
+		}
+
 		// init prometheus state metrics to 0
 		state.BackupInit(service)
 		state.RestoreInit(service)
@@ -47,6 +52,10 @@ func GetServices(serviceType, serviceName string) []config.Service {
 		// list all services
 		services := make([]config.Service, 0)
 		for _, service := range config.Get().Services {
+			// skip services without bindings, they are useless to us
+			if len(service.Binding.Type) == 0 {
+				continue
+			}
 			services = append(services, service)
 		}
 		return services

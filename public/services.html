@@ -25,10 +25,10 @@
 					{{ range $service := $services }}
 					<tr>
 						<td><a class="link" href="/service/{{ $service.Binding.Type }}/{{ $service.Name }}">{{ $service.Name }}</a></td>
-						<td>{{ if $service.Binding.Provider }}{{ $service.Binding.Provider }}{{ else }}{{ $service.Binding.Plan }}{{ end }}</td>
+						<td>{{ if and $service.Binding.Provider $service.Binding.Plan }}{{ $service.Binding.Provider }} / {{ $service.Binding.Plan }}{{ else }}{{ if $service.Binding.Provider }}{{ $service.Binding.Provider }}{{ else }}{{ $service.Binding.Plan }}{{ end }}{{ end }}</td>
 						<td>{{ $service.Schedule }}</td>
 						<td>{{ $service.Retention.Days }} days / {{ $service.Retention.Files }} files</td>
-						<td>{{ Duration $service.Timeout }}</td>
+						<td>{{ Duration $service.Timeout.Duration }}</td>
 					</tr>
 					{{ end }}
 				</tbody>

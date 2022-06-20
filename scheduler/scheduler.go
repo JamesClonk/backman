@@ -39,6 +39,11 @@ func RegisterBackups() {
 	log.Infoln("registering service backups in scheduler")
 
 	for _, s := range config.Get().Services {
+		// skip services without bindings, they are useless to us
+		if len(s.Binding.Type) == 0 {
+			continue
+		}
+
 		sCopy := s
 		fn := func() { Run(sCopy) }
 		if err := c.AddFunc(s.Schedule, fn); err != nil {
