@@ -2,12 +2,19 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"os"
 	"strings"
 	"sync"
+	"time"
 )
+
+func init() {
+	rand.Seed(time.Now().UTC().UnixNano())
+}
 
 var (
 	config     Config
@@ -89,11 +96,11 @@ func new() *Config {
 	}
 
 	// now load and overwrite with env provided config, if it exists
-	env := os.Getenv("BACKMAN_CONFIG")
+	env := os.Getenv(BackmanConfig)
 	if len(env) > 0 {
 		envConfig := Config{}
 		if err := json.Unmarshal([]byte(env), &envConfig); err != nil {
-			log.Println("could not parse environment variable 'BACKMAN_CONFIG'")
+			log.Printf("could not parse environment variable '%s'\n", BackmanConfig)
 			log.Fatalln(err.Error())
 		}
 
@@ -266,5 +273,43 @@ func new() *Config {
 
 		config.Notifications.Teams.Events = events
 	}
+
+	// parse service bindings
+	parseServiceBindings()
+	// validate services and set (missing) default values
+	ValidateServices()
+
 	return &config
+}
+
+func ValidateServices() {
+	for serviceName, service := range config.Services {
+		service.Name = serviceName // service name must be the map-key
+
+		// read timeout for service
+		if service.Timeout.Seconds() <= 1 {
+			service.Timeout.Duration = 1 * time.Hour // default
+		}
+
+		// read crontab schedule for service
+		if len(service.Schedule) == 0 {
+			// create a random schedule for daily backup as a fallback
+			service.Schedule = fmt.Sprintf("%d %d %d * * *", rand.Intn(59), rand.Intn(59), rand.Intn(23))
+		}
+
+		// read retention days & files, with defaults as fallback
+		if service.Retention.Days <= 0 {
+			service.Retention.Days = 31 // default
+		}
+		if service.Retention.Files <= 0 {
+			service.Retention.Files = 100 // default
+		}
+
+		// write values back
+		config.Services[serviceName] = service
+	}
+}
+
+func parseServiceBindings() {
+	// TODO: this needs to be implemented, parse SERVICE_BINDING_ROOT/<services> here..
 }

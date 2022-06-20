@@ -34,6 +34,9 @@ func init() {
 
 	// setup logger
 	log.Init()
+
+	// setup service instances
+	service.Init()
 }
 
 //go:generate swagger generate spec
