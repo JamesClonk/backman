@@ -10,7 +10,7 @@ fi
 echo $PWD
 
 # =============================================================================================
-source .env
+source .env # use BACKMAN_CONFIG, layered with _fixtures/config_without_bindings.json
 
 # =============================================================================================
 retry() {
@@ -42,7 +42,7 @@ echo "testing mongodb integration ..."
 sleep 5
 # starting backman
 killall backman || true
-./backman 2>&1 &
+./backman -config _fixtures/config_without_bindings.json 2>&1 &
 sleep 5
 
 set -x
