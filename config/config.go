@@ -242,6 +242,9 @@ func new() *Config {
 	if config.Port == 0 {
 		config.Port, _ = strconv.Atoi(os.Getenv(BackmanPort))
 	}
+	if config.Port == 0 {
+		config.Port = 8080 // fallback
+	}
 
 	// set loglevel if missing
 	if len(config.LogLevel) == 0 {

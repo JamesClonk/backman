@@ -9,7 +9,7 @@ import (
 
 func Test_Config_Get(t *testing.T) {
 	_ = os.Chdir("../")
-	SetConfigFile("_fixtures/config.json")
+	SetConfigFile("_fixtures/config_without_bindings.json")
 
 	os.Setenv("BACKMAN_PASSWORD", "McClane")
 

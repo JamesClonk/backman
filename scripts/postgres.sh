@@ -10,7 +10,8 @@ fi
 echo $PWD
 
 # =============================================================================================
-source .env
+# source .env # do NOT source any env vars at all for this test, we rely entirely on _fixtures/config_with_bindings.json
+export PORT="9990"
 
 # =============================================================================================
 retry() {
@@ -43,7 +44,7 @@ echo "testing postgres integration ..."
 sleep 5
 # starting backman
 killall backman || true
-./backman 2>&1 &
+./backman -config _fixtures/config_with_bindings.json 2>&1 &
 sleep 5
 
 set -x

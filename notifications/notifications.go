@@ -35,7 +35,9 @@ func newNotificationService(config *config.Config) *NotificationService {
 	notifiers := make([]Notifier, 0)
 
 	//notifiers = append(notifiers, slack.Get(config.Notifications))
-	notifiers = append(notifiers, teams.Get(config.Notifications))
+	if len(config.Notifications.Teams.Webhook) > 0 {
+		notifiers = append(notifiers, teams.Get(config.Notifications))
+	}
 	//notifiers = append(notifiers, discord.Get(config.Notifications))
 
 	return &NotificationService{

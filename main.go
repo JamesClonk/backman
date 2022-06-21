@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"time"
 
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
@@ -44,6 +45,7 @@ func init() {
 
 //go:generate swagger generate spec
 func main() {
+	time.Sleep(1 * time.Second) // wait for init
 	log.Infoln("starting up backman ...")
 
 	// check if an immediate backup/restore should run, in non-background mode. otherwise continue and start scheduler
@@ -56,7 +58,7 @@ func main() {
 
 	// serve API & UI
 	r := router.New()
-	log.Fatalf("%v", r.Start())
+	log.Fatalf("failed to start HTTP router: %v", r.Start())
 }
 
 func runNow() bool {

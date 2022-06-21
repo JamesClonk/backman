@@ -53,6 +53,34 @@ func parseVCAPServices() ([]config.Service, error) {
 				vcapService.Label == "dynstrg-2" ||
 				vcapService.Label == "dynstrg-3" ||
 				vcapService.Label == "minio" {
+				// but we will save its credentials into config.S3.* if not already present
+
+				// this check here is necessary since there could be multiple possible S3 services in VCAP_SERVICES
+				if len(config.Get().S3.ServiceName) > 0 && vcapService.Name != config.Get().S3.ServiceName {
+					continue // this does not seem to be the specific S3 service the user wants to use for storing backups
+				}
+
+				if len(config.Get().S3.BucketName) == 0 { // fallback to service binding's name
+					config.Get().S3.BucketName = vcapService.Name
+				}
+				if len(config.Get().S3.Host) == 0 {
+					config.Get().S3.Host, _ = vcapService.CredentialString("accessHost")
+				}
+				if len(config.Get().S3.Host) == 0 {
+					config.Get().S3.Host, _ = vcapService.CredentialString("host")
+				}
+				if len(config.Get().S3.AccessKey) == 0 {
+					config.Get().S3.AccessKey, _ = vcapService.CredentialString("accessKey")
+				}
+				if len(config.Get().S3.AccessKey) == 0 {
+					config.Get().S3.AccessKey, _ = vcapService.CredentialString("access_Key")
+				}
+				if len(config.Get().S3.SecretKey) == 0 {
+					config.Get().S3.SecretKey, _ = vcapService.CredentialString("sharedSecret")
+				}
+				if len(config.Get().S3.SecretKey) == 0 {
+					config.Get().S3.SecretKey, _ = vcapService.CredentialString("secret_key")
+				}
 				continue
 			}
 

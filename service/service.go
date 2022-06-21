@@ -3,6 +3,11 @@ package service
 import (
 	"fmt"
 	"math/rand"
+	"net"
+	"net/url"
+	"regexp"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/swisscom/backman/config"
@@ -65,9 +70,53 @@ func validateServices() {
 			service.Retention.Files = 100 // default
 		}
 
+		// validate and enrich service bindings too
+		service.Binding = enrichBinding(service.Binding)
+
 		// write values back
 		config.Get().Services[serviceName] = service
 	}
+}
+
+func enrichBinding(binding config.ServiceBinding) config.ServiceBinding {
+	// figure out hostname & port from host if still missing
+	if binding.Port == 0 {
+		if len(binding.Host) > 0 && strings.Contains(binding.Host, ":") {
+			if u, err := url.Parse(binding.Host); err == nil {
+				binding.Host = u.Hostname()
+				binding.Port, _ = strconv.Atoi(u.Port())
+			}
+		}
+	}
+
+	// figure out credentials from URI if missing
+	if len(binding.URI) > 0 && strings.Contains(binding.URI, "://") {
+		if u, err := url.Parse(binding.URI); err == nil {
+			if len(binding.Username) == 0 {
+				binding.Username = u.User.Username()
+			}
+			if len(binding.Password) == 0 {
+				p, _ := u.User.Password()
+				binding.Password = p
+			}
+
+			h, p, _ := net.SplitHostPort(u.Host)
+			if len(binding.Host) == 0 {
+				binding.Host = h
+			}
+			if binding.Port == 0 {
+				binding.Port, _ = strconv.Atoi(p)
+			}
+
+			if len(binding.Database) == 0 {
+				binding.Database = strings.TrimPrefix(u.Path, "/")
+				rx := regexp.MustCompile(`([^\?]*)\?.*`) // trim connection options
+				binding.Database = rx.ReplaceAllString(binding.Database, "${1}")
+			}
+		}
+	}
+
+	return binding
 }
 
 func GetServices(serviceType, serviceName string) []config.Service {
