@@ -24,16 +24,22 @@
 		"my_postgres_db": {
 			"schedule": "0 0 2 * * *",
 			"timeout": "15m",
-			"service_binding": {
-				"provider": "for_testing",
-				"type": "postgres",
-				"uri": "postgres://dev-user:dev-secret@127.0.0.1:5432/my_postgres_db?sslmode=disable"
-			},
 			"retention": {
 				"days": 5,
 				"files": 5
 			},
-			"local_backup_path": "./_fixtures/output//"
+			"local_backup_path": "./_fixtures/output/"
+		},
+		"my-redis": {
+			"schedule": "0 0 2 * * *",
+			"service_binding": {
+				"type": "redis-2",
+				"plan": "small",
+				"host": "127.0.0.1",
+				"master_port": 6379,
+				"password": "very-secret",
+				"port": 6379
+			}
 		}
 	}
 }

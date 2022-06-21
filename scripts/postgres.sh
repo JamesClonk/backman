@@ -10,8 +10,11 @@ fi
 echo $PWD
 
 # =============================================================================================
-# source .env # do NOT source any env vars at all for this test, we rely entirely on _fixtures/config_with_bindings.json
+# source .env # do NOT source any env vars at all for this test, we rely entirely on _fixtures/config_with_bindings.json and SERVICE_BINDING_ROOT (_fixtures/bindings/*)
+unset BACKMAN_CONFIG
+unset VCAP_SERVICES
 export PORT="9990"
+export SERVICE_BINDING_ROOT="_fixtures/bindings"
 
 # =============================================================================================
 retry() {
