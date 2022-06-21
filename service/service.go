@@ -15,10 +15,10 @@ func init() {
 }
 
 func Init() {
-	mergeServiceBindings() // finds and merges SERVICE_BINDING_ROOT/<service> into config.Services
-	mergeVCAPServices()    // finds and merges VCAP_SERVICES into config.Services
+	mergeServiceBindings() // find and merge SERVICE_BINDING_ROOT/<service> into config.Services
+	mergeVCAPServices()    // find and merge VCAP_SERVICES into config.Services
 
-	validateServices() // final validation of all service instances in config.Services
+	validateServices() // final validation of all service instances in config.Services, enrich default values
 
 	// setup service metrics
 	for _, service := range config.Get().Services {
@@ -44,7 +44,7 @@ func validateServices() {
 			continue
 		}
 
-		service.Name = serviceName // service name must be the map-key
+		service.Name = serviceName // service name must be the same as map-key
 
 		// read timeout for service
 		if service.Timeout.Seconds() <= 1 {
@@ -72,6 +72,7 @@ func validateServices() {
 
 func GetServices(serviceType, serviceName string) []config.Service {
 	services := make([]config.Service, 0)
+
 	if len(serviceName) > 0 {
 		// list only a specific service binding
 		for _, service := range config.Get().Services {
@@ -80,7 +81,6 @@ func GetServices(serviceType, serviceName string) []config.Service {
 				break
 			}
 		}
-
 	} else if len(serviceType) > 0 {
 		// list services only for a specific service type
 		for _, service := range config.Get().Services {
@@ -88,19 +88,18 @@ func GetServices(serviceType, serviceName string) []config.Service {
 				services = append(services, service)
 			}
 		}
-
 	} else {
 		// list all services
-		services := make([]config.Service, 0)
 		for _, service := range config.Get().Services {
 			services = append(services, service)
 		}
-		return services
 	}
+
 	return services
 }
 
 func GetService(serviceType, serviceName string) config.Service {
+	// find and return the specific service instance
 	for _, service := range config.Get().Services {
 		if service.Name == serviceName && service.Binding.Type == serviceType {
 			return service

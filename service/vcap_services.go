@@ -36,6 +36,7 @@ func mergeVCAPServices() {
 }
 
 func parseVCAPServices() ([]config.Service, error) {
+	// read VCAP_SERVICES environment variable and go through all services in there
 	app, err := cfenv.Current()
 	if err != nil {
 		return nil, fmt.Errorf("could not parse VCAP_*: %v", err)
@@ -66,8 +67,19 @@ func parseVCAPServices() ([]config.Service, error) {
 				} else if redis.IsVCAPRedisBinding(&vcapService) { // or a redis binding?
 					vcapService.Label = "redis"
 				} else {
-					log.Errorf("unsupported service type [%s]: could not identify [%s]", vcapService.Label, vcapService.Name)
-					continue // cannot handle this service binding
+					// try to guess it via service tags as a last resort
+					var identified bool
+					for _, tag := range vcapService.Tags {
+						if config.IsValidServiceType(tag) {
+							identified = true
+							vcapService.Label = tag
+							break
+						}
+					}
+					if !identified {
+						log.Errorf("unsupported service type [%s]: could not identify [%s]", vcapService.Label, vcapService.Name)
+						continue // cannot handle this service binding
+					}
 				}
 			}
 
@@ -114,7 +126,7 @@ func parseVCAPServices() ([]config.Service, error) {
 				binding.Database = credentials.Database
 
 			case config.Postgres:
-				credentials := mysql.GetVCAPCredentials(&vcapService)
+				credentials := postgres.GetVCAPCredentials(&vcapService)
 				binding.Host = credentials.Hostname
 				binding.Port = credentials.Port
 				binding.URI, _ = vcapService.CredentialString("uri")
