@@ -41,7 +41,7 @@ appcloud-backman-app
 backman-app
 backman
 /tmp
-_fixtures/*
+_fixtures/output/*
 /.idea/
 snyk.sarif
 trivy.sarif
