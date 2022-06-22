@@ -14,20 +14,6 @@ import (
 )
 
 func RestoreBackup(service config.Service, target config.Service, filename string) error {
-	// TODO: remove commented lines below after we dont need them for refacting anymore
-	// envService, err := s.App.Services.WithName(service.Name)
-	// if err != nil {
-	// 	log.Errorf("could not find service [%s] to restore: %v", service.Name, err)
-	// 	return err
-	// }
-	// if len(target.Name) > 0 {
-	// 	envService, err = s.App.Services.WithName(target.Name)
-	// 	if err != nil {
-	// 		log.Errorf("could not find target service [%s] to restore: %v", target.Name, err)
-	// 		return err
-	// 	}
-	// }
-
 	// ctx to abort restore if this takes longer than defined timeout
 	ctx, cancel := context.WithTimeout(context.Background(), service.Timeout.Duration)
 	defer cancel()

@@ -51,7 +51,7 @@ sleep 5
 # starting backman
 killall backman || true
 ./backman -config _fixtures/config_with_bindings.json 2>&1 &
-sleep 5
+sleep 10
 
 set -x
 if [ $(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:9990) != "401" ]; then
