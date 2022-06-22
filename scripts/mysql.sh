@@ -10,6 +10,8 @@ fi
 echo $PWD
 
 # =============================================================================================
+unset BACKMAN_CONFIG
+unset VCAP_SERVICES
 source _fixtures/env_for_mysql # use only BACKMAN_CONFIG and VCAP_SERVICES
 
 # =============================================================================================
@@ -64,7 +66,7 @@ fi
 curl -s http://john:doe@127.0.0.1:9990/api/v1/state/mysql/my_mysql_db | grep '"Status":"idle"'
 
 # write to mysql
-mysql -h 127.0.0.1 -u root -D mysql <<EOF
+mysql -h 127.0.0.1 -u root -D mysql <<EOF || true
 CREATE TABLE test_example (my_column text);
 INSERT INTO test_example (my_column) VALUES ('my_backup_value');
 EOF

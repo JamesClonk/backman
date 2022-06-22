@@ -86,7 +86,7 @@ func Restore(ctx context.Context, s3 *s3.Client, service config.Service, target 
 			log.Errorf("could not copy backup to cmd's stdin: %v", err)
 			return
 		}
-		log.Infof("Copied %d bytes of backup", bytesRead)
+		log.Infof("copied %d bytes of backup", bytesRead)
 	}()
 
 	// print out stdout/stderr

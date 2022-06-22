@@ -10,6 +10,8 @@ fi
 echo $PWD
 
 # =============================================================================================
+unset BACKMAN_CONFIG
+unset VCAP_SERVICES
 source _fixtures/env_for_mongodb # use BACKMAN_CONFIG, layered with _fixtures/config_with_bindings.json (S3 config)
 
 # =============================================================================================
