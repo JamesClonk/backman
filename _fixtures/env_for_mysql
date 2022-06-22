@@ -32,7 +32,6 @@ export BACKMAN_CONFIG='{
     "my_mysql_db": {
       "schedule": "0 0 2 * * *",
       "timeout": "35m",
-      "disable_column_statistics": true,
       "force_import": true,
       "service_binding": {
         "type": "mysql",
