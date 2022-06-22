@@ -13,12 +13,12 @@ help:
 .PHONY: run
 ## run: runs main.go with the race detector
 run:
-	source .env; source .env_*; source .env_teams; go run -race main.go
+	source _fixtures/env; source _fixtures/env_private; go run -race main.go
 
 .PHONY: gin
 ## gin: runs main.go via gin (hot reloading)
 gin:
-	source .env; source .env_*; source .env_teams;  gin --all --immediate run main.go
+	source _fixtures/env; source _fixtures/env_private;  gin --all --immediate run main.go
 
 .PHONY: build
 ## build: builds the application
@@ -41,7 +41,7 @@ install:
 .PHONY: test
 ## test: runs go test with the race detector
 test: build
-	@source .env; GOARCH=amd64 GOOS=linux go test -v -race ./...
+	@source _fixtures/env; GOARCH=amd64 GOOS=linux go test -v -race ./...
 
 .PHONY: init
 ## init: sets up go modules
@@ -65,7 +65,7 @@ docker-push: docker-build
 ## docker-run: runs docker image locally
 docker-run: docker-clean
 	docker run -p 9990:8080 \
-		--env-file .dockerenv \
+		--env-file _fixtures/dockerenv \
 		--name ${APP} \
 		jamesclonk/${APP}
 

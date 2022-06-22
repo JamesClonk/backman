@@ -30,7 +30,8 @@ _testmain.go
 .glide/
 
 # ---------
-.env_*
+.env
+.env*
 accounts.zip
 accounts.json
 testfile.dat
@@ -42,6 +43,7 @@ backman-app
 backman
 /tmp
 _fixtures/output/*
+_fixtures/env_private
 /.idea/
 snyk.sarif
 trivy.sarif
