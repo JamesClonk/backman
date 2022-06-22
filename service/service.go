@@ -12,6 +12,11 @@ import (
 
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
+	"github.com/swisscom/backman/service/elasticsearch"
+	"github.com/swisscom/backman/service/mongodb"
+	"github.com/swisscom/backman/service/mysql"
+	"github.com/swisscom/backman/service/postgres"
+	"github.com/swisscom/backman/service/redis"
 	"github.com/swisscom/backman/state"
 )
 
@@ -42,9 +47,30 @@ func Init() {
 
 func validateServices() {
 	for serviceName, service := range config.Get().Services {
-		// remove services without bindings, they are useless to us / invalid
+		// remove services without binding type, they are useless to us / invalid
 		if len(service.Binding.Type) == 0 {
-			log.Errorf("ignoring service [%s], it does not seem to have a valid binding", serviceName)
+			log.Errorf("ignoring invalid service [%s], there is no service type defined", serviceName)
+			delete(config.Get().Services, serviceName)
+			continue
+		}
+
+		// validate binding credentials for known service types
+		// each of them knows best themselves what they need or require
+		validBinding := true
+		switch service.Type() {
+		case config.Elasticsearch:
+			validBinding = elasticsearch.VerifyBinding(service)
+		case config.MongoDB:
+			validBinding = mongodb.VerifyBinding(service)
+		case config.MySQL:
+			validBinding = mysql.VerifyBinding(service)
+		case config.Postgres:
+			validBinding = postgres.VerifyBinding(service)
+		case config.Redis:
+			validBinding = redis.VerifyBinding(service)
+		}
+		if !validBinding {
+			log.Errorf("service binding for [%s] is not valid", serviceName)
 			delete(config.Get().Services, serviceName)
 			continue
 		}
