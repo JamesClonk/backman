@@ -1,7 +1,9 @@
 package service
 
 import (
+	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/nebhale/client-go/bindings"
 	"github.com/swisscom/backman/config"
@@ -43,7 +45,9 @@ func parseServiceBindings() ([]config.Service, error) {
 		port, _ := bindings.Get(serviceBinding, "port")
 		bindingPort, _ := strconv.Atoi(port)
 		bindingUsername, _ := bindings.Get(serviceBinding, "username")
+		bindingAccessKey, _ := bindings.Get(serviceBinding, "access_key") // for S3
 		bindingPassword, _ := bindings.Get(serviceBinding, "password")
+		bindingSecretKey, _ := bindings.Get(serviceBinding, "secret_key") // for S3
 		bindingDatabase, _ := bindings.Get(serviceBinding, "database")
 
 		// exclude S3 storage service, don't try to parse it as a service for backups
@@ -66,12 +70,21 @@ func parseServiceBindings() ([]config.Service, error) {
 			}
 			if len(config.Get().S3.Host) == 0 {
 				config.Get().S3.Host = bindingHost
+				if !strings.Contains(bindingHost, ":") && bindingPort > 0 {
+					config.Get().S3.Host = fmt.Sprintf("%s:%d", bindingHost, bindingPort)
+				}
 			}
 			if len(config.Get().S3.AccessKey) == 0 {
-				config.Get().S3.AccessKey = bindingUsername
+				config.Get().S3.AccessKey = bindingAccessKey
+			}
+			if len(config.Get().S3.AccessKey) == 0 {
+				config.Get().S3.AccessKey = bindingUsername // fallback to 'username' if 'access_key' was empty
 			}
 			if len(config.Get().S3.SecretKey) == 0 {
-				config.Get().S3.SecretKey = bindingPassword
+				config.Get().S3.SecretKey = bindingSecretKey
+			}
+			if len(config.Get().S3.SecretKey) == 0 {
+				config.Get().S3.SecretKey = bindingPassword // fallback to 'password' if 'secret_key' was empty
 			}
 			continue
 		}

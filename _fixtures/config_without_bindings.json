@@ -5,11 +5,12 @@
 	"disable_metrics": false,
 	"disable_restore": false,
 	"unprotected_metrics": false,
-	"username": "http_basic_auth_user_abc",
-	"password": "http_basic_auth_password_xyz",
+	"username": "john",
+	"password": "doe",
 	"s3": {
 		"service_label": "dynstrg",
-		"bucket_name": "my-database-backups"
+		"bucket_name": "my-database-backups",
+		"disable_ssl": true
 	},
 	"services": {
 		"my-elasticsearch": {

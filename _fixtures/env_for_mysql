@@ -1,11 +1,11 @@
 export PORT=9990
 export USER=vcap
 
+export BACKMAN_USERNAME="john"
+export BACKMAN_PASSWORD="doe"
 export BACKMAN_CONFIG='{
   "log_level": "debug",
   "logging_timestamp": true,
-  "username": "john",
-  "password": "doe",
   "disable_web": false,
   "disable_metrics": false,
   "disable_restore": false,
