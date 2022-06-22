@@ -15,7 +15,7 @@ type Credentials struct {
 	Password string
 }
 
-func IsVCAPRedisBinding(binding *cfenv.Service) bool {
+func IsVCAPBinding(binding *cfenv.Service) bool {
 	c := GetVCAPCredentials(binding)
 	if len(c.Hostname) > 0 &&
 		len(c.Password) > 0 &&

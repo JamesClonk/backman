@@ -17,7 +17,7 @@ type Credentials struct {
 	Port     int
 }
 
-func IsVCAPPostgresBinding(binding *cfenv.Service) bool {
+func IsVCAPBinding(binding *cfenv.Service) bool {
 	c := GetVCAPCredentials(binding)
 	if len(c.Hostname) > 0 &&
 		len(c.Database) > 0 &&

@@ -15,6 +15,7 @@ unset BACKMAN_CONFIG
 unset VCAP_SERVICES
 unset SERVICE_BINDING_ROOT
 export PORT="9990"
+# this will test reading the redis service binding entirely from config.json, as well as the S3 credentials
 
 # =============================================================================================
 retry() {

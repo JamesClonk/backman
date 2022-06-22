@@ -13,6 +13,7 @@ echo $PWD
 unset BACKMAN_CONFIG
 unset VCAP_SERVICES
 source _fixtures/env_for_mysql # use only BACKMAN_CONFIG and VCAP_SERVICES
+# this will test reading the entire service binding directly from BACKMAN_CONFIG.Services.<Service>.Binding
 
 # =============================================================================================
 retry() {

@@ -15,6 +15,7 @@ unset BACKMAN_CONFIG
 unset VCAP_SERVICES
 export SERVICE_BINDING_ROOT="_fixtures/bindings"
 export PORT="9990"
+# this will test reading the postgres service binding entirely from SERVICE_BINDING_ROOT/*, as well as the S3 credentials
 
 # =============================================================================================
 retry() {

@@ -33,7 +33,12 @@ export BACKMAN_CONFIG='{
       "schedule": "0 0 2 * * *",
       "timeout": "35m",
       "disable_column_statistics": true,
-      "force_import": true
+      "force_import": true,
+      "service_binding": {
+        "type": "mysql",
+        "plan": "usage",
+        "uri": "mysql://root:my-secret-pw@127.0.0.1:3306/mysql?some_other_option=false&some_more_options=superb"
+      }
     },
     "my_postgres_db": {
       "schedule": "13 37 4 * * *",
@@ -84,23 +89,6 @@ export VCAP_APPLICATION='{
 }'
 
 export VCAP_SERVICES='{
-"mysql":[{
-  "credentials": {
-    "name": "my_mysql_db",
-    "database": "mysql",
-    "database_uri": "mysql://root:my-secret-pw@127.0.0.1:3306/mysql?some_other_option=false"
-  },
-  "syslog_drain_url": null,
-  "volume_mounts": [],
-  "label": "user-provided",
-  "provider": null,
-  "plan": "usage",
-  "name": "my_mysql_db",
-  "tags": [
-    "mysql",
-    "mariadb"
-  ]
-}],
 "postgres":[{
   "credentials": {
     "host": "127.0.0.1",

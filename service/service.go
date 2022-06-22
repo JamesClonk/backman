@@ -54,6 +54,9 @@ func validateServices() {
 			continue
 		}
 
+		// enrich service bindings, try to figure out properties by parsing URI
+		service.Binding = enrichBinding(service.Binding)
+
 		// validate binding credentials for known service types
 		// each of them knows best themselves what they need or require
 		validBinding := true
@@ -96,9 +99,6 @@ func validateServices() {
 			service.Retention.Files = 100 // default
 		}
 
-		// validate and enrich service bindings too
-		service.Binding = enrichBinding(service.Binding)
-
 		// write values back
 		config.Get().Services[serviceName] = service
 	}
@@ -118,6 +118,7 @@ func enrichBinding(binding config.ServiceBinding) config.ServiceBinding {
 	// figure out credentials from URI if missing
 	if len(binding.URI) > 0 && strings.Contains(binding.URI, "://") {
 		if u, err := url.Parse(binding.URI); err == nil {
+			// set username and password if missing
 			if len(binding.Username) == 0 {
 				binding.Username = u.User.Username()
 			}
@@ -126,6 +127,7 @@ func enrichBinding(binding config.ServiceBinding) config.ServiceBinding {
 				binding.Password = p
 			}
 
+			// set host and port too if still missing
 			h, p, _ := net.SplitHostPort(u.Host)
 			if len(binding.Host) == 0 {
 				binding.Host = h
@@ -134,6 +136,7 @@ func enrichBinding(binding config.ServiceBinding) config.ServiceBinding {
 				binding.Port, _ = strconv.Atoi(p)
 			}
 
+			// set database if not defined yet but can be found in URI
 			if len(binding.Database) == 0 {
 				binding.Database = strings.TrimPrefix(u.Path, "/")
 				rx := regexp.MustCompile(`([^\?]*)\?.*`) // trim connection options

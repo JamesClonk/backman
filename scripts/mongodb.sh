@@ -12,7 +12,9 @@ echo $PWD
 # =============================================================================================
 unset BACKMAN_CONFIG
 unset VCAP_SERVICES
-source _fixtures/env_for_mongodb # use BACKMAN_CONFIG, layered with _fixtures/config_with_bindings.json (S3 config)
+source _fixtures/env_for_mongodb # use BACKMAN_CONFIG and VCAP_SERVICES, layered with _fixtures/config_with_bindings.json
+# this will test reading the mongodb service binding from VCAP_SERVICES, and the S3 credentials from config.json
+# also it will read the mongodb service binding with label set to "user-provided", and correctly guess it to be of type mongodb thanks to URI parsing
 
 # =============================================================================================
 retry() {

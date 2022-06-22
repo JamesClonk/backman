@@ -7,6 +7,7 @@ import (
 	"github.com/cloudfoundry-community/go-cfenv"
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
+	"github.com/swisscom/backman/service/mongodb"
 	"github.com/swisscom/backman/service/mysql"
 	"github.com/swisscom/backman/service/postgres"
 	"github.com/swisscom/backman/service/redis"
@@ -88,11 +89,13 @@ func parseVCAPServices() ([]config.Service, error) {
 			// then try to figure out if it can be identified as a supported service type
 			if !config.IsValidServiceType(vcapService.Label) || vcapService.Label == "user-provided" {
 				// can it be identified as a custom postgres binding?
-				if postgres.IsVCAPPostgresBinding(&vcapService) {
+				if postgres.IsVCAPBinding(&vcapService) {
 					vcapService.Label = "postgres"
-				} else if mysql.IsVCAPMySQLBinding(&vcapService) { // or a mysql binding?
+				} else if mysql.IsVCAPBinding(&vcapService) { // or a mysql binding?
 					vcapService.Label = "mysql"
-				} else if redis.IsVCAPRedisBinding(&vcapService) { // or a redis binding?
+				} else if mongodb.IsVCAPBinding(&vcapService) { // or a mongodb binding?
+					vcapService.Label = "mongodb"
+				} else if redis.IsVCAPBinding(&vcapService) { // or a redis binding?
 					vcapService.Label = "redis"
 				} else {
 					// try to guess it via service tags as a last resort
