@@ -1,6 +1,6 @@
 {
 	"log_level": "info",
-	"logging_timestamp": true,
+	"logging_timestamp": false,
 	"disable_web": false,
 	"disable_metrics": false,
 	"disable_restore": false,

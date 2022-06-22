@@ -29,6 +29,7 @@ type Config struct {
 	Notifications      NotificationConfig `json:"notifications"`
 	S3                 S3Config
 	Services           map[string]Service
+	ServiceBindingRoot string `json:"service_binding_root"`
 	Foreground         bool
 }
 
@@ -91,11 +92,11 @@ func new() *Config {
 	}
 
 	// now load and overwrite with env provided config, if it exists
-	env := os.Getenv(BackmanConfig)
+	env := os.Getenv(BackmanEnvConfig)
 	if len(env) > 0 {
 		envConfig := Config{}
 		if err := json.Unmarshal([]byte(env), &envConfig); err != nil {
-			log.Printf("could not parse environment variable '%s'\n", BackmanConfig)
+			log.Printf("could not parse environment variable '%s'\n", BackmanEnvConfig)
 			log.Fatalln(err.Error())
 		}
 
@@ -240,7 +241,7 @@ func new() *Config {
 
 	// set port if missing
 	if config.Port == 0 {
-		config.Port, _ = strconv.Atoi(os.Getenv(BackmanPort))
+		config.Port, _ = strconv.Atoi(os.Getenv(BackmanEnvPort))
 	}
 	if config.Port == 0 {
 		config.Port = 8080 // fallback
@@ -251,28 +252,36 @@ func new() *Config {
 		config.LogLevel = "info"
 	}
 
-	// use username & password from env if defined
-	if os.Getenv(BackmanUsername) != "" {
-		config.Username = os.Getenv(BackmanUsername)
+	// use service-binding-root from env if defined
+	if os.Getenv(BackmanEnvServiceBindingRoot) != "" {
+		config.ServiceBindingRoot = os.Getenv(BackmanEnvServiceBindingRoot)
 	}
-	if os.Getenv(BackmanPassword) != "" {
-		config.Password = os.Getenv(BackmanPassword)
+	if len(config.ServiceBindingRoot) == 0 {
+		config.ServiceBindingRoot = "/bindings" // default value if nothing was configured
+	}
+
+	// use username & password from env if defined
+	if os.Getenv(BackmanEnvUsername) != "" {
+		config.Username = os.Getenv(BackmanEnvUsername)
+	}
+	if os.Getenv(BackmanEnvPassword) != "" {
+		config.Password = os.Getenv(BackmanEnvPassword)
 	}
 
 	// use s3 encryption key from env if defined
-	if os.Getenv(BackmanEncryptionKey) != "" {
-		config.S3.EncryptionKey = os.Getenv(BackmanEncryptionKey)
+	if os.Getenv(BackmanEnvEncryptionKey) != "" {
+		config.S3.EncryptionKey = os.Getenv(BackmanEnvEncryptionKey)
 	}
 
 	// use teams webhook url from env if defined
-	if os.Getenv(BackmanTeamsWebhook) != "" {
-		config.Notifications.Teams.Webhook = os.Getenv(BackmanTeamsWebhook)
+	if os.Getenv(BackmanEnvTeamsWebhook) != "" {
+		config.Notifications.Teams.Webhook = os.Getenv(BackmanEnvTeamsWebhook)
 	}
 
 	// use teams events configuration from env if defined
-	if os.Getenv(BackmanTeamsEvents) != "" {
+	if os.Getenv(BackmanEnvTeamsEvents) != "" {
 		var events []string
-		eventsString := os.Getenv(BackmanTeamsEvents)
+		eventsString := os.Getenv(BackmanEnvTeamsEvents)
 		if eventsString != "" {
 			events = strings.Split(eventsString, ",")
 		}

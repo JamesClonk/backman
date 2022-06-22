@@ -15,6 +15,7 @@ require (
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/minio/sio v0.3.0
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
+	github.com/nebhale/client-go v1.0.0
 	github.com/prometheus/client_golang v1.11.1
 	github.com/prometheus/common v0.32.0 // indirect
 	github.com/robfig/cron v1.2.0

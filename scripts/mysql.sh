@@ -10,7 +10,7 @@ fi
 echo $PWD
 
 # =============================================================================================
-source .env # use only BACKMAN_CONFIG
+source _fixtures/.env_for_mysql # use only BACKMAN_CONFIG and VCAP_SERVICES
 
 # =============================================================================================
 retry() {
