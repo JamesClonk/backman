@@ -11,11 +11,11 @@ a backup-manager app for [Cloud Foundry](https://www.cloudfoundry.org/) and [Kub
 
 ## Supported databases
 
-- MariaDB / MySQL
-- PostgreSQL
-- MongoDB
-- Elasticsearch
-- Redis
+- 🐬 MariaDB / MySQL
+- 🐘 PostgreSQL
+- 🥭 MongoDB
+- 🌸 Elasticsearch
+- 🏮 Redis
 
 ## Usage
 
