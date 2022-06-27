@@ -173,5 +173,3 @@ To deploy via [ytt](https://carvel.dev/ytt/) and [kapp](https://carvel.dev/kapp/
 3. edit `values.yml`.
 	See [example_values_full.yml](/kubernetes/build/example_values_full.yml) for reference.
 4. run `./deploy.sh`
-
-// TODO: rework all of it
