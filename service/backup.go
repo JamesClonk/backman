@@ -38,7 +38,6 @@ var (
 	}, []string{"type", "name"})
 )
 
-// swagger:response backup
 type Backup struct {
 	Service config.Service
 	Files   []File
@@ -50,9 +49,6 @@ type File struct {
 	Size         int64
 	LastModified time.Time
 }
-
-// swagger:response backups
-type Backups []Backup
 
 func CreateBackup(service config.Service) error {
 	filename := fmt.Sprintf("%s_%s.gz", service.Name, time.Now().Format("20060102150405"))

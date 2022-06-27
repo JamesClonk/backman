@@ -4,12 +4,46 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/service"
 )
+
+// swagger:response backup
+type Backup struct {
+	Service Service `json:"Service"`
+	Files   []File  `json:"Files"`
+}
+type File struct {
+	Key          string    `json:"Key"`
+	Filepath     string    `json:"Filepath"`
+	Filename     string    `json:"Filename"`
+	Size         int64     `json:"Size"`
+	LastModified time.Time `json:"LastModified"`
+}
+
+// swagger:response backups
+type Backups []Backup
+
+func getAPIBackup(backup service.Backup) Backup {
+	files := make([]File, 0)
+	for _, file := range backup.Files {
+		files = append(files, File{
+			Key:          file.Key,
+			Filepath:     file.Filepath,
+			Filename:     file.Filename,
+			Size:         file.Size,
+			LastModified: file.LastModified,
+		})
+	}
+	return Backup{
+		Service: getAPIService(backup.Service),
+		Files:   files,
+	}
+}
 
 // swagger:route GET /api/v1/backups backup listBackups
 // Lists all backup objects.
@@ -29,11 +63,15 @@ func (h *Handler) ListBackups(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid service name: %v", err))
 	}
 
-	backups, err := service.GetBackups(serviceType, serviceName)
+	b, err := service.GetBackups(serviceType, serviceName)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, err.Error())
 	}
-	// TODO: sanitize output, make sure service_bindings are not part of it!
+
+	backups := make(Backups, 0)
+	for _, backup := range b {
+		backups = append(backups, getAPIBackup(backup))
+	}
 	return c.JSON(http.StatusOK, backups)
 }
 
@@ -64,8 +102,7 @@ func (h *Handler) GetBackups(c echo.Context) error {
 	if len(backups) != 1 {
 		return c.JSON(http.StatusNotFound, fmt.Errorf("backups not found"))
 	}
-	// TODO: sanitize output, make sure service_bindings are not part of it!
-	return c.JSON(http.StatusOK, backups[0])
+	return c.JSON(http.StatusOK, getAPIBackup(backups[0]))
 }
 
 // swagger:route GET /api/v1/backup/{service_type}/{service_name}/{filename} backup getBackup
@@ -98,8 +135,7 @@ func (h *Handler) GetBackup(c echo.Context) error {
 	if len(backup.Files) == 0 || len(backup.Files[0].Filename) == 0 {
 		return c.JSON(http.StatusNotFound, fmt.Errorf("file not found"))
 	}
-	// TODO: sanitize output, make sure service_bindings are not part of it!
-	return c.JSON(http.StatusOK, backup)
+	return c.JSON(http.StatusOK, getAPIBackup(*backup))
 }
 
 // swagger:route POST /api/v1/backup/{service_type}/{service_name} backup createBackup
@@ -136,8 +172,7 @@ func (h *Handler) CreateBackup(c echo.Context) error {
 			log.Errorf("requested backup for service [%s] failed: %v", serviceName, err)
 		}
 	}()
-	// TODO: sanitize output, make sure service_bindings are not part of it!
-	return c.JSON(http.StatusAccepted, serviceInstance)
+	return c.JSON(http.StatusAccepted, getAPIService(serviceInstance))
 }
 
 // swagger:route GET /api/v1/backup/{service_type}/{service_name}/{filename}/download backup downloadBackup

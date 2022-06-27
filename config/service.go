@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -72,7 +73,7 @@ func (s *Service) Type() ServiceType {
 	return ParseServiceType(s.Binding.Type)
 }
 func (s *Service) Key() string {
-	return s.Type().String()
+	return fmt.Sprintf("%s:%s", s.Binding.Type, s.Name)
 }
 
 type ServiceType int

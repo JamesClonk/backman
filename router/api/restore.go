@@ -68,7 +68,7 @@ func (h *Handler) RestoreBackup(c echo.Context) error {
 		}
 	}()
 	if len(targetService.Name) > 0 {
-		return c.JSON(http.StatusAccepted, targetService)
+		return c.JSON(http.StatusAccepted, getAPIService(targetService))
 	}
-	return c.JSON(http.StatusAccepted, serviceInstance)
+	return c.JSON(http.StatusAccepted, getAPIService(serviceInstance))
 }

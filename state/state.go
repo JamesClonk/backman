@@ -12,18 +12,14 @@ var (
 	once         sync.Once
 )
 
-// swagger:response state
 type State struct {
-	Service   config.Service `json:",omitempty"`
-	Operation string         `json:",omitempty"`
-	Status    string         `json:",omitempty"`
-	Filename  string         `json:",omitempty"`
-	At        time.Time      `json:",omitempty"`
-	Duration  time.Duration  `json:",omitempty"`
+	Service   config.Service
+	Operation string
+	Status    string
+	Filename  string
+	At        time.Time
+	Duration  time.Duration
 }
-
-// swagger:response states
-type States []State
 
 type StateTracker struct {
 	*sync.RWMutex

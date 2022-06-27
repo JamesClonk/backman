@@ -90,19 +90,19 @@ func (t *Teams) Send(event events.Event, service config.Service, filename string
 	case events.BackupStarted:
 		card, err = getMessageCard(
 			fmt.Sprintf("Backup of %s started", service.Name),
-			fmt.Sprintf("Backman is starting to backup _%s_", service.Name),
+			fmt.Sprintf("Backman is starting to backup %s service **%s**", service.Binding.Type, service.Name),
 			ColorInfo,
 		)
 	case events.BackupSuccess:
 		card, err = getMessageCard(
 			fmt.Sprintf("Backup of %s successful!", service.Name),
-			fmt.Sprintf("Backman successfully completed the backup of _%s_, creating `%s`", service.Name, filename),
+			fmt.Sprintf("Backman successfully completed the backup of %s service **%s**, creating `%s`", service.Binding.Type, service.Name, filename),
 			ColorSuccess,
 		)
 	case events.BackupFailed:
 		card, err = getMessageCard(
 			fmt.Sprintf("Backup of %s failed!", service.Name),
-			fmt.Sprintf("Backman failed to complete the backup of _%s_!", service.Name),
+			fmt.Sprintf("Backman failed to complete the backup of %s service **%s**!", service.Binding.Type, service.Name),
 			ColorFail,
 		)
 	default:
