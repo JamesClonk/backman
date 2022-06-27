@@ -1,7 +1,7 @@
 #@data/values
 ---
 backman:
-  image: "jamesclonk/backman:1.23.1"
+  image: "jamesclonk/backman:latest"
 
   pod_security_policy:
     enabled: true  # generates a k8s pod-security-policy if enabled
@@ -26,7 +26,6 @@ backman:
 
   storage:
     s3:
-      region: "" # optional
       host: "" # s3 hostname
       key: "" # s3 access key
       secret: "" # s3 secret key
@@ -34,8 +33,8 @@ backman:
   # services require: name, type, credentials, schedule, timeout and retention
   services: []
   # see sample_values.yml for reference
-  # service type 'postgres' requires credentials: hostname, port, database, username and password
-  # service type 'mysql' requires credentials: hostname, port, database, username and password
-  # service type 'mysql' requires credentials: uri
-  # service type 'mysql' requires credentials: hostname, port and password
+  # service type 'postgres' requires credentials: host, port, database, username and password
+  # service type 'mysql' requires credentials: host, port, database, username and password
+  # service type 'mongodb' requires credentials: uri
+  # service type 'redis' requires credentials: host, port and password
   # service type 'elasticsearch' requires credentials: host, username and password

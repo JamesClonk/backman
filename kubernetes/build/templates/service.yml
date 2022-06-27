@@ -6,9 +6,9 @@ kind: Service
 metadata:
   name: backman
   namespace: backman
-  labels: #@ labels("svc")
+  labels: #@ labels("backman","svc")
 spec:
   ports:
   - port: 8080
     targetPort: 8080
-  selector: #@ labels("gui")
+  selector: #@ labels("backman","gui")

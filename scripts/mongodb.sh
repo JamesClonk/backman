@@ -60,6 +60,11 @@ if [ $(curl -s -o /dev/null -w "%{http_code}" http://john:doe@127.0.0.1:9990) !=
 	exit 1
 fi
 
+if [ $(curl -s -o /dev/null -w "%{http_code}" http://john:doe@127.0.0.1:9990/healthz) != "200" ]; then
+    echo "Should be OK"
+    exit 1
+fi
+
 if [ $(curl -s -o /dev/null -w "%{http_code}" http://john:doe@127.0.0.1:9990/api/v1/state/mongodb/my_mongodb) != "200" ]; then
 	echo "Failed to query state"
 	exit 1

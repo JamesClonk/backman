@@ -1,7 +1,7 @@
 #@data/values
 ---
 backman:
-  image: "jamesclonk/backman:1.23.1"
+  image: "jamesclonk/backman:latest"
 
   pod_security_policy:
     enabled: true  # generates a k8s pod-security-policy if enabled
@@ -26,18 +26,17 @@ backman:
 
   storage:
     s3:
-      region: "" # optional
       host: "s3.amazonaws.com" # s3 hostname
-      key: "access-key" # s3 access key
-      secret: "secret-key" # s3 secret key
+      key: "my-access-key" # s3 access key
+      secret: "my-secret-key" # s3 secret key
 
   # services require: name, type, credentials, schedule, timeout and retention
   services:
-  # service type 'postgres' requires credentials: hostname, port, database, username and password
+  # service type 'postgres' requires credentials: host, port, database, username and password
   - name: "my-postgres"
     type: "postgres"
     credentials:
-      hostname: "postgres.domain"
+      host: "postgres.domain"
       port: 5432
       database: "postgres_db"
       username: "postgres_user"
@@ -47,11 +46,11 @@ backman:
     retention:
       files: 111
       days: 21
-  # service type 'mysql' requires credentials: hostname, port, database, username and password
+  # service type 'mysql' requires credentials: host, port, database, username and password
   - name: "my-mysql"
     type: "mysql"
     credentials:
-      hostname: "mysql.domain"
+      host: "mysql.domain"
       port: 3306
       database: "mysql_db"
       username: "mysql_user"
@@ -59,9 +58,9 @@ backman:
     schedule: "1 2 3 4 5 *"
     timeout: "2h"
     retention:
-      files: 33
+      files: 66
       days: 33
-  # service type 'mysql' requires credentials: uri
+  # service type 'mongodb' requires credentials: uri
   - name: "my-mongodb"
     type: "mongodb"
     credentials:
@@ -71,11 +70,11 @@ backman:
     retention:
       files: 100
       days: 90
-  # service type 'mysql' requires credentials: hostname, port and password
+  # service type 'redis' requires credentials: hostname, port and password
   - name: "my-redis"
     type: "redis"
     credentials:
-      hostname: "redis.domain"
+      host: "redis.domain"
       port: 6379
       password: "redis_passwd"
     schedule: "0 0 4 * * *"

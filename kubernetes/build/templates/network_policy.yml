@@ -8,10 +8,10 @@ kind: NetworkPolicy
 metadata:
   name: backman
   namespace: backman
-  labels: #@ labels("netpol")
+  labels: #@ labels("backman","netpol")
 spec:
   podSelector:
-    matchLabels: #@ labels("gui")
+    matchLabels: #@ labels("backman","gui")
   ingress:
   #@ if len(data.values.backman.network_policy.namespace_labels.prometheus) > 0:
   - from: #! allow access for prometheus

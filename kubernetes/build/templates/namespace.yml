@@ -6,7 +6,7 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: backman
-  labels: #@ labels("namespace")
+  labels: #@ labels("backman","namespace")
 
 #@overlay/match by=overlay.all, expects="1+"
 ---

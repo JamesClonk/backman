@@ -1,6 +1,7 @@
 {
 	"log_level": "debug",
 	"logging_timestamp": true,
+	"unprotected_health": true,
 	"username": "john",
 	"password": "doe",
 	"s3": {

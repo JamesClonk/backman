@@ -8,7 +8,7 @@ kind: Role
 metadata:
   name: backman
   namespace: backman
-  labels: #@ labels("role")
+  labels: #@ labels("backman","role")
 rules:
 - apiGroups: ['policy']
   resources: ['podsecuritypolicies']
@@ -21,7 +21,7 @@ kind: RoleBinding
 metadata:
   name: backman
   namespace: backman
-  labels: #@ labels("role-binding")
+  labels: #@ labels("backman","role-binding")
 roleRef:
   kind: Role
   name: backman
@@ -36,7 +36,7 @@ kind: PodSecurityPolicy
 metadata:
   name: backman
   namespace: backman
-  labels: #@ labels("psp")
+  labels: #@ labels("backman","psp")
   annotations:
     seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'runtime/default'
     apparmor.security.beta.kubernetes.io/allowedProfileNames: 'runtime/default'

@@ -5,6 +5,7 @@
 	"disable_metrics": false,
 	"disable_restore": false,
 	"unprotected_metrics": false,
+	"unprotected_health": false,
 	"s3": {
 		"bucket_name": "backman-storage"
 	},

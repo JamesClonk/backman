@@ -10,6 +10,7 @@ export BACKMAN_CONFIG='{
   "disable_metrics": false,
   "disable_restore": false,
   "unprotected_metrics": true,
+  "unprotected_health": true,
   "s3": {
     "disable_ssl": true,
     "encryption_key":"a_super_strong_example_key",

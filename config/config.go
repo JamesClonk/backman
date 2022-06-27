@@ -26,6 +26,7 @@ type Config struct {
 	DisableMetrics     bool               `json:"disable_metrics"`
 	DisableRestore     bool               `json:"disable_restore"`
 	UnprotectedMetrics bool               `json:"unprotected_metrics"`
+	UnprotectedHealth  bool               `json:"unprotected_health"`
 	Notifications      NotificationConfig `json:"notifications"`
 	S3                 S3Config
 	Services           map[string]Service
@@ -127,6 +128,9 @@ func new() *Config {
 		}
 		if envConfig.UnprotectedMetrics {
 			config.UnprotectedMetrics = envConfig.UnprotectedMetrics
+		}
+		if envConfig.UnprotectedHealth {
+			config.UnprotectedHealth = envConfig.UnprotectedHealth
 		}
 
 		// teams notifications
