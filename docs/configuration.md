@@ -22,6 +22,7 @@ These here are the default values backman will use if not configured otherwise:
 	"disable_metrics": false,
 	"disable_restore": false,
 	"unprotected_metrics": false,
+	"unprotected_health": false,
 	"notifications": {},
 	"s3": {
 		"service_type": "s3"
@@ -39,6 +40,7 @@ A more comprehensive example of possible configuration options could look like t
 	"disable_metrics": false,
 	"disable_restore": true,
 	"unprotected_metrics": false,
+	"unprotected_health": true,
 	"notifications": {
 		"teams": {
 			"webhook": "https://example.webhook.office.com/webhookb2/deadbeef/IncomingWebhook/beefdead/deadbeef",
@@ -105,7 +107,8 @@ or through the specific environment variables `$BACKMAN_USERNAME` and `$BACKMAN_
 - `disable_web`: optional, disable web interface and api
 - `disable_metrics`: optional, disable Prometheus metrics endpoint
 - `disable_restore`: optional, disable restore function on API and web. It can be used to mitigate damage in case backman credentials are leaked. Enable it just before you might need to restore.
-- `unprotected_metrics`: optional, disable HTTP basic auth protection for Prometheus metrics endpoint
+- `unprotected_metrics`: optional, disable HTTP basic auth protection for Prometheus /metrics endpoint
+- `unprotected_health`: optional, disable HTTP basic auth protection for /healthz endpoint
 - `notifications.teams.webhook`: optional, setting a webhook URL will enable MS Teams notifications about backups
 - `notifications.teams.events`: optional, list of events to send a Teams notification for. Can be *backup-started*, *backup-success*, *backup-failed*. Sends a notification for all events if empty.
 - `s3.host`: optional, S3 hostname/endpoint to use, backman will try to find it within service instances if not specified
