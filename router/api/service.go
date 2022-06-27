@@ -12,7 +12,7 @@ import (
 	"github.com/swisscom/backman/service"
 )
 
-// swagger:response service
+// swagger:model Service
 type Service struct {
 	Name      string        `json:"Name"`
 	Type      string        `json:"Type"`
@@ -27,7 +27,7 @@ type Retention struct {
 	Files int `json:"Files"`
 }
 
-// swagger:response services
+// swagger:response Services
 type Services []Service
 
 func getAPIService(service config.Service) Service {
@@ -54,7 +54,7 @@ func getAPIService(service config.Service) Service {
 // schemes: http, https
 //
 // responses:
-//   200: services
+//   200: Services
 func (h *Handler) ListServices(c echo.Context) error {
 	serviceType := c.QueryParam("service_type")
 	serviceName, err := url.QueryUnescape(c.Param("service_name"))
@@ -68,4 +68,25 @@ func (h *Handler) ListServices(c echo.Context) error {
 		services = append(services, getAPIService(service))
 	}
 	return c.JSON(http.StatusOK, services)
+}
+
+// swagger:route GET /api/v1/service/{service_type}/{service_name} service getService
+// Returns a service instance.
+//
+// produces:
+// - application/json
+//
+// schemes: http, https
+//
+// responses:
+//   200: Service
+func (h *Handler) GetService(c echo.Context) error {
+	serviceType := c.Param("service_type")
+	serviceName, err := url.QueryUnescape(c.Param("service_name"))
+	if err != nil {
+		log.Errorf("%v", err)
+		return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid service name: %v", err))
+	}
+
+	return c.JSON(http.StatusOK, getAPIService(service.GetService(serviceType, serviceName)))
 }

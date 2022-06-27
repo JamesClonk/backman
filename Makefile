@@ -101,7 +101,7 @@ docker-cleanup:
 .PHONY: swagger
 ## swagger: generates swagger documentation
 swagger:
-	swagger generate spec -o ./swagger.yml
+	swagger generate spec -m -o ./swagger.yml
 	swagger serve -F=swagger swagger.yml
 
 .PHONY: elasticsearch

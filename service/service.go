@@ -54,7 +54,7 @@ func validateServices() {
 			continue
 		}
 
-		// enrich service bindings, try to figure out properties by parsing URI
+		// enrich service bindings, try to figure out additional properties by parsing URI
 		service.Binding = enrichBinding(service.Binding)
 
 		// validate binding credentials for known service types

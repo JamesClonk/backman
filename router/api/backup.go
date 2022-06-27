@@ -12,7 +12,7 @@ import (
 	"github.com/swisscom/backman/service"
 )
 
-// swagger:response backup
+// swagger:model Backup
 type Backup struct {
 	Service Service `json:"Service"`
 	Files   []File  `json:"Files"`
@@ -25,7 +25,7 @@ type File struct {
 	LastModified time.Time `json:"LastModified"`
 }
 
-// swagger:response backups
+// swagger:response Backups
 type Backups []Backup
 
 func getAPIBackup(backup service.Backup) Backup {
@@ -54,7 +54,7 @@ func getAPIBackup(backup service.Backup) Backup {
 // schemes: http, https
 //
 // responses:
-//   200: backups
+//   200: Backups
 func (h *Handler) ListBackups(c echo.Context) error {
 	serviceType := c.QueryParam("service_type")
 	serviceName, err := url.QueryUnescape(c.Param("service_name"))
@@ -84,7 +84,7 @@ func (h *Handler) ListBackups(c echo.Context) error {
 // schemes: http, https
 //
 // responses:
-//   200: backup
+//   200: Backup
 func (h *Handler) GetBackups(c echo.Context) error {
 	serviceType := c.QueryParam("service_type")
 	serviceName, err := url.QueryUnescape(c.Param("service_name"))
@@ -114,7 +114,7 @@ func (h *Handler) GetBackups(c echo.Context) error {
 // schemes: http, https
 //
 // responses:
-//   200: backup
+//   200: Backup
 func (h *Handler) GetBackup(c echo.Context) error {
 	serviceType := c.Param("service_type")
 	serviceName, err := url.QueryUnescape(c.Param("service_name"))
@@ -147,7 +147,7 @@ func (h *Handler) GetBackup(c echo.Context) error {
 // schemes: http, https
 //
 // responses:
-//   202: service
+//   202: Service
 func (h *Handler) CreateBackup(c echo.Context) error {
 	serviceType := c.Param("service_type")
 	serviceName, err := url.QueryUnescape(c.Param("service_name"))

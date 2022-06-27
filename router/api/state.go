@@ -12,7 +12,7 @@ import (
 	"github.com/swisscom/backman/state"
 )
 
-// swagger:response state
+// swagger:model State
 type State struct {
 	Service   Service       `json:"Service,omitempty"`
 	Operation string        `json:"Operation,omitempty"`
@@ -22,7 +22,7 @@ type State struct {
 	Duration  time.Duration `json:"Duration,omitempty"`
 }
 
-// swagger:response states
+// swagger:response States
 type States []State
 
 func getAPIState(state state.State) State {
@@ -45,7 +45,7 @@ func getAPIState(state state.State) State {
 // schemes: http, https
 //
 // responses:
-//   200: states
+//   200: States
 func (h *Handler) ListStates(c echo.Context) error {
 	states := make(States, 0)
 	for _, state := range state.Tracker().List() {
@@ -63,7 +63,7 @@ func (h *Handler) ListStates(c echo.Context) error {
 // schemes: http, https
 //
 // responses:
-//   200: state
+//   200: State
 func (h *Handler) GetState(c echo.Context) error {
 	serviceType := c.Param("service_type")
 	serviceName, err := url.QueryUnescape(c.Param("service_name"))
