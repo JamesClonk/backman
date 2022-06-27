@@ -32,7 +32,7 @@ backman:
 
   # services require: name, type, credentials, schedule, timeout and retention
   services: []
-  # see sample_values.yml for reference
+  # see example_values_full.yml for reference
   # service type 'postgres' requires credentials: host, port, database, username and password
   # service type 'mysql' requires credentials: host, port, database, username and password
   # service type 'mongodb' requires credentials: uri
