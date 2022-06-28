@@ -32,6 +32,7 @@ _testmain.go
 # ---------
 .env
 .env*
+.example*
 accounts.zip
 accounts.json
 testfile.dat

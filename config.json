@@ -4,6 +4,8 @@
 	"disable_web": false,
 	"disable_metrics": false,
 	"disable_restore": false,
+	"disable_metrics_logging": false,
+	"disable_health_logging": true,
 	"unprotected_metrics": false,
 	"unprotected_health": false,
 	"s3": {

@@ -62,6 +62,7 @@ spec:
           allowPrivilegeEscalation: false
         ports:
         - containerPort: 8080
+        command: [ "backman" ]
         args: [ "-config", "/backman/config.json" ]
         env:
         - name: TZ

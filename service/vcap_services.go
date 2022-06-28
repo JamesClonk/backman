@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/cloudfoundry-community/go-cfenv"
@@ -37,6 +38,14 @@ func mergeVCAPServices() {
 }
 
 func parseVCAPServices() ([]config.Service, error) {
+	// avoid errors in case we are not within a Cloud Foundry container
+	if len(os.Getenv("VCAP_SERVICES")) == 0 {
+		os.Setenv("VCAP_SERVICES", "{}")
+	}
+	if len(os.Getenv("VCAP_APPLICATION")) == 0 {
+		os.Setenv("VCAP_APPLICATION", "{}")
+	}
+
 	// read VCAP_SERVICES environment variable and go through all services in there
 	app, err := cfenv.Current()
 	if err != nil {

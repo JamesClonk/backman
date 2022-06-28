@@ -41,6 +41,8 @@ spec:
           allowPrivilegeEscalation: false
         ports:
         - containerPort: 8080
+        command:
+        - backman
         args:
         - -config
         - /backman/config.json
@@ -111,8 +113,10 @@ type: Opaque
 stringData:
   config.json: |
     {
-      "log_level": "debug",
+      "log_level": "info",
       "logging_timestamp": true,
+      "disable_metrics_logging": true,
+      "disable_health_logging": true,
       "unprotected_metrics": true,
       "unprotected_health": true,
       "username": "john",
@@ -152,7 +156,7 @@ stringData:
   name: my-mysql
   type: mysql
   host: mysql.domain
-  port: 3306
+  port: "3306"
   username: mysql_user
   password: mysql_passwd
   database: mysql_db

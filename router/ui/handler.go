@@ -48,6 +48,17 @@ func New() *Handler {
 func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	g := e.Group("")
 
+	// don't show timestamp unless specifically configured
+	format := `remote_ip="${remote_ip}", host="${host}", method=${method}, uri=${uri}, user_agent="${user_agent}", ` +
+		`status=${status}, error="${error}", latency_human="${latency_human}", bytes_out=${bytes_out}` + "\n"
+	if config.Get().LoggingTimestamp {
+		format = `time="${time_rfc3339}", ` + format
+	}
+	// add logger middlerware
+	g.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: format,
+	}))
+
 	// secure routes with HTTP BasicAuth
 	username := config.Get().Username
 	password := config.Get().Password

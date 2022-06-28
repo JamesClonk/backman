@@ -42,18 +42,19 @@ RUN apt-get -y $package_args update && \
   mongorestore --version
 RUN npm install --location=global npm elasticdump
 
-RUN useradd -u 2000 -mU -s /bin/bash vcap && \
-  mkdir /home/vcap/app && \
-  chown vcap:vcap /home/vcap/app
+RUN useradd -u 2000 -mU -s /bin/bash backman && \
+  mkdir /home/backman/app && \
+  chown backman:backman /home/backman/app
 
-WORKDIR /home/vcap/app
+ENV PATH=$PATH:/home/backman/app
+WORKDIR /home/backman/app
 COPY public ./public/
 COPY static ./static/
 COPY --from=0 /go/src/github.com/swisscom/backman/backman ./backman
 
-RUN chmod +x /home/vcap/app/backman && \
-  chown -R vcap:vcap /home/vcap/app
-USER vcap
+RUN chmod +x /home/backman/app/backman && \
+  chown -R backman:backman /home/backman/app
+USER backman
 
 EXPOSE 8080
 

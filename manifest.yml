@@ -7,7 +7,8 @@ applications:
   memory: 1G # mysqldump consumes a lot of memory, no matter how small the database is
   disk_quota: 1G
   instances: 1
-  health-check-type: port
+  health-check-type: http
+  health-check-http-endpoint: /healthz
 
   routes:
   - route: backman.scapp.io
@@ -32,12 +33,15 @@ applications:
     # BACKMAN_ENCRYPTION_KEY: "" #  optional, data-at-rest-encryption for backups stored on S3
     BACKMAN_CONFIG: | # please consult /docs/configuration.md and /docs/cloudfoundry/configuration.md
       {
-        "log_level": "debug",
+        "log_level": "info",
         "logging_timestamp": false,
         "disable_web": false,
         "disable_metrics": false,
         "disable_restore": false,
+        "disable_metrics_logging": false,
+        "disable_health_logging": true,
         "unprotected_metrics": false,
+        "unprotected_health": true,
         "s3": {
           "service_label": "dynstrg",
           "bucket_name": "backman-storage"

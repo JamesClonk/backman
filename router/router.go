@@ -30,17 +30,6 @@ func New() *Router {
 	// middlewares
 	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(middleware.Secure())
-
-	// don't show timestamp unless specifically configured
-	format := `remote_ip="${remote_ip}", host="${host}", method=${method}, uri=${uri}, user_agent="${user_agent}", ` +
-		`status=${status}, error="${error}", latency_human="${latency_human}", bytes_out=${bytes_out}` + "\n"
-	if config.Get().LoggingTimestamp {
-		format = `time="${time_rfc3339}", ` + format
-	}
-	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: format,
-	}))
-
 	//e.Use(middleware.Recover()) // don't recover, let platform deal with panics
 	e.Use(middleware.Static("static"))
 

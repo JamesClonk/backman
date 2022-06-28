@@ -17,9 +17,9 @@ To deploy one of the simple deployment manifests:
 
 The manifest files found under [kubernetes/deploy](/kubernetes/deploy) have been generated with examples values through ytt templates. Please make sure to edit them first to adjust configuration values and service bindings, the **Secret**, **Ingress** and **NetworkPolicy** resources, etc.. The default values these contain will very likely *not* work for you!
 
-#### Minimal deployment example
+#### DIY - minimal deployment example
 
-A minimalistic example deployment would look something like this:
+A minimalistic hand-crafted example deployment could look something like this:
 ```yaml
 ---
 apiVersion: v1
@@ -50,46 +50,29 @@ spec:
       labels:
         app: backman
       annotations:
+        # prometheus annotations for scraping metrics, you can remove them if you don't use prometheus
         prometheus.io/path: /metrics
         prometheus.io/port: "8080"
         prometheus.io/scrape: "true"
     spec:
-      securityContext:
-        runAsUser: 2000
-        runAsGroup: 2000
-        fsGroup: 2000
       containers:
       - name: backman
         image: jamesclonk/backman:latest
         ports:
         - containerPort: 8080
+        command:
+        - backman
         args: # run backman with `-config /backman/config.json` arg, to specify path of configfile
         - -config
         - /backman/config.json
         env:
         - name: TZ # set local timezone if you want
           value: Europe/Zurich
-        - name: PORT # the port backman listens on, make sure this matches `containerPort`
-          value: "8080"
-        - name: SERVICE_BINDING_ROOT # path where service bindings can be found under
-          value: /bindings
-        resources:
-          requests:
-            memory: 1Gi
-            cpu: 250m
-          limits:
-            memory: 2Gi
-            cpu: 1000m
         readinessProbe: # use backmans /metrics endpoint for readiness probe
           httpGet:
             path: /metrics
             port: 8080
         livenessProbe: # use backmans /healthz endpoint for liveness probe
-          initialDelaySeconds: 15
-          periodSeconds: 15
-          timeoutSeconds: 5
-          successThreshold: 1
-          failureThreshold: 5
           httpGet:
             path: /healthz
             port: 8080
@@ -98,14 +81,15 @@ spec:
         - mountPath: /backman/config.json
           name: backman-config
           subPath: config.json
-        # mount mysql example service binding under /bindings/my-mysql-service, according to servicebinding.io spec
-        - mountPath: /bindings/my-mysql-service
-          name: my-mysql-service
+        # mount mysql example service binding under /bindings/my-rds-db, according to servicebinding.io spec
+        - mountPath: /bindings/my-rds-db
+          name: example-mysql-service-binding
       volumes:
       - name: backman-config
         secret:
           secretName: backman-config
-      - name: my-mysql-service
+      # add all service binding secrets here as volumes, so that they can be mounted into the container as files
+      - name: example-mysql-service-binding
         secret:
           secretName: example-mysql-service-binding
 
@@ -121,23 +105,25 @@ stringData:
   # because it is using /metrics and /healthz endpoints for container probes.
   config.json: |
     {
-      "log_level": "debug",
+      "log_level": "info",
       "logging_timestamp": true,
+      "disable_metrics_logging": true,
+      "disable_health_logging": true,
       "unprotected_metrics": true,
       "unprotected_health": true,
-      "username": "john",
-      "password": "doe",
+      "username": "john.doe",
+      "password": "foobar",
       "s3": {
         "service_label": "s3",
         "bucket_name": "backman-storage",
         "host": "s3.amazonaws.com",
-        "access_key": "my-access-key",
-        "secret_key": "my-secret-key"
+        "access_key": "BKIKJAA5BMMU2RHO6IBB",
+        "secret_key": "V7f1CwQqAcwo80UEIJEjc5gVQUSSx5ohQ9GSrr12"
       },
       "services": {
-        "my-mysql-service": {
+        "my-rds-db": {
           "schedule": "0 15 4 * * *",
-          "timeout": "2h",
+          "timeout": "4h",
           "retention": {
             "days": 31,
             "files": 50
@@ -153,13 +139,14 @@ metadata:
   name: example-mysql-service-binding
 type: Opaque
 stringData: # an example service binding, according to servicebinding.io spec
-  name: my-mysql-service
+  name: my-rds-db
   type: mysql
-  host: mysql.domain
-  port: 3306
-  username: mysql_user
-  password: mysql_passwd
-  database: mysql_db
+  provider: AWS RDS
+  host: mydb-instance.123456789012.us-east-1.rds.amazonaws.com
+  port: "3306"
+  username: admin
+  password: c8ad01ed-1561-4fe0-b3ff-04a98c79b36d
+  database: mysql_dbname
 ```
 
 -----

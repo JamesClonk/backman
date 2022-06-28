@@ -21,6 +21,8 @@ These here are the default values backman will use if not configured otherwise:
 	"disable_web": false,
 	"disable_metrics": false,
 	"disable_restore": false,
+	"disable_metrics_logging": false,
+	"disable_health_logging": false,
 	"unprotected_metrics": false,
 	"unprotected_health": false,
 	"notifications": {},
@@ -39,6 +41,8 @@ A more comprehensive example of possible configuration options could look like t
 	"disable_web": false,
 	"disable_metrics": false,
 	"disable_restore": true,
+	"disable_metrics_logging": false,
+	"disable_health_logging": true,
 	"unprotected_metrics": false,
 	"unprotected_health": true,
 	"notifications": {
@@ -107,6 +111,8 @@ or through the specific environment variables `$BACKMAN_USERNAME` and `$BACKMAN_
 - `disable_web`: optional, disable web interface and api
 - `disable_metrics`: optional, disable Prometheus metrics endpoint
 - `disable_restore`: optional, disable restore function on API and web. It can be used to mitigate damage in case backman credentials are leaked. Enable it just before you might need to restore.
+- `disable_metrics_logging`: optional, disables logging of HTTP requests towards /metrics endpoint
+- `disable_health_logging`: optional, disables logging of HTTP requests towards /healthz endpoint
 - `unprotected_metrics`: optional, disable HTTP basic auth protection for Prometheus /metrics endpoint
 - `unprotected_health`: optional, disable HTTP basic auth protection for /healthz endpoint
 - `notifications.teams.webhook`: optional, setting a webhook URL will enable MS Teams notifications about backups

@@ -17,21 +17,23 @@ var (
 )
 
 type Config struct {
-	Port               int
-	LogLevel           string `json:"log_level"`
-	LoggingTimestamp   bool   `json:"logging_timestamp"`
-	Username           string
-	Password           string
-	DisableWeb         bool               `json:"disable_web"`
-	DisableMetrics     bool               `json:"disable_metrics"`
-	DisableRestore     bool               `json:"disable_restore"`
-	UnprotectedMetrics bool               `json:"unprotected_metrics"`
-	UnprotectedHealth  bool               `json:"unprotected_health"`
-	Notifications      NotificationConfig `json:"notifications"`
-	S3                 S3Config
-	Services           map[string]Service
-	ServiceBindingRoot string `json:"service_binding_root"`
-	Foreground         bool
+	Port                  int
+	LogLevel              string `json:"log_level"`
+	LoggingTimestamp      bool   `json:"logging_timestamp"`
+	Username              string
+	Password              string
+	DisableWeb            bool               `json:"disable_web"`
+	DisableMetrics        bool               `json:"disable_metrics"`
+	DisableRestore        bool               `json:"disable_restore"`
+	DisableMetricsLogging bool               `json:"disable_metrics_logging"`
+	DisableHealthLogging  bool               `json:"disable_health_logging"`
+	UnprotectedMetrics    bool               `json:"unprotected_metrics"`
+	UnprotectedHealth     bool               `json:"unprotected_health"`
+	Notifications         NotificationConfig `json:"notifications"`
+	S3                    S3Config
+	Services              map[string]Service
+	ServiceBindingRoot    string `json:"service_binding_root"`
+	Foreground            bool
 }
 
 type S3Config struct {
@@ -125,6 +127,12 @@ func new() *Config {
 		}
 		if envConfig.DisableRestore {
 			config.DisableRestore = envConfig.DisableRestore
+		}
+		if envConfig.DisableMetricsLogging {
+			config.DisableMetricsLogging = envConfig.DisableMetricsLogging
+		}
+		if envConfig.DisableHealthLogging {
+			config.DisableHealthLogging = envConfig.DisableHealthLogging
 		}
 		if envConfig.UnprotectedMetrics {
 			config.UnprotectedMetrics = envConfig.UnprotectedMetrics
