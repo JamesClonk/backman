@@ -22,7 +22,7 @@ applications:
   # - my_elasticsearch
   # - my_redis
 
-  # ### push either as docker image
+  # push as a container image
   docker:
     image: jamesclonk/backman:latest # choose version from https://github.com/swisscom/backman/releases or https://hub.docker.com/r/jamesclonk/backman/tags, or stay on 'latest' if you're feeling adventurous
 
