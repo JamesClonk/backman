@@ -42,10 +42,10 @@ a backup-manager app for [Cloud Foundry](https://www.cloudfoundry.org/) and [Kub
 
 ## Screenshots
 
-###### show all configured service instances
+##### show all configured service instances
 
-![backman services](https://raw.githubusercontent.com/swisscom/backman/master/static/images/backman_services_listing.png "backman services")
+![backman services](/static/images/backman_services_listing.png "backman services")
 
-###### display service, trigger backups or restores
+##### display service, trigger backups or restores
 
-![backman service](https://raw.githubusercontent.com/swisscom/backman/master/static/images/backman_service_view.png "backman service")
+![backman service](/static/images/backman_service_view.png "backman service")
