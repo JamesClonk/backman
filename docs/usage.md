@@ -34,7 +34,7 @@ Here are some examples:
 
 This allows you to query the current status of a particular service within backman.
 ```bash
-curl https://username:password@my-backman-url/api/v1/state/mysql/my_production_db
+curl https://username:password@my-backman-url/api/v1/state/mysql/my_production_db | jq .
 ```
 It should respond with HTTP status code `200` and a JSON representaion of the current service instance status and ongoing operation (if any). This is useful if you want to see if there is currently a backup being done, or failed, or finished.
 
@@ -42,7 +42,7 @@ It should respond with HTTP status code `200` and a JSON representaion of the cu
 
 This endpoint lists all services in backman.
 ```bash
-curl https://username:password@my-backman-url/api/v1/services
+curl https://username:password@my-backman-url/api/v1/services | jq .
 ```
 It should respond with HTTP status code `200` and a JSON representaion of all currently configured service instances in backman.
 
