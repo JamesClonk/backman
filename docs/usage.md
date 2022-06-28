@@ -30,7 +30,7 @@ Have a look at the [Swagger documentation](https://petstore.swagger.io/?url=http
 
 Here are some examples:
 
-#### **/api/v1/state/{service_type}/{service_name}**
+#### GET: **/api/v1/state/{service_type}/{service_name}**
 
 This allows you to query the current status of a particular service within backman.
 ```bash
@@ -38,7 +38,7 @@ curl https://username:password@my-backman-url/api/v1/state/mysql/my_production_d
 ```
 It should respond with HTTP status code `200` and a JSON representaion of the current service instance status and ongoing operation (if any). This is useful if you want to see if there is currently a backup being done, or failed, or finished.
 
-#### **/api/v1/services**
+#### GET: **/api/v1/services**
 
 This endpoint lists all services in backman.
 ```bash
@@ -46,11 +46,11 @@ curl https://username:password@my-backman-url/api/v1/services
 ```
 It should respond with HTTP status code `200` and a JSON representaion of all currently configured service instances in backman.
 
-#### **/api/v1/backup/{service_type}/{service_name}**
+#### POST: **/api/v1/backup/{service_type}/{service_name}**
 
 You can use this endpoint to trigger the creation of a new backup for a particular service.
 ```bash
-curl https://username:password@my-backman-url/api/v1/backup/mongodb/my_document_db
+curl -X POST https://username:password@my-backman-url/api/v1/backup/mongodb/my_document_db
 ```
 It should respond with a HTTP status code `200` to indicate that the process was triggered. You could now use the above mentioned `/state` endpoint to continuously query for the status of the ongoing backup process.
 
@@ -58,7 +58,7 @@ It should respond with a HTTP status code `200` to indicate that the process was
 
 Additionally there are also the `/healthz` and `/metrics` endpoints which serve a special purpose.
 
-#### **/healthz**
+#### GET: **/healthz**
 
 The `/healthz` endpoint can be used in Cloud Foundry or Kubernetes for continuously checking the health of your backman container.
 ```bash
@@ -68,7 +68,7 @@ It should respond with `OK` and HTTP status code `200`. Anything else indicates 
 
 You can disable logging output for any HTTP request going to the `/healthz` endpoint by setting `disable_health_logging` to `true` (see [JSON configuration](/docs/configuration.md#json-properties)), additionally you can also make the endpoint available without HTTP basic-auth protection, by setting `unprotected_metrics` to `true`. Both of these options are very useful in a Kubernetes deployment in order to not spam the container logs too much by using `/healthz` for a readiness or liveness probe.
 
-#### **/metrics**
+#### GET: **/metrics**
 
 This is the Prometheus endpoint for scraping metrics about backman.
 ```bash
