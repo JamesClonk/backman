@@ -66,10 +66,6 @@ spec:
             port: 8080
         livenessProbe:
           initialDelaySeconds: 15
-          periodSeconds: 15
-          timeoutSeconds: 5
-          successThreshold: 1
-          failureThreshold: 5
           httpGet:
             path: /healthz
             port: 8080
@@ -107,7 +103,7 @@ spec:
         secret:
           secretName: my-elasticsearch
 ---
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: backman
@@ -118,14 +114,25 @@ metadata:
     app.kubernetes.io/component: ingress
   annotations:
     kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: lets-encrypt
 spec:
+  tls:
+  - secretName: backman-tls
+    hosts:
+    - backman.swisscom.com
   rules:
   - host: backman.swisscom.com
     http:
       paths:
-      - backend:
-          serviceName: backman
-          servicePort: 8080
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: backman
+            port:
+              number: 8080
 ---
 apiVersion: v1
 kind: Namespace
@@ -273,7 +280,7 @@ stringData:
       "password": "doe",
       "s3": {
         "service_label": "s3",
-        "bucket_name": "backman-storage",
+        "bucket_name": "my-s3-bucket-for-backups",
         "host": "s3.amazonaws.com",
         "access_key": "my-access-key",
         "secret_key": "my-secret-key"
@@ -337,6 +344,7 @@ type: Opaque
 stringData:
   name: my-postgres
   type: postgres
+  provider: AWS RDS
   host: postgres.domain
   port: "5432"
   username: postgres_user
@@ -358,6 +366,7 @@ type: Opaque
 stringData:
   name: my-mysql
   type: mysql
+  provider: AWS RDS
   host: mysql.domain
   port: "3306"
   username: mysql_user
@@ -379,6 +388,7 @@ type: Opaque
 stringData:
   name: my-mongodb
   type: mongodb
+  provider: MongoDB Atlas
   uri: mongodb://mongodbadmin:super-secret@127.0.0.1:27017
 ---
 apiVersion: v1
@@ -396,6 +406,7 @@ type: Opaque
 stringData:
   name: my-redis
   type: redis
+  provider: RedisEnterprise
   host: redis.domain
   port: "6379"
   password: redis_passwd
@@ -415,6 +426,7 @@ type: Opaque
 stringData:
   name: my-elasticsearch
   type: elasticsearch
+  provider: Elastic Cloud
   host: https://my.elasticsearch.swisscom.com
   username: elasticsearch_user
   password: elasticsearch_passwd

@@ -17,24 +17,27 @@ backman:
   ingress:
     enabled: true # generates a k8s nginx ingress resource if enabled
     hostname: "backman.swisscom.com" # hostname for k8s nginx ingress
+    ingress_class: "nginx" # class of ingress controller
     cert_manager_tls:
-      enabled: false # requires cert-manager.io to be installed for ingress TLS support to be enabled
-      cluster_issuer: "" # requires a cluster-issuer name if TLS is enabled
+      enabled: true # requires cert-manager.io to be installed for ingress TLS support to be enabled
+      cluster_issuer: "lets-encrypt" # requires a cluster-issuer name if TLS is enabled
 
   username: "john" # basic-auth username
   password: "doe" # basic-auth password
 
   storage:
     s3:
+      bucket: "my-s3-bucket-for-backups" # s3 bucket name
       host: "s3.amazonaws.com" # s3 hostname
       key: "my-access-key" # s3 access key
       secret: "my-secret-key" # s3 secret key
 
-  # services require: name, type, credentials, schedule, timeout and retention
+  # services require: name, type, provider, credentials, schedule, timeout and retention
   services:
   # service type 'postgres' requires credentials: host, port, database, username and password
   - name: "my-postgres"
     type: "postgres"
+    provider: "AWS RDS"
     credentials:
       host: "postgres.domain"
       port: 5432
@@ -49,6 +52,7 @@ backman:
   # service type 'mysql' requires credentials: host, port, database, username and password
   - name: "my-mysql"
     type: "mysql"
+    provider: "AWS RDS"
     credentials:
       host: "mysql.domain"
       port: 3306
@@ -63,6 +67,7 @@ backman:
   # service type 'mongodb' requires credentials: uri
   - name: "my-mongodb"
     type: "mongodb"
+    provider: "MongoDB Atlas"
     credentials:
       uri: "mongodb://mongodbadmin:super-secret@127.0.0.1:27017"
     schedule: "0 0 3 * * *"
@@ -73,6 +78,7 @@ backman:
   # service type 'redis' requires credentials: hostname, port and password
   - name: "my-redis"
     type: "redis"
+    provider: "RedisEnterprise"
     credentials:
       host: "redis.domain"
       port: 6379
@@ -85,6 +91,7 @@ backman:
   # service type 'elasticsearch' requires credentials: host, username and password
   - name: "my-elasticsearch"
     type: "elasticsearch"
+    provider: "Elastic Cloud"
     credentials:
       host: "https://my.elasticsearch.swisscom.com"
       username: "elasticsearch_user"

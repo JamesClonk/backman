@@ -17,6 +17,7 @@ backman:
   ingress:
     enabled: false # generates a k8s nginx ingress resource if enabled
     hostname: "" # hostname for k8s nginx ingress
+    ingress_class: "" # class of ingress controller
     cert_manager_tls:
       enabled: false # requires cert-manager.io to be installed for ingress TLS support to be enabled
       cluster_issuer: "" # requires a cluster-issuer name if TLS is enabled
@@ -26,11 +27,12 @@ backman:
 
   storage:
     s3:
+      bucket: "" # s3 bucket name
       host: "" # s3 hostname
       key: "" # s3 access key
       secret: "" # s3 secret key
 
-  # services require: name, type, credentials, schedule, timeout and retention
+  # services require: name, type, provider, credentials, schedule, timeout and retention
   services: []
   # see example_values_full.yml for reference
   # service type 'postgres' requires credentials: host, port, database, username and password

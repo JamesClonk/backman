@@ -66,10 +66,6 @@ spec:
             port: 8080
         livenessProbe:
           initialDelaySeconds: 15
-          periodSeconds: 15
-          timeoutSeconds: 5
-          successThreshold: 1
-          failureThreshold: 5
           httpGet:
             path: /healthz
             port: 8080
@@ -123,7 +119,7 @@ stringData:
       "password": "doe",
       "s3": {
         "service_label": "s3",
-        "bucket_name": "backman-storage",
+        "bucket_name": "my-s3-bucket-for-backups",
         "host": "s3.amazonaws.com",
         "access_key": "my-access-key",
         "secret_key": "my-secret-key"
@@ -155,6 +151,7 @@ type: Opaque
 stringData:
   name: my-mysql
   type: mysql
+  provider: AWS RDS
   host: mysql.domain
   port: "3306"
   username: mysql_user

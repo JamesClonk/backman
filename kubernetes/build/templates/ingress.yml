@@ -6,15 +6,21 @@
 #@ if len(data.values.backman.ingress.hostname) == 0 or data.values.backman.ingress.hostname == "backman.example.org":
 #@  assert.fail("backman.ingress.hostname is missing or invalid")
 #@ end
+
+#@ ingress_class = "nginx"
+#@ if hasattr(data.values.backman.ingress,"ingress_class") and len(data.values.backman.ingress.ingress_class) > 0:
+#@  ingress_class = data.values.backman.ingress.ingress_class
+#@ end
+
 ---
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: backman
   namespace: backman
   labels: #@ labels("backman","ingress")
   annotations:
-    kubernetes.io/ingress.class: "nginx"
+    kubernetes.io/ingress.class: #@ ingress_class
     #@ if data.values.backman.ingress.cert_manager_tls.enabled:
     #@ if len(data.values.backman.ingress.cert_manager_tls.cluster_issuer) == 0:
     #@  assert.fail("data.values.backman.ingress.cert_manager_tls.cluster_issuer is missing")
@@ -33,7 +39,11 @@ spec:
   - host: #@ data.values.backman.ingress.hostname
     http:
       paths:
-      - backend:
-          serviceName: backman
-          servicePort: 8080
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: backman
+            port:
+              number: 8080
 #@ end

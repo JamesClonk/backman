@@ -17,15 +17,17 @@ backman:
 
   storage:
     s3:
+      bucket: "my-s3-bucket-for-backups" # s3 bucket name
       host: "s3.amazonaws.com" # s3 hostname
       key: "my-access-key" # s3 access key
       secret: "my-secret-key" # s3 secret key
 
-  # services require: name, type, credentials, schedule, timeout and retention
+  # services require: name, type, provider, credentials, schedule, timeout and retention
   services:
   # service type 'mysql' requires credentials: host, port, database, username and password
   - name: "my-mysql"
     type: "mysql"
+    provider: "AWS RDS"
     credentials:
       host: "mysql.domain"
       port: 3306
