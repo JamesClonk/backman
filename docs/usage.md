@@ -19,6 +19,10 @@ See Cloud Foundry specific [configuration](/docs/cloudfoundry/configuration.md) 
 
 See Kubernetes specific [configuration](/docs/kubernetes/configuration.md) and [deployment](/docs/kubernetes/deployment.md) documentation for more detailed information.
 
+## Configuration
+
+Check out the main [configuration documentation](/docs/configuration.md) for a detailed description of every possible option for `config.json` or `$BACKMAN_CONFIG`.
+
 ## The UI
 
 // TODO: explain the UI
