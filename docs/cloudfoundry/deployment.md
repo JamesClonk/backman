@@ -17,6 +17,8 @@ To deploy backman with a `manifest.yml`:
 4. Configure backman through the environment variable `$BACKMAN_CONFIG` in your `manifest.yml`
 5. Run `cf push -f manifest.yml`
 
+Backman should now be up and running and you can visit the configured route from `manifest.yml` with your browser to have a look at the web UI. Any service bound to the app in Cloud Foundry will be automatically detected and should be visible on the web UI.
+
 ---
 
 #### manifest.yml

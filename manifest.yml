@@ -3,35 +3,41 @@
 # https://docs.developer.swisscom.com/devguide/deploy-apps/manifest.html
 
 applications:
-- name: backman
-  memory: 1G # mysqldump consumes a lot of memory, no matter how small the database is
+- name: backman # name of your application
+  memory: 1G # mysqldump consumes a lot of memory, no matter how small the database is. keep this at least at 1G.
   disk_quota: 1G
-  instances: 1
-  health-check-type: http
+  instances: 1 # do not configure more than 1 instance, backman does not coordinate work among itself!
+  health-check-type: http # or 'port' if you don't want to use the /healthz endpoint
   health-check-http-endpoint: /healthz
 
-  routes:
-  - route: backman.scapp.io
-  - route: backman.applicationcloud.io
+  routes: # configure the route for the backman web UI / API
+  - route: my-backman.scapp-corp.swisscom.com
 
-  services:
-  - backman-storage
-  # - my_mysql_db
-  # - my_postgres_db
-  # - my_mongodb
-  # - my_elasticsearch
-  # - my_redis
+  services: # services instances you want to bind to backman
+  - backman-storage # one S3 service must be configured for backman to work
+  # add any database services here that you want backman to backup for you
+  - my_mysql_db
+  - my_postgres_db
+  - my_mongodb
+  - my_elasticsearch
+  - my_redis
 
   # push as a container image
   docker:
-    image: jamesclonk/backman:latest # choose version from https://github.com/swisscom/backman/releases or https://hub.docker.com/r/jamesclonk/backman/tags, or stay on 'latest' if you're feeling adventurous
+    image: jamesclonk/backman:latest
+    # choose image version/tag from https://github.com/swisscom/backman/releases
+    # or https://hub.docker.com/r/jamesclonk/backman/tags
+    # or stay on 'latest' if you're feeling adventurous
 
   env:
     TZ: Europe/Zurich
+
     BACKMAN_USERNAME: ((username)) # optional, username for HTTP Basic Auth
     BACKMAN_PASSWORD: ((password)) # optional, password for HTTP Basic Auth
     # BACKMAN_ENCRYPTION_KEY: "" #  optional, data-at-rest-encryption for backups stored on S3
-    BACKMAN_CONFIG: | # please consult /docs/configuration.md and /docs/cloudfoundry/configuration.md
+
+    # please consult /docs/configuration.md and /docs/cloudfoundry/configuration.md for more details
+    BACKMAN_CONFIG: |
       {
         "log_level": "info",
         "logging_timestamp": false,
