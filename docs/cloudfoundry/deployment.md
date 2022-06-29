@@ -1,4 +1,4 @@
-## Cloud Foundry deployments
+# Cloud Foundry deployments
 
 Deploying backman onto Cloud Foundry is pretty straightforward.
 
@@ -6,7 +6,7 @@ All you need to do is edit the provided `manifest.yml` inside this repository an
 
 ---
 
-### cf push
+## cf push
 
 To deploy backman with a `manifest.yml`:
 
@@ -21,7 +21,7 @@ Backman should now be up and running and you can visit the configured route from
 
 ---
 
-#### manifest.yml example
+### manifest.yml example
 
 ```yaml
 ---
