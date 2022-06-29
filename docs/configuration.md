@@ -194,3 +194,5 @@ Here's an example with S3 (for backup storage) and 2 services with explicitely c
 	}
 }
 ```
+
+> **Note**: Usually it should not be necessary to configure any credentials or bindings directly as shown above, since backman will autodetect your services and their bindings via `$VCAP_SERVICES` (Cloud Foundry) or `$SERVICE_BINDING_ROOT` (Kubernetes).
