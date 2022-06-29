@@ -141,7 +141,9 @@ or through the specific environment variables `$BACKMAN_USERNAME` and `$BACKMAN_
 - `services.<service-instance>.backup_options`: optional, allows specifying additional parameters and flags for service backup executable
 - `services.<service-instance>.restore_options`: optional, allows specifying additional parameters and flags for service restore executable
 
-It is also possible to configure service bindings and their credentials directly instead of having backman read them from `$VCAP_SERVICES` or `$SERVICE_BINDING_ROOT/<service>`. Read the [servicebinding spec](https://github.com/servicebinding/spec#well-known-secret-entries) for further information on these properties:
+#### Explicit service bindings / credentials
+
+It is also possible to configure service bindings and their credentials directly inside the configuration instead of having backman read and parse them from `$VCAP_SERVICES` or `$SERVICE_BINDING_ROOT/<service>` respectively. Read the [servicebinding spec](https://github.com/servicebinding/spec#well-known-secret-entries) for further information on these properties:
 - `services.<service-instance>.service_binding.type`: specify service type, supported values are *elasticsearch*, *mysql*, *postgres*, *mongodb*, *redis*
 - `services.<service-instance>.service_binding.provider`: optional, specify service provider
 - `services.<service-instance>.service_binding.host`: specify service hostname
@@ -150,3 +152,45 @@ It is also possible to configure service bindings and their credentials directly
 - `services.<service-instance>.service_binding.username`: specify service username credential
 - `services.<service-instance>.service_binding.password`: specify service password credential
 - `services.<service-instance>.service_binding.database`: optional, specify service database to backup
+
+Here's an example with S3 (for backup storage) and 2 services with explicitely configured service bindings:
+```json
+{
+	"logging_timestamp": true,
+	"s3": {
+		"bucket_name": "my-bucket-for-backups",
+		"host": "s3.amazonaws.com",
+		"access_key": "24a5ca67-6fd0-4f5a",
+		"secret_key": "0eeb6338-be51-4838-9231-f421f4022ea0"
+	},
+	"services": {
+		"production-db": {
+			"schedule": "0 0 6 * * *",
+			"timeout": "4h",
+			"retention": {
+				"days": 7,
+				"files": 21
+			},
+			"service_binding": {
+				"type": "postgres",
+				"provider": "AWS RDS",
+				"host": "postgres-c973ba.rds.amazonaws.com",
+				"username": "admin",
+				"password": "d44b5e36-7c3f-433a-b244-3e8d2a8e2e22",
+				"port": 5432,
+				"database": "productdb"
+			}
+		},
+		"cookie-cache": {
+			"schedule": "0 0 0/4 * * *",
+			"service_binding": {
+				"type": "redis",
+				"plan": "small",
+				"host": "redis-instance-1.redis.amazonaws.com",
+				"password": "fa786039-993b-4951-87a5-bf0adab8b848",
+				"port": 6379
+			}
+		}
+	}
+}
+```
