@@ -10,10 +10,10 @@ The other more simple and beginner friendly approach would be to use one of the 
 
 To deploy one of the simple deployment manifests:
 
-1. clone this repository
-2. go into the `kubernetes/deploy` folder
-3. choose and edit `full.yml` or `minimal.yml` to your liking
-4. run `kubectl apply -f <filename.yml>`
+1. Clone this repository
+2. Go into the `kubernetes/deploy` folder
+3. Choose and edit `full.yml` or `minimal.yml` to your liking
+4. Run `kubectl apply -f <filename.yml>`
 
 The manifest files found under [kubernetes/deploy](/kubernetes/deploy) have been generated with example values through ytt templates. Please make sure to edit them first to adjust configuration values and service bindings, the **Secret**, **Ingress** and **NetworkPolicy** resources, etc.. The default values these contain will very likely *not* work for you!
 

@@ -6,8 +6,8 @@
 1. Login to Cloud Foundry
 2. Create a service instance of an S3-compatible object storage
 3. Modify the provided `manifest.yml`, specify your service instance(s)
-4. Configure backman with the environment variable `$BACKMAN_CONFIG` (see `manifest.yml` example)
-5. `cf push`
+4. Configure backman through the environment variable `$BACKMAN_CONFIG` (see `manifest.yml` example)
+5. Run `cf push`
 
 See Cloud Foundry specific [configuration](/docs/cloudfoundry/configuration.md) and [deployment](/docs/cloudfoundry/deployment.md) documentation for more detailed information.
 
@@ -15,7 +15,7 @@ See Cloud Foundry specific [configuration](/docs/cloudfoundry/configuration.md) 
 
 1. Login to your Kubernetes cluster
 2. Modify the provided `full.yml` or `minimal.yml` from the [kubernetes/deploy](/kubernetes/deploy) folder
-4. run `kubectl apply -f <filename.yml>`
+4. Run `kubectl apply -f <filename.yml>`
 
 See Kubernetes specific [configuration](/docs/kubernetes/configuration.md) and [deployment](/docs/kubernetes/deployment.md) documentation for more detailed information.
 

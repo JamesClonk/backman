@@ -28,8 +28,8 @@ applications:
 
   env:
     TZ: Europe/Zurich
-    BACKMAN_USERNAME: ((username)) # optional, username for http basic-auth
-    BACKMAN_PASSWORD: ((password)) # optional, password for http basic-auth
+    BACKMAN_USERNAME: ((username)) # optional, username for HTTP Basic Auth
+    BACKMAN_PASSWORD: ((password)) # optional, password for HTTP Basic Auth
     # BACKMAN_ENCRYPTION_KEY: "" #  optional, data-at-rest-encryption for backups stored on S3
     BACKMAN_CONFIG: | # please consult /docs/configuration.md and /docs/cloudfoundry/configuration.md
       {
