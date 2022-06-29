@@ -1,16 +1,16 @@
-## Configuration on Kubernetes
+# Configuration on Kubernetes
 
 On Kubernetes backman is usually configured through a combination of a **Secret** containing a `config.json` configuration file thats mounted into the backman container, and then additional **Secret**s mounted into the `$SERVICE_BINDING_ROOT` path inside the container.
 
 backman will automatically detect and use any service bindings found under the `$SERVICE_BINDING_ROOT` path.
 
-### The `config.json` part
+## `config.json` - configuration file
 
 // TODO: explain `config.json` options specifically for Kubernetes use-cases
 
 // TODO: explain `backman -config /<path>/config.json`
 
-#### Mounting `config.json` into the container
+### Mounting `config.json` into the container
 
 Once we have our configuration **Secret** ready we can simply mount it into the container as a file and tell backman to use it with command arguments (`args: [ "-config", "<path>/<to>/<config.json>" ]`):
 
@@ -36,9 +36,7 @@ spec:
           secretName: backman-config-secret
 ```
 
-That's it!
-
-### The `$SERVICE_BINDING_ROOT` part
+## `$SERVICE_BINDING_ROOT` - service bindings
 
 On Kubernetes there's a simple and elegant way for apps to have service credentials injected and automatically detected at runtime, it's called the [Service Binding for Kubernetes](https://servicebinding.io/) specification.
 
@@ -55,7 +53,7 @@ For example:
 
 and many more...
 
-#### Service Binding configuration example
+### Service Binding configuration example
 
 backman fully supports automatic detection of any such service bindings. It will read all the contents of the path specified via [`$SERVICE_BINDING_ROOT`](https://servicebinding.io/application-developer/) environment variable (which defaults to `/bindings` if not set and is thus not mandatory).
 
