@@ -7,9 +7,9 @@ By default backman will assume useful values for all services/backups unless con
 > **Note**: Configuration through `config.json` only makes sense when building your own docker image or deploying on Kubernetes, otherwise you cannot modify the file. For Cloud Foundry you will therefore most likely configure `$BACKMAN_CONFIG` in your `manifest.yml` or via `cf set-env`. If you are using the provided docker image `jamesclonk/backman` (as is default in the manifest) then there will be no configuration file present inside the image and all configuration options must to be set via environment variables.
 For Kubernetes on the other hand it is very convenient to mount a `config.json` file from a **Secret** into the container.
 
-On Cloud Foundry it is generally recommended to use the `$BACKMAN_CONFIG` environment variable for all your configuration needs. See [Cloud Foundry configuration](/docs/cloudfoundry/configuration.md) for further details.
+On Cloud Foundry it is generally recommended to use the `$BACKMAN_CONFIG` environment variable for all your configuration needs. See [Cloud Foundry configuration](/docs/cloudfoundry/configuration.md) for further details. Service bindings are automatically detected via [`$VCAP_SERVICES`](https://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES) on Cloud Foundry.
 
-On Kubernetes you should use a **Secret** containing the full `config.json` and then mount it as a volume into the container. See [Kubernetes configuration](/docs/kubernetes/configuration.md) for further details.
+On Kubernetes you should use a **Secret** containing the full `config.json` and then mount it as a volume into the container. See [Kubernetes configuration](/docs/kubernetes/configuration.md) for further details. Service bindings are automatically detected via [`$SERVICE_BINDING_ROOT`](https://servicebinding.io/application-developer/) on Kubernetes.
 
 ### Examples
 
