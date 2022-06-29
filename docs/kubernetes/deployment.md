@@ -81,7 +81,8 @@ spec:
         - mountPath: /backman/config.json
           name: backman-config
           subPath: config.json
-        # mount mysql example service binding under /bindings/my-rds-db, according to servicebinding.io spec (https://servicebinding.io/spec/core/1.0.0/#workload-projection)
+        # mount mysql example service binding under /bindings/my-rds-db, according to servicebinding.io spec
+        # https://servicebinding.io/spec/core/1.0.0/#workload-projection
         - mountPath: /bindings/my-rds-db
           name: example-mysql-service-binding
       volumes:
@@ -94,15 +95,16 @@ spec:
           secretName: example-mysql-service-binding
 
 ---
+# this Secret is our backman configuration file.
+# both `unprotected_metrics` and `unprotected_health` must be set to `true` for the above deployment to work,
+# because it is using /metrics and /healthz endpoints for container probes.
+# disabling request logs with `disable_metrics_logging` and `disable_health_logging` is also recommended.
 apiVersion: v1
 kind: Secret
 metadata:
   name: backman-config
 type: Opaque
 stringData:
-  # our backman configuration file
-  # both `unprotected_metrics` and `unprotected_health` must be set to `true` for the above deployment to work,
-  # because it is using /metrics and /healthz endpoints for container probes.
   config.json: |
     {
       "log_level": "info",
@@ -133,12 +135,14 @@ stringData:
     }
 
 ---
+# this Secret is an example of a service binding, according to servicebinding.io spec
+# https://servicebinding.io/application-developer/
 apiVersion: v1
 kind: Secret
 metadata:
   name: example-mysql-service-binding
 type: Opaque
-stringData: # an example service binding, according to servicebinding.io spec (https://servicebinding.io/application-developer/)
+stringData:
   name: my-rds-db
   type: mysql
   provider: AWS RDS
