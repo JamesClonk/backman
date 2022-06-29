@@ -157,7 +157,7 @@ stringData:
 
 ### ytt and kapp
 
-To deploy via [ytt](https://carvel.dev/ytt/) and [kapp](https://carvel.dev/kapp/):
+To deploy via [ytt](https://carvel.dev/ytt/) and [kapp](https://carvel.dev/kapp/) instead of a simple manifest you can make use of the helper scripts provided under [kubernetes/build](/kubernetes/build):
 
 1. clone this repository
 2. go into the `kubernetes/build` folder
