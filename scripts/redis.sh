@@ -117,4 +117,4 @@ redis-cli -h 127.0.0.1 -a 'very-secret' GET blibb | grep howdy
 # delete backup
 curl -X DELETE http://john:doe@127.0.0.1:9990/api/v1/backup/redis-2/my-redis/${FILENAME}
 sleep 10
-curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/redis-2/my-redis | grep -v 'Filename'
+curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/redis-2/my-redis | grep -v "${FILENAME}"

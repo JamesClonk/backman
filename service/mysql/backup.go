@@ -82,9 +82,14 @@ func Backup(ctx context.Context, s3 *s3.Client, service config.Service, filename
 	go func() {
 		defer uploadWait.Done()
 
-		// gzipping stdout
+		// gzipping stdout, pass to gzipping buffer
 		pr, pw := io.Pipe()
+		defer pw.Close()
+
 		gw := gzip.NewWriter(pw)
+		defer gw.Close()
+		defer gw.Flush()
+
 		gw.Name = strings.TrimSuffix(filename, ".gz")
 		gw.ModTime = time.Now()
 		go func() {
@@ -106,9 +111,9 @@ func Backup(ctx context.Context, s3 *s3.Client, service config.Service, filename
 			log.Errorf("could not upload service backup [%s] to S3: %v", service.Name, err)
 			state.BackupFailure(service, filename)
 		}
-		time.Sleep(7 * time.Second) // wait for backup goroutine to have finished
+		time.Sleep(1 * time.Second) // wait pipe to be closed
 	}()
-	time.Sleep(7 * time.Second) // wait for upload goroutine to be ready
+	time.Sleep(5 * time.Second) // wait for upload goroutine to be ready
 
 	// capture and read stderr in case an error occurs
 	var errBuf bytes.Buffer
@@ -119,6 +124,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service config.Service, filename
 		state.BackupFailure(service, filename)
 		return err
 	}
+	time.Sleep(5 * time.Second) // wait for upload goroutine to start working
 
 	if err := cmd.Wait(); err != nil {
 		state.BackupFailure(service, filename)
@@ -133,13 +139,12 @@ func Backup(ctx context.Context, s3 *s3.Client, service config.Service, filename
 		log.Errorln(strings.TrimRight(errBuf.String(), "\r\n"))
 		return fmt.Errorf("mysqldump: %v", err)
 	}
-	time.Sleep(7 * time.Second) // wait for backup goroutine to have finished
+	time.Sleep(5 * time.Second) // wait for backup goroutine to have finished entirely
 
 	uploadWait.Wait() // wait for upload to have finished
 	if err == nil {
 		state.BackupSuccess(service, filename)
 	}
-	time.Sleep(5 * time.Second) // wait for upload to have finished
 
 	if service.LogStdErr {
 		log.Infoln(strings.TrimRight(errBuf.String(), "\r\n"))

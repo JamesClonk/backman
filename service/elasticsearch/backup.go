@@ -95,7 +95,12 @@ func Backup(ctx context.Context, s3 *s3.Client, service config.Service, filename
 
 			// gzipping stdout
 			pr, pw := io.Pipe()
+			defer pw.Close()
+
 			gw := gzip.NewWriter(pw)
+			defer gw.Close()
+			defer gw.Flush()
+
 			gw.Name = strings.TrimSuffix(filename, ".gz")
 			gw.ModTime = time.Now()
 			go func() {
@@ -116,8 +121,9 @@ func Backup(ctx context.Context, s3 *s3.Client, service config.Service, filename
 				log.Errorf("could not upload service backup [%s] to S3: %v", service.Name, err)
 				state.BackupFailure(service, filename)
 			}
+			time.Sleep(1 * time.Second) // wait pipe to be closed
 		}()
-		time.Sleep(2 * time.Second) // wait for upload goroutine to be ready
+		time.Sleep(3 * time.Second) // wait for upload goroutine to be ready
 
 		// capture and read stderr in case an error occurs
 		var errBuf bytes.Buffer

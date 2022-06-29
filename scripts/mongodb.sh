@@ -112,4 +112,4 @@ mongo --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabas
 # delete backup
 curl -X DELETE http://john:doe@127.0.0.1:9990/api/v1/backup/mongodb/my_mongodb/${FILENAME}
 sleep 10
-curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/mongodb/my_mongodb | grep -v 'Filename'
+curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/mongodb/my_mongodb | grep -v "${FILENAME}"

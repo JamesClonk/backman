@@ -90,7 +90,10 @@ sleep 5
 
 # download backup and check for completeness
 FILENAME=$(curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/mysql/my_mysql_db | jq -r .Files[0].Filename)
-curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/mysql/my_mysql_db/${FILENAME}/download | zgrep '\-\- Dump completed'
+curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/mysql/my_mysql_db/${FILENAME}/download > backup.tmp.tgz
+sleep 5
+zgrep 'Dump completed' backup.tmp.tgz
+rm -f backup.tmp.tgz || true
 
 # delete from mysql
 mysql -h 127.0.0.1 -u root -D mysql -e 'delete from test_example'
@@ -113,4 +116,4 @@ mysql -h 127.0.0.1 -u root -D mysql -e 'select my_column from test_example' | gr
 # delete backup
 curl -X DELETE http://john:doe@127.0.0.1:9990/api/v1/backup/mysql/my_mysql_db/${FILENAME}
 sleep 11
-curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/mysql/my_mysql_db | grep -v 'Filename'
+curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/mysql/my_mysql_db | grep -v "${FILENAME}"

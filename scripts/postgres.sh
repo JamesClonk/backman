@@ -91,7 +91,7 @@ psql -h 127.0.0.1 -U dev-user -d my_postgres_db -c 'select my_column from test_e
 
 # download backup and check for completeness
 FILENAME=$(curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/postgres/my_postgres_db | jq -r .Files[0].Filename)
-curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/postgres/my_postgres_db/${FILENAME}/download | zgrep '\-\- PostgreSQL database dump complete'
+curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/postgres/my_postgres_db/${FILENAME}/download | zgrep 'PostgreSQL database dump complete'
 
 # delete from postgres
 psql -h 127.0.0.1 -U dev-user -d my_postgres_db -c 'delete from test_example'
@@ -111,4 +111,4 @@ psql -h 127.0.0.1 -U dev-user -d my_postgres_db -c 'select my_column from test_e
 # delete backup
 curl -X DELETE http://john:doe@127.0.0.1:9990/api/v1/backup/postgres/my_postgres_db/${FILENAME}
 sleep 10
-curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/postgres/my_postgres_db | grep -v 'Filename'
+curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/postgres/my_postgres_db | grep -v "${FILENAME}"
