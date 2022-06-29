@@ -11,7 +11,7 @@ On Cloud Foundry it is generally recommended to use the `$BACKMAN_CONFIG` enviro
 
 On Kubernetes you should use a **Secret** containing the full `config.json` and then mount it as a volume into the container. See [Kubernetes configuration](/docs/kubernetes/configuration.md) for further details. Service bindings are automatically detected via [`$SERVICE_BINDING_ROOT`](https://servicebinding.io/application-developer/) on Kubernetes.
 
-### Examples
+## Examples
 
 These here are the default values backman will use if not configured otherwise:
 ```json
@@ -94,7 +94,7 @@ A more comprehensive example of possible configuration options could look like t
 }
 ```
 
-#### *HTTP Basic Auth*
+### *HTTP Basic Auth*
 
 backman can be secured through *HTTP Basic Auth*, with a username and password provided either in the JSON configuration
 ```json
@@ -105,7 +105,7 @@ backman can be secured through *HTTP Basic Auth*, with a username and password p
 ```
 or through the specific environment variables `$BACKMAN_USERNAME` and `$BACKMAN_PASSWORD` (see `manifest.yml`)
 
-### JSON properties
+## JSON properties
 - `log_level`: optional, specifies log output level, can be *info*, *warn*, *debug*, *error*
 - `logging_timestamp`: optional, enable timestamping log output, not needed when deployed on Cloud Foundry
 - `username`: optional, *HTTP Basic Auth* username
@@ -143,7 +143,7 @@ or through the specific environment variables `$BACKMAN_USERNAME` and `$BACKMAN_
 - `services.<service-instance>.backup_options`: optional, allows specifying additional parameters and flags for service backup executable
 - `services.<service-instance>.restore_options`: optional, allows specifying additional parameters and flags for service restore executable
 
-#### Explicit service bindings / credentials
+### Explicit service bindings / credentials
 
 It is also possible to configure service bindings and their credentials directly inside the configuration instead of having backman read and parse them from `$VCAP_SERVICES` or `$SERVICE_BINDING_ROOT/<service>` respectively. Read the [servicebinding spec](https://github.com/servicebinding/spec#well-known-secret-entries) for further information on these properties:
 - `services.<service-instance>.service_binding.type`: specify service type, supported values are *elasticsearch*, *mysql*, *postgres*, *mongodb*, *redis*
