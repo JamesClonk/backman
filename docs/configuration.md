@@ -94,6 +94,8 @@ A more comprehensive example of possible configuration options could look like t
 }
 ```
 
+#### *HTTP Basic Auth*
+
 backman can be secured through *HTTP Basic Auth*, with a username and password provided either in the JSON configuration
 ```json
 {

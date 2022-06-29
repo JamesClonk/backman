@@ -25,7 +25,14 @@ Check out the main [configuration documentation](/docs/configuration.md) for a d
 
 ## The UI
 
-// TODO: explain the UI
+backman includes a fully featured web UI which is available under `<address>:8080` while running (The default port for this is 8080 unless specified otherwise through `$PORT` environment variable).
+
+The main page will show you a list of all service bindings and their configuration. From there you can click on any of the services and get to a page showing you detailed information about that particular service instance, its configuration and a list of already existing backups. From there these backup files can be downloaded, restored or deleted from storage. You can also trigger a new backup on-demand on that page.
+
+Check out the [screenshots](/README.md#screenshots) to see some examples of how this looks.
+
+Access to the web UI can be restricted with *HTTP Basic Auth* by configuring a username and password, see [basic auth configuration documentation](/docs/configuration.md#http-basic-auth) on how to do this.
+The web UI can also be disabled entirely by setting `disable_web` to `true`.
 
 ## The API
 
