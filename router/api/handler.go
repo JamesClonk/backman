@@ -4,34 +4,34 @@ import (
 	"crypto/subtle"
 	"fmt"
 
-	cfenv "github.com/cloudfoundry-community/go-cfenv"
 	echo "github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/swisscom/backman/config"
-	"github.com/swisscom/backman/s3"
-	"github.com/swisscom/backman/service"
 )
 
 const version = "v1"
 
 // Handler holds all objects and configurations used across API requests
-type Handler struct {
-	App     *cfenv.App
-	S3      *s3.Client
-	Service *service.Service
-}
+type Handler struct{}
 
 func New() *Handler {
-	return &Handler{
-		App:     service.Get().App,
-		S3:      service.Get().S3,
-		Service: service.Get(),
-	}
+	return &Handler{}
 }
 
 func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	// everything should be placed under /api/$version/
 	g := e.Group(fmt.Sprintf("/api/%s", version))
+
+	// don't show timestamp unless specifically configured
+	format := `remote_ip="${remote_ip}", host="${host}", method=${method}, uri=${uri}, user_agent="${user_agent}", ` +
+		`status=${status}, error="${error}", latency_human="${latency_human}", bytes_out=${bytes_out}` + "\n"
+	if config.Get().LoggingTimestamp {
+		format = `time="${time_rfc3339}", ` + format
+	}
+	// add logger middlerware
+	g.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: format,
+	}))
 
 	// secure routes with HTTP BasicAuth
 	username := config.Get().Username
@@ -46,6 +46,8 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	g.GET("/services", h.ListServices)
 	g.GET("/backups", h.ListBackups)
 	g.GET("/states", h.ListStates)
+
+	g.GET("/service/:service_type/:service_name", h.GetService)
 
 	g.GET("/backup/:service_type/:service_name", h.GetBackups)
 	g.GET("/backup/:service_type/:service_name/:file", h.GetBackup)

@@ -5,7 +5,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/swisscom/backman/service/util"
+	"github.com/swisscom/backman/config"
 )
 
 var (
@@ -32,19 +32,19 @@ var (
 	}, []string{"type", "name"})
 )
 
-func RestoreInit(service util.Service) {
-	restoreQueuedState.WithLabelValues(service.Label, service.Name).Set(0)
-	restoreRunningState.WithLabelValues(service.Label, service.Name).Set(0)
+func RestoreInit(service config.Service) {
+	restoreQueuedState.WithLabelValues(service.Binding.Type, service.Name).Set(0)
+	restoreRunningState.WithLabelValues(service.Binding.Type, service.Name).Set(0)
 }
 
-func RestoreQueue(service util.Service) {
-	restoreQueuedState.WithLabelValues(service.Label, service.Name).Inc()
+func RestoreQueue(service config.Service) {
+	restoreQueuedState.WithLabelValues(service.Binding.Type, service.Name).Inc()
 }
 
-func RestoreStart(service util.Service, filename string) {
-	restoreQueuedState.WithLabelValues(service.Label, service.Name).Dec()
-	restoreRunningState.WithLabelValues(service.Label, service.Name).Set(1)
-	restoreRuns.WithLabelValues(service.Label, service.Name).Inc()
+func RestoreStart(service config.Service, filename string) {
+	restoreQueuedState.WithLabelValues(service.Binding.Type, service.Name).Dec()
+	restoreRunningState.WithLabelValues(service.Binding.Type, service.Name).Set(1)
+	restoreRuns.WithLabelValues(service.Binding.Type, service.Name).Inc()
 
 	Tracker().Set(service,
 		State{
@@ -55,9 +55,9 @@ func RestoreStart(service util.Service, filename string) {
 		})
 }
 
-func RestoreFailure(service util.Service, filename string) {
-	restoreRunningState.WithLabelValues(service.Label, service.Name).Set(0)
-	restoreFailures.WithLabelValues(service.Label, service.Name).Inc()
+func RestoreFailure(service config.Service, filename string) {
+	restoreRunningState.WithLabelValues(service.Binding.Type, service.Name).Set(0)
+	restoreFailures.WithLabelValues(service.Binding.Type, service.Name).Inc()
 
 	state, _ := Tracker().Get(service)
 	Tracker().Set(service,
@@ -70,9 +70,9 @@ func RestoreFailure(service util.Service, filename string) {
 		})
 }
 
-func RestoreSuccess(service util.Service, filename string) {
-	restoreRunningState.WithLabelValues(service.Label, service.Name).Set(0)
-	restoreSuccess.WithLabelValues(service.Label, service.Name).Inc()
+func RestoreSuccess(service config.Service, filename string) {
+	restoreRunningState.WithLabelValues(service.Binding.Type, service.Name).Set(0)
+	restoreSuccess.WithLabelValues(service.Binding.Type, service.Name).Inc()
 
 	state, _ := Tracker().Get(service)
 	Tracker().Set(service,

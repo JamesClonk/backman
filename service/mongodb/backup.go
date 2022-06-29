@@ -11,17 +11,15 @@ import (
 	"sync"
 	"time"
 
-	cfenv "github.com/cloudfoundry-community/go-cfenv"
-
+	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/s3"
-	"github.com/swisscom/backman/service/util"
 	"github.com/swisscom/backman/state"
 )
 
 var mongoMutex = &sync.Mutex{}
 
-func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *cfenv.Service, filename string) error {
+func Backup(ctx context.Context, s3 *s3.Client, service config.Service, filename string) error {
 	state.BackupQueue(service)
 
 	// lock global mongodb mutex, only 1 backup of this service-type is allowed to run in parallel
@@ -30,13 +28,11 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 
 	state.BackupStart(service, filename)
 
-	uri, _ := binding.CredentialString("uri")
-
 	// prepare mongodump command
 	var command []string
 	command = append(command, "mongodump")
 	command = append(command, "--uri")
-	command = append(command, uri)
+	command = append(command, service.Binding.URI)
 	command = append(command, "--readPreference")
 	command = append(command, "secondary")
 	command = append(command, "--gzip")
@@ -72,7 +68,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 			}
 		}()
 
-		objectPath := fmt.Sprintf("%s/%s/%s", service.Label, service.Name, filename)
+		objectPath := fmt.Sprintf("%s/%s/%s", service.Binding.Type, service.Name, filename)
 		err = s3.UploadWithContext(uploadCtx, objectPath, pr, -1)
 		if err != nil {
 			log.Errorf("could not upload service backup [%s] to S3: %v", service.Name, err)

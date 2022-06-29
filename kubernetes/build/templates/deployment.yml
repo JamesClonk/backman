@@ -1,0 +1,108 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:assert", "assert")
+#@ load("_ytt.lib.yml", "labels")
+
+#@ if len(data.values.backman.services) == 0:
+#@  assert.fail("backman.services are missing or invalid")
+#@ end
+#@ for idx in range(len(data.values.backman.services)):
+#@   service = data.values.backman.services[idx]
+#@   if len(service.name) == 0:
+#@     assert.fail("backman.services[" + str(idx) + "].name is missing")
+#@   end
+#@   if len(service.type) == 0:
+#@     assert.fail("backman.services[" + str(idx) + "].type is missing")
+#@   end
+#@   if len(service.schedule) == 0:
+#@     assert.fail("backman.services[" + str(idx) + "].schedule is missing")
+#@   end
+#@   if len(service.timeout) == 0:
+#@     assert.fail("backman.services[" + str(idx) + "].timeout is missing")
+#@   end
+#@   if service.retention.days <= 0:
+#@     assert.fail("backman.services[" + str(idx) + "].retention.days is missing")
+#@   end
+#@   if service.retention.files <= 0:
+#@     assert.fail("backman.services[" + str(idx) + "].retention.files is missing")
+#@   end
+#@ end
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backman
+  namespace: backman
+  labels: #@ labels("backman","gui")
+spec:
+  selector:
+    matchLabels: #@ labels("backman","gui")
+  replicas: 1
+  revisionHistoryLimit: 5
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels: #@ labels("backman","gui")
+      annotations:
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+    spec:
+      serviceAccountName: backman
+      securityContext:
+        runAsUser: 2000
+        runAsGroup: 2000
+        fsGroup: 2000
+      containers:
+      - name: backman
+        image: #@ data.values.backman.image
+        securityContext:
+          privileged: false
+          allowPrivilegeEscalation: false
+        ports:
+        - containerPort: 8080
+        command: [ "backman" ]
+        args: [ "-config", "/backman/config.json" ]
+        env:
+        - name: TZ
+          value: "Europe/Zurich"
+        - name: PORT
+          value: "8080"
+        - name: SERVICE_BINDING_ROOT
+          value: "/bindings"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: 8080
+        livenessProbe:
+          initialDelaySeconds: 15
+          httpGet:
+            path: /healthz
+            port: 8080
+        volumeMounts:
+        - mountPath: /backman/config.json
+          name: backman-secret
+          subPath: config.json
+#@ for idx in range(len(data.values.backman.services)):
+#@   service = data.values.backman.services[idx]
+        - mountPath: #@ "/bindings/" + service.name
+          name: #@ service.name
+#@ end
+      volumes:
+      - name: backman-secret
+        secret:
+          secretName: backman
+#@ for idx in range(len(data.values.backman.services)):
+#@   service = data.values.backman.services[idx]
+      - name: #@ service.name
+        secret:
+          secretName: #@ service.name
+#@ end

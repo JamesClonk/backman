@@ -10,7 +10,12 @@ fi
 echo $PWD
 
 # =============================================================================================
-source .env
+# do not source any env vars at all for this test, we rely entirely on _fixtures/config_without_bindings.json and SERVICE_BINDING_ROOT (_fixtures/bindings/*)
+unset BACKMAN_CONFIG
+unset VCAP_SERVICES
+export SERVICE_BINDING_ROOT="_fixtures/bindings"
+export PORT="9990"
+# this will test reading the postgres service binding entirely from SERVICE_BINDING_ROOT/*, as well as the S3 credentials
 
 # =============================================================================================
 retry() {
@@ -43,8 +48,8 @@ echo "testing postgres integration ..."
 sleep 5
 # starting backman
 killall backman || true
-./backman 2>&1 &
-sleep 5
+./backman -config _fixtures/config_without_bindings.json 2>&1 &
+sleep 10
 
 set -x
 if [ $(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:9990) != "401" ]; then
@@ -55,6 +60,11 @@ fi
 if [ $(curl -s -o /dev/null -w "%{http_code}" http://john:doe@127.0.0.1:9990) != "200" ]; then
 	echo "Should be authorized"
 	exit 1
+fi
+
+if [ $(curl -s -o /dev/null -w "%{http_code}" http://john:doe@127.0.0.1:9990/healthz) != "200" ]; then
+    echo "Should be OK"
+    exit 1
 fi
 
 if [ $(curl -s -o /dev/null -w "%{http_code}" http://john:doe@127.0.0.1:9990/api/v1/state/postgres/my_postgres_db) != "200" ]; then

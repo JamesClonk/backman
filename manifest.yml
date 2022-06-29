@@ -7,7 +7,8 @@ applications:
   memory: 1G # mysqldump consumes a lot of memory, no matter how small the database is
   disk_quota: 1G
   instances: 1
-  health-check-type: port
+  health-check-type: http
+  health-check-http-endpoint: /healthz
 
   routes:
   - route: backman.scapp.io
@@ -21,22 +22,26 @@ applications:
   # - my_elasticsearch
   # - my_redis
 
-  # ### push either as docker image
+  # push as a container image
   docker:
     image: jamesclonk/backman:latest # choose version from https://github.com/swisscom/backman/releases or https://hub.docker.com/r/jamesclonk/backman/tags, or stay on 'latest' if you're feeling adventurous
 
   env:
     TZ: Europe/Zurich
-    BACKMAN_USERNAME: ((username)) # optional, could also be configured in config.json or BACKMAN_CONFIG
-    BACKMAN_PASSWORD: ((password)) # optional, could also be configured in config.json or BACKMAN_CONFIG
-    # BACKMAN_ENCRYPTION_KEY: "" # data-at-rest-encryption for backups stored on S3, optional, could also be configured in config.json or BACKMAN_CONFIG
-    BACKMAN_CONFIG: |
+    BACKMAN_USERNAME: ((username)) # optional, username for http basic-auth
+    BACKMAN_PASSWORD: ((password)) # optional, password for http basic-auth
+    # BACKMAN_ENCRYPTION_KEY: "" #  optional, data-at-rest-encryption for backups stored on S3
+    BACKMAN_CONFIG: | # please consult /docs/configuration.md and /docs/cloudfoundry/configuration.md
       {
-        "log_level": "debug",
+        "log_level": "info",
+        "logging_timestamp": false,
         "disable_web": false,
         "disable_metrics": false,
         "disable_restore": false,
+        "disable_metrics_logging": false,
+        "disable_health_logging": true,
         "unprotected_metrics": false,
+        "unprotected_health": true,
         "s3": {
           "service_label": "dynstrg",
           "bucket_name": "backman-storage"

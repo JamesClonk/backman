@@ -1,0 +1,42 @@
+#@data/values
+---
+backman:
+  image: "jamesclonk/backman:latest"
+
+  pod_security_policy:
+    enabled: true  # generates a k8s pod-security-policy if enabled
+
+  network_policy:
+    enabled: false # generates a k8s network-policy if enabled
+    namespace_labels:
+      ingress: # namespace matchLabels for ingress-controller access
+        namespace.kubernetes.io/name: "ingress-nginx"
+      prometheus: # namespace matchLabels for prometheus access
+        namespace.kubernetes.io/name: "prometheus"
+
+  ingress:
+    enabled: false # generates a k8s nginx ingress resource if enabled
+    hostname: "" # hostname for k8s nginx ingress
+    ingress_class: "" # class of ingress controller
+    cert_manager_tls:
+      enabled: false # requires cert-manager.io to be installed for ingress TLS support to be enabled
+      cluster_issuer: "" # requires a cluster-issuer name if TLS is enabled
+
+  username: "" # basic-auth username
+  password: "" # basic-auth password
+
+  storage:
+    s3:
+      bucket: "" # s3 bucket name
+      host: "" # s3 hostname
+      key: "" # s3 access key
+      secret: "" # s3 secret key
+
+  # services require: name, type, provider, credentials, schedule, timeout and retention
+  services: []
+  # see example_values_full.yml for reference
+  # service type 'postgres' requires credentials: host, port, database, username and password
+  # service type 'mysql' requires credentials: host, port, database, username and password
+  # service type 'mongodb' requires credentials: uri
+  # service type 'redis' requires credentials: host, port and password
+  # service type 'elasticsearch' requires credentials: host, username and password

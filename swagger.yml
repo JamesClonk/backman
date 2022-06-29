@@ -8,7 +8,7 @@ definitions:
       Service:
         $ref: '#/definitions/Service'
     type: object
-    x-go-package: github.com/swisscom/backman/service
+    x-go-package: github.com/swisscom/backman/router/api
   Duration:
     description: |-
       A Duration represents the elapsed time between two instants
@@ -32,7 +32,7 @@ definitions:
         format: int64
         type: integer
     type: object
-    x-go-package: github.com/swisscom/backman/service
+    x-go-package: github.com/swisscom/backman/router/api
   Retention:
     properties:
       Days:
@@ -42,41 +42,25 @@ definitions:
         format: int64
         type: integer
     type: object
-    x-go-package: github.com/swisscom/backman/service/util
+    x-go-package: github.com/swisscom/backman/router/api
   Service:
     properties:
-      BackupOptions:
-        items:
-          type: string
-        type: array
-      DisableColumnStatistics:
-        type: boolean
-      ForceImport:
-        type: boolean
-      Label:
-        type: string
-      LocalBackupPath:
-        type: string
       Name:
         type: string
       Plan:
         type: string
-      RestoreOptions:
-        items:
-          type: string
-        type: array
+      Provider:
+        type: string
       Retention:
         $ref: '#/definitions/Retention'
       Schedule:
         type: string
-      Tags:
-        items:
-          type: string
-        type: array
       Timeout:
         $ref: '#/definitions/Duration'
+      Type:
+        type: string
     type: object
-    x-go-package: github.com/swisscom/backman/service/util
+    x-go-package: github.com/swisscom/backman/router/api
   State:
     properties:
       At:
@@ -93,7 +77,7 @@ definitions:
       Status:
         type: string
     type: object
-    x-go-package: github.com/swisscom/backman/state
+    x-go-package: github.com/swisscom/backman/router/api
 paths:
   /api/v1/backup/{service_type}/{service_name}:
     get:
@@ -102,7 +86,9 @@ paths:
       - application/json
       responses:
         "200":
-          $ref: '#/responses/backup'
+          description: Backup
+          schema:
+            $ref: '#/definitions/Backup'
       schemes:
       - http
       - https
@@ -115,7 +101,9 @@ paths:
       - application/json
       responses:
         "202":
-          $ref: '#/responses/service'
+          description: Service
+          schema:
+            $ref: '#/definitions/Service'
       schemes:
       - http
       - https
@@ -142,7 +130,9 @@ paths:
       - application/json
       responses:
         "200":
-          $ref: '#/responses/backup'
+          description: Backup
+          schema:
+            $ref: '#/definitions/Backup'
       schemes:
       - http
       - https
@@ -170,7 +160,7 @@ paths:
       - application/json
       responses:
         "200":
-          $ref: '#/responses/backups'
+          $ref: '#/responses/Backups'
       schemes:
       - http
       - https
@@ -191,6 +181,22 @@ paths:
       summary: Triggers a restore for given service.
       tags:
       - restore
+  /api/v1/service/{service_type}/{service_name}:
+    get:
+      operationId: getService
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Service
+          schema:
+            $ref: '#/definitions/Service'
+      schemes:
+      - http
+      - https
+      summary: Returns a service instance.
+      tags:
+      - service
   /api/v1/services:
     get:
       operationId: listServices
@@ -198,7 +204,7 @@ paths:
       - application/json
       responses:
         "200":
-          $ref: '#/responses/services'
+          $ref: '#/responses/Services'
       schemes:
       - http
       - https
@@ -212,7 +218,9 @@ paths:
       - application/json
       responses:
         "200":
-          $ref: '#/responses/state'
+          description: State
+          schema:
+            $ref: '#/definitions/State'
       schemes:
       - http
       - https
@@ -226,7 +234,7 @@ paths:
       - application/json
       responses:
         "200":
-          $ref: '#/responses/states'
+          $ref: '#/responses/States'
       schemes:
       - http
       - https
@@ -234,78 +242,19 @@ paths:
       tags:
       - state
 responses:
-  backup:
-    description: ""
-    headers:
-      Files:
-        items:
-          $ref: '#/definitions/File'
-        type: array
-      Service: {}
-    schema:
-      $ref: '#/definitions/Service'
-  backups:
+  Backups:
     description: ""
     schema:
       items:
         $ref: '#/definitions/Backup'
       type: array
-  service:
-    description: ""
-    headers:
-      BackupOptions:
-        items:
-          type: string
-        type: array
-      DisableColumnStatistics:
-        type: boolean
-      ForceImport:
-        type: boolean
-      Label:
-        type: string
-      LocalBackupPath:
-        type: string
-      Name:
-        type: string
-      Plan:
-        type: string
-      RestoreOptions:
-        items:
-          type: string
-        type: array
-      Retention: {}
-      Schedule:
-        type: string
-      Tags:
-        items:
-          type: string
-        type: array
-      Timeout: {}
-    schema:
-      $ref: '#/definitions/Retention'
-  services:
+  Services:
     description: ""
     schema:
       items:
         $ref: '#/definitions/Service'
       type: array
-  state:
-    description: ""
-    headers:
-      At:
-        format: date-time
-        type: string
-      Duration: {}
-      Filename:
-        type: string
-      Operation:
-        type: string
-      Service: {}
-      Status:
-        type: string
-    schema:
-      $ref: '#/definitions/Duration'
-  states:
+  States:
     description: ""
     schema:
       items:

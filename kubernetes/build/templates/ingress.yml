@@ -1,0 +1,49 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:assert", "assert")
+#@ load("_ytt.lib.yml", "labels")
+
+#@ if data.values.backman.ingress.enabled:
+#@ if len(data.values.backman.ingress.hostname) == 0 or data.values.backman.ingress.hostname == "backman.example.org":
+#@  assert.fail("backman.ingress.hostname is missing or invalid")
+#@ end
+
+#@ ingress_class = "nginx"
+#@ if hasattr(data.values.backman.ingress,"ingress_class") and len(data.values.backman.ingress.ingress_class) > 0:
+#@  ingress_class = data.values.backman.ingress.ingress_class
+#@ end
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: backman
+  namespace: backman
+  labels: #@ labels("backman","ingress")
+  annotations:
+    kubernetes.io/ingress.class: #@ ingress_class
+    #@ if data.values.backman.ingress.cert_manager_tls.enabled:
+    #@ if len(data.values.backman.ingress.cert_manager_tls.cluster_issuer) == 0:
+    #@  assert.fail("data.values.backman.ingress.cert_manager_tls.cluster_issuer is missing")
+    #@ end
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: #@ data.values.backman.ingress.cert_manager_tls.cluster_issuer
+    #@ end
+spec:
+  #@ if/end data.values.backman.ingress.cert_manager_tls.enabled:
+  tls:
+  - secretName: backman-tls
+    hosts:
+    - #@ data.values.backman.ingress.hostname
+  rules:
+  - host: #@ data.values.backman.ingress.hostname
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: backman
+            port:
+              number: 8080
+#@ end

@@ -16,15 +16,15 @@
 							<tr>
 								<td><strong>Type</strong></td>
 								<td>
-									<a class="link" href="/services/{{ .Service.Label }}">
-										<img class="link" src="/images/svgs/{{ ToLower (ServiceType .Service.Label).String }}.svg" width="32px" height="32px" /><br/>
-										<p>{{ ServiceType .Service.Label }}</p>
+									<a class="link" href="/services/{{ .Service.Binding.Type }}">
+										<img class="link" src="/images/svgs/{{ ToLower (ServiceType .Service.Binding.Type).String }}.svg" width="32px" height="32px" /><br/>
+										<p>{{ ServiceType .Service.Binding.Type }}</p>
 									</a>
 								</td>
 							</tr>
 							<tr>
-								<td><strong>Plan</strong></td>
-								<td>{{ .Service.Plan }}</td>
+								<td><strong>Provider / Plan</strong></td>
+								<td>{{ if and .Service.Binding.Provider .Service.Binding.Plan }}{{ .Service.Binding.Provider }} / {{ .Service.Binding.Plan }}{{ else }}{{ if .Service.Binding.Provider }}{{ .Service.Binding.Provider }}{{ else }}{{ .Service.Binding.Plan }}{{ end }}{{ end }}</td>
 							</tr>
 							<tr>
 								<td><strong>Schedule</strong></td>
@@ -36,7 +36,7 @@
 							</tr>
 							<tr>
 								<td><strong>Timeout</strong></td>
-								<td>{{ Duration .Service.Timeout }}</td>
+								<td>{{ Duration .Service.Timeout.Duration }}</td>
 							</tr>
 						</tbody>
 					</table>
@@ -100,7 +100,7 @@
 										<i class="icon icon-024-download-cloud" aria-hidden="true"></i>
 										<span class="toolbar__label"><small>Download</small></span>
 									</button>
-									{{ if not (eq (ServiceType .Service.Label).String "Redis") }}
+									{{ if not (eq (ServiceType .Service.Binding.Type).String "Redis") }}
 										{{ if not Config.DisableRestore }}
 											<button class="toolbar__item item--show padding-v-0 restore-button" aria-label="Restore" v-on:click="showRestoreDialog(file.Filename)">
 												<i class="icon icon-delivery-2" aria-hidden="true"></i>
@@ -176,7 +176,7 @@ var app = new Vue({
 function getBackups()
 {
 	// query backups
-	fetch('/api/v1/backup/{{ .Service.Label }}/{{ .Service.Name }}', {
+	fetch('/api/v1/backup/{{ .Service.Binding.Type }}/{{ .Service.Name }}', {
 		method: 'GET',
 		credentials: 'same-origin',
 	})
@@ -213,7 +213,7 @@ function getBackups()
 
 function triggerBackup()
 {
-	fetch('/api/v1/backup/{{ .Service.Label }}/{{ .Service.Name }}', {
+	fetch('/api/v1/backup/{{ .Service.Binding.Type }}/{{ .Service.Name }}', {
 		method: 'POST',
 		credentials: 'same-origin',
 	})
@@ -233,7 +233,7 @@ function triggerRestore()
 {
 	var filename = document.getElementById("restoreFilename").innerHTML;
 
-	fetch('/api/v1/restore/{{ .Service.Label }}/{{ .Service.Name }}/'+filename, {
+	fetch('/api/v1/restore/{{ .Service.Binding.Type }}/{{ .Service.Name }}/'+filename, {
 		method: 'POST',
 		credentials: 'same-origin',
 	})
@@ -254,7 +254,7 @@ function triggerDelete()
 	var filename = document.getElementById("deleteFilename").innerHTML;
 	showNotification('Deleting '+filename+' ...', '');
 
-	fetch('/api/v1/backup/{{ .Service.Label }}/{{ .Service.Name }}/'+filename, {
+	fetch('/api/v1/backup/{{ .Service.Binding.Type }}/{{ .Service.Name }}/'+filename, {
 		method: 'DELETE',
 		credentials: 'same-origin',
 	})
@@ -274,7 +274,7 @@ function triggerDelete()
 function checkState()
 {
 	// query service state
-	fetch('/api/v1/state/{{ .Service.Label }}/{{ .Service.Name }}', {
+	fetch('/api/v1/state/{{ .Service.Binding.Type }}/{{ .Service.Name }}', {
 		method: 'GET',
 		credentials: 'same-origin',
 	})

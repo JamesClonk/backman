@@ -10,7 +10,10 @@ fi
 echo $PWD
 
 # =============================================================================================
-source .env
+unset BACKMAN_CONFIG
+unset VCAP_SERVICES
+source _fixtures/env_for_mysql # use only BACKMAN_CONFIG and VCAP_SERVICES
+# this will test reading the entire service binding directly from BACKMAN_CONFIG.Services.<Service>.Binding
 
 # =============================================================================================
 retry() {
@@ -57,6 +60,11 @@ if [ $(curl -s -o /dev/null -w "%{http_code}" http://john:doe@127.0.0.1:9990) !=
 	exit 1
 fi
 
+if [ $(curl -s -o /dev/null -w "%{http_code}" http://john:doe@127.0.0.1:9990/healthz) != "200" ]; then
+    echo "Should be OK"
+    exit 1
+fi
+
 if [ $(curl -s -o /dev/null -w "%{http_code}" http://john:doe@127.0.0.1:9990/api/v1/state/mysql/my_mysql_db) != "200" ]; then
 	echo "Failed to query state"
 	exit 1
@@ -64,7 +72,7 @@ fi
 curl -s http://john:doe@127.0.0.1:9990/api/v1/state/mysql/my_mysql_db | grep '"Status":"idle"'
 
 # write to mysql
-mysql -h 127.0.0.1 -u root -D mysql <<EOF
+mysql -h 127.0.0.1 -u root -D mysql <<EOF || true
 CREATE TABLE test_example (my_column text);
 INSERT INTO test_example (my_column) VALUES ('my_backup_value');
 EOF

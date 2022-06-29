@@ -4,11 +4,37 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/swisscom/backman/log"
+	"github.com/swisscom/backman/service"
 	"github.com/swisscom/backman/state"
 )
+
+// swagger:model State
+type State struct {
+	Service   Service       `json:"Service,omitempty"`
+	Operation string        `json:"Operation,omitempty"`
+	Status    string        `json:"Status,omitempty"`
+	Filename  string        `json:"Filename,omitempty"`
+	At        time.Time     `json:"At,omitempty"`
+	Duration  time.Duration `json:"Duration,omitempty"`
+}
+
+// swagger:response States
+type States []State
+
+func getAPIState(state state.State) State {
+	return State{
+		Service:   getAPIService(state.Service),
+		Operation: state.Operation,
+		Status:    state.Status,
+		Filename:  state.Filename,
+		At:        state.At,
+		Duration:  state.Duration,
+	}
+}
 
 // swagger:route GET /api/v1/states state listStates
 // Lists current/last operation state of all service types.
@@ -19,9 +45,12 @@ import (
 // schemes: http, https
 //
 // responses:
-//   200: states
+//   200: States
 func (h *Handler) ListStates(c echo.Context) error {
-	states := state.Tracker().List()
+	states := make(States, 0)
+	for _, state := range state.Tracker().List() {
+		states = append(states, getAPIState(state))
+	}
 	return c.JSON(http.StatusOK, states)
 }
 
@@ -34,7 +63,7 @@ func (h *Handler) ListStates(c echo.Context) error {
 // schemes: http, https
 //
 // responses:
-//   200: state
+//   200: State
 func (h *Handler) GetState(c echo.Context) error {
 	serviceType := c.Param("service_type")
 	serviceName, err := url.QueryUnescape(c.Param("service_name"))
@@ -43,10 +72,10 @@ func (h *Handler) GetState(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid service name: %v", err))
 	}
 
-	service := h.Service.GetService(serviceType, serviceName)
-	state, found := state.Tracker().Get(service)
+	serviceInstance := service.GetService(serviceType, serviceName)
+	state, found := state.Tracker().Get(serviceInstance)
 	if !found {
 		return c.JSON(http.StatusNotFound, fmt.Errorf("service state not found"))
 	}
-	return c.JSON(http.StatusOK, state)
+	return c.JSON(http.StatusOK, getAPIState(state))
 }

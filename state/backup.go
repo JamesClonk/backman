@@ -5,9 +5,9 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/notifications"
 	"github.com/swisscom/backman/notifications/events"
-	"github.com/swisscom/backman/service/util"
 )
 
 var (
@@ -34,9 +34,9 @@ var (
 	}, []string{"type", "name"})
 )
 
-func BackupInit(service util.Service) {
-	backupQueuedState.WithLabelValues(service.Label, service.Name).Set(0)
-	backupRunningState.WithLabelValues(service.Label, service.Name).Set(0)
+func BackupInit(service config.Service) {
+	backupQueuedState.WithLabelValues(service.Binding.Type, service.Name).Set(0)
+	backupRunningState.WithLabelValues(service.Binding.Type, service.Name).Set(0)
 
 	Tracker().Set(service,
 		State{
@@ -45,14 +45,14 @@ func BackupInit(service util.Service) {
 		})
 }
 
-func BackupQueue(service util.Service) {
-	backupQueuedState.WithLabelValues(service.Label, service.Name).Inc()
+func BackupQueue(service config.Service) {
+	backupQueuedState.WithLabelValues(service.Binding.Type, service.Name).Inc()
 }
 
-func BackupStart(service util.Service, filename string) {
-	backupQueuedState.WithLabelValues(service.Label, service.Name).Dec()
-	backupRunningState.WithLabelValues(service.Label, service.Name).Set(1)
-	backupRuns.WithLabelValues(service.Label, service.Name).Inc()
+func BackupStart(service config.Service, filename string) {
+	backupQueuedState.WithLabelValues(service.Binding.Type, service.Name).Dec()
+	backupRunningState.WithLabelValues(service.Binding.Type, service.Name).Set(1)
+	backupRuns.WithLabelValues(service.Binding.Type, service.Name).Inc()
 
 	Tracker().Set(service,
 		State{
@@ -64,9 +64,9 @@ func BackupStart(service util.Service, filename string) {
 	notifications.Manager().Send(events.BackupStarted, service, filename)
 }
 
-func BackupFailure(service util.Service, filename string) {
-	backupRunningState.WithLabelValues(service.Label, service.Name).Set(0)
-	backupFailures.WithLabelValues(service.Label, service.Name).Inc()
+func BackupFailure(service config.Service, filename string) {
+	backupRunningState.WithLabelValues(service.Binding.Type, service.Name).Set(0)
+	backupFailures.WithLabelValues(service.Binding.Type, service.Name).Inc()
 
 	state, _ := Tracker().Get(service)
 	Tracker().Set(service,
@@ -80,9 +80,9 @@ func BackupFailure(service util.Service, filename string) {
 	notifications.Manager().Send(events.BackupFailed, service, filename)
 }
 
-func BackupSuccess(service util.Service, filename string) {
-	backupRunningState.WithLabelValues(service.Label, service.Name).Set(0)
-	backupSuccess.WithLabelValues(service.Label, service.Name).Inc()
+func BackupSuccess(service config.Service, filename string) {
+	backupRunningState.WithLabelValues(service.Binding.Type, service.Name).Set(0)
+	backupSuccess.WithLabelValues(service.Binding.Type, service.Name).Inc()
 
 	state, _ := Tracker().Get(service)
 	Tracker().Set(service,

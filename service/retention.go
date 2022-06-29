@@ -8,14 +8,15 @@ import (
 	"sort"
 	"time"
 
+	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
-	"github.com/swisscom/backman/service/util"
+	"github.com/swisscom/backman/s3"
 )
 
-func (s *Service) RetentionCleanup(service util.Service) error {
-	localPath := filepath.Join(service.LocalBackupPath, service.Label, service.Name)
-	folderPath := fmt.Sprintf("%s/%s/", service.Label, service.Name)
-	objects, err := s.S3.List(folderPath)
+func RetentionCleanup(service config.Service) error {
+	localPath := filepath.Join(service.LocalBackupPath, service.Binding.Type, service.Name)
+	folderPath := fmt.Sprintf("%s/%s/", service.Binding.Type, service.Name)
+	objects, err := s3.Get().List(folderPath)
 	if err != nil {
 		return err
 	}
@@ -24,7 +25,7 @@ func (s *Service) RetentionCleanup(service util.Service) error {
 	// remove if too old
 	for _, object := range objects {
 		if time.Since(object.LastModified) > time.Duration(service.Retention.Days)*time.Hour*24 {
-			if err := s.S3.Delete(object.Key); err != nil {
+			if err := s3.Get().Delete(object.Key); err != nil {
 				return err
 			}
 		}
@@ -51,14 +52,14 @@ func (s *Service) RetentionCleanup(service util.Service) error {
 	})
 	if len(objects) > service.Retention.Files {
 		for i := 0; i < len(objects)-service.Retention.Files; i++ {
-			if err := s.S3.Delete(objects[i].Key); err != nil {
+			if err := s3.Get().Delete(objects[i].Key); err != nil {
 				return err
 			}
 		}
 	}
 	// cleanup local files too
 	if len(service.LocalBackupPath) > 0 {
-		files, err := ioutil.ReadDir(filepath.Join(service.LocalBackupPath, service.Label, service.Name))
+		files, err := ioutil.ReadDir(filepath.Join(service.LocalBackupPath, service.Binding.Type, service.Name))
 		if err != nil {
 			return err
 		}

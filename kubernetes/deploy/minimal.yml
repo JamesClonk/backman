@@ -1,0 +1,187 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backman
+  namespace: backman
+  labels:
+    app: backman
+    app.kubernetes.io/name: backman
+    app.kubernetes.io/component: gui
+spec:
+  selector:
+    matchLabels:
+      app: backman
+      app.kubernetes.io/name: backman
+      app.kubernetes.io/component: gui
+  replicas: 1
+  revisionHistoryLimit: 5
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: backman
+        app.kubernetes.io/name: backman
+        app.kubernetes.io/component: gui
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+    spec:
+      serviceAccountName: backman
+      securityContext:
+        runAsUser: 2000
+        runAsGroup: 2000
+        fsGroup: 2000
+      containers:
+      - name: backman
+        image: jamesclonk/backman:latest
+        securityContext:
+          privileged: false
+          allowPrivilegeEscalation: false
+        ports:
+        - containerPort: 8080
+        command:
+        - backman
+        args:
+        - -config
+        - /backman/config.json
+        env:
+        - name: TZ
+          value: Europe/Zurich
+        - name: PORT
+          value: "8080"
+        - name: SERVICE_BINDING_ROOT
+          value: /bindings
+        resources:
+          requests:
+            memory: 1Gi
+            cpu: 250m
+          limits:
+            memory: 2Gi
+            cpu: 1000m
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: 8080
+        livenessProbe:
+          initialDelaySeconds: 15
+          httpGet:
+            path: /healthz
+            port: 8080
+        volumeMounts:
+        - mountPath: /backman/config.json
+          name: backman-secret
+          subPath: config.json
+        - mountPath: /bindings/my-mysql
+          name: my-mysql
+      volumes:
+      - name: backman-secret
+        secret:
+          secretName: backman
+      - name: my-mysql
+        secret:
+          secretName: my-mysql
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: backman
+  labels:
+    app: backman
+    app.kubernetes.io/name: backman
+    app.kubernetes.io/component: namespace
+    namespace.kubernetes.io/name: backman
+  namespace: backman
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backman
+  namespace: backman
+  labels:
+    app: backman
+    app.kubernetes.io/name: backman
+    app.kubernetes.io/component: secret
+  annotations:
+    kapp.k14s.io/versioned: ""
+type: Opaque
+stringData:
+  config.json: |
+    {
+      "log_level": "info",
+      "logging_timestamp": true,
+      "disable_metrics_logging": true,
+      "disable_health_logging": true,
+      "unprotected_metrics": true,
+      "unprotected_health": true,
+      "username": "john",
+      "password": "doe",
+      "s3": {
+        "service_label": "s3",
+        "bucket_name": "my-s3-bucket-for-backups",
+        "host": "s3.amazonaws.com",
+        "access_key": "my-access-key",
+        "secret_key": "my-secret-key"
+      },
+      "services": {
+        "my-mysql": {
+          "schedule": "1 2 3 4 5 *",
+          "timeout": "2h",
+          "retention": {
+            "days": 33,
+            "files": 66
+          }
+        }
+      }
+    }
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-mysql
+  namespace: backman
+  labels:
+    app: backman
+    app.kubernetes.io/name: my-mysql
+    app.kubernetes.io/component: secret
+  annotations:
+    kapp.k14s.io/versioned: ""
+type: Opaque
+stringData:
+  name: my-mysql
+  type: mysql
+  provider: AWS RDS
+  host: mysql.domain
+  port: "3306"
+  username: mysql_user
+  password: mysql_passwd
+  database: mysql_db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backman
+  namespace: backman
+  labels:
+    app: backman
+    app.kubernetes.io/name: backman
+    app.kubernetes.io/component: svc
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+  selector:
+    app: backman
+    app.kubernetes.io/name: backman
+    app.kubernetes.io/component: gui
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: backman
+  namespace: backman
+  labels:
+    app: backman
+    app.kubernetes.io/name: backman
+    app.kubernetes.io/component: sa

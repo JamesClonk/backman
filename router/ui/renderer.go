@@ -9,7 +9,6 @@ import (
 	"github.com/hako/durafmt"
 	"github.com/labstack/echo/v4"
 	"github.com/swisscom/backman/config"
-	"github.com/swisscom/backman/service/util"
 )
 
 type TemplateRenderer struct {
@@ -23,7 +22,7 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 func (h *Handler) RegisterRenderer(e *echo.Echo) {
 	funcMap := template.FuncMap{
 		"ToLower":     strings.ToLower,
-		"ServiceType": util.ParseServiceType,
+		"ServiceType": config.ParseServiceType,
 		"Duration":    durafmt.Parse,
 		"Bytes":       func(b int64) string { return humanize.Bytes(uint64(b)) },
 		"Time":        humanize.Time,
