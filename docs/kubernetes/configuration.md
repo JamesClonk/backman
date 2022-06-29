@@ -10,6 +10,34 @@ backman will automatically detect and use any service bindings found under the `
 
 // TODO: explain `backman -config /<path>/config.json`
 
+#### Mounting `config.json` into the container
+
+Once we have our configuration **Secret** ready we can simply mount it into the container as a file and tell backman to use it with command arguments (`args: [ "-config", "<path>/<to>/<config.json>" ]`):
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backman
+spec:
+  template:
+    spec:
+      containers:
+      - name: backman
+        command: [ "backman" ]
+        args: [ "-config", "/backman/config.json" ] # <-- specify our mounted config file
+        volumeMounts:
+        - mountPath: /backman/config.json # <-- mount the config file here
+          name: backman-config-secret
+          subPath: config.json
+      volumes:
+      - name: backman-config-secret
+        secret:
+          secretName: backman-config-secret
+```
+
+That's it!
+
 ### The `$SERVICE_BINDING_ROOT` part
 
 On Kubernetes there's a simple and elegant way for apps to have service credentials injected and automatically detected at runtime, it's called the [Service Binding for Kubernetes](https://servicebinding.io/) specification.
@@ -30,6 +58,8 @@ and many more...
 #### Service Binding configuration example
 
 backman fully supports automatic detection of any such service bindings. It will read all the contents of the path specified via [`$SERVICE_BINDING_ROOT`](https://servicebinding.io/application-developer/) environment variable (which defaults to `/bindings` if not set and is thus not mandatory).
+
+> **Note**: Whether or not you are actually using service bindings or have service binding controllers or operators present in your cluster, the service binding spec is certainly an elegant and simple way to provide service configuration information to your workload.
 
 Let's start by defining our service binding **Secret**, containing all the necessary data required for connectivity to the service:
 
@@ -93,8 +123,10 @@ $SERVICE_BINDING_ROOT
     └── password
 ```
 
-backman now can read and parse all of these automatically and use it for its service instance configuration.
+backman now can read and parse all of these files and their contents automatically and use it for its service instance configuration.
 
 ---
 
-Whether or not you are actually using service bindings or have service binding controllers or operators present in your cluster, the service binding spec is certainly an elegant and simple way to provide service configuration information to your workload.
+That's it! Mounting a `config.json` together with some service binding **Secret**s into a backman **Deployment** is everything that's needed.
+
+You can check out this [deployment example](/docs/kubernetes/deployment.md#diy---minimal-deployment-example) to see all the pieces in action.
