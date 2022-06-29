@@ -6,9 +6,36 @@ backman will automatically detect and use any service bindings found under the `
 
 ## `config.json` - configuration file
 
-// TODO: explain `config.json` options specifically for Kubernetes use-cases
+We've learned how backman can be configured through a configuration file, usually named `config.json`, and how this file looks like with all its possible properties and configuration options in the main [configuration documentation](/docs/configuration.md).
 
-// TODO: explain `backman -config /<path>/config.json`
+When deploying backman on Kubernetes we need a way to easily define and pass this config file to backman. The way to do that is by creating a **Secret** that will contain the entire `config.json` file. This allows us then to mount that **Secret** as a volume file into the backman container.
+
+Such a **Secret** could for example look like this:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backman-config-secret
+type: Opaque
+stringData:
+  config.json: |
+    {
+      "logging_timestamp": true,
+      "disable_metrics_logging": true,
+      "disable_health_logging": true,
+      "unprotected_metrics": true,
+      "unprotected_health": true,
+      "s3": {
+        "service_label": "s3",
+        "bucket_name": "backman-storage",
+        ... etc ...
+      },
+      "services": { 
+        ... etc ...
+      }
+    }
+```
 
 ### Mounting `config.json` into the container
 
@@ -127,4 +154,9 @@ backman now can read and parse all of these files and their contents automatical
 
 That's it! Mounting a `config.json` together with some service binding **Secret**s into a backman **Deployment** is everything that's needed.
 
+## Examples
+
 You can check out this [deployment example](/docs/kubernetes/deployment.md#diy---minimal-deployment-example) to see all the pieces in action.
+
+There are also some more deployment examples available under [kubernetes/deploy](/kubernetes/deploy). These can be deployed after just minimal editing or used as a reference for creating your own deployment manifests.
+
