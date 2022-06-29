@@ -21,7 +21,7 @@ Backman should now be up and running and you can visit the configured route from
 
 ---
 
-#### manifest.yml
+#### manifest.yml example
 
 ```yaml
 ---
