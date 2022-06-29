@@ -1,4 +1,4 @@
-## Kubernetes deployments
+# Kubernetes deployments
 
 backman can of course also be deployed onto a Kubernetes cluster. There are advanced [ytt](https://carvel.dev/ytt/) templates provided under [kubernetes/build/templates](/kubernetes/build/templates) that can be used to generate a deployment manifest or directly deploy to Kubernetes through some useful helper scripts that can be found under [kubernetes/build](/kubernetes/build).
 
@@ -6,7 +6,7 @@ The other more simple and beginner friendly approach would be to use one of the 
 
 -----
 
-### kubectl apply
+## kubectl apply
 
 To deploy one of the simple deployment manifests:
 
@@ -17,7 +17,7 @@ To deploy one of the simple deployment manifests:
 
 The manifest files found under [kubernetes/deploy](/kubernetes/deploy) have been generated with example values through ytt templates. Please make sure to edit them first to adjust configuration values and service bindings, the **Secret**, **Ingress** and **NetworkPolicy** resources, etc.. The default values these contain will very likely *not* work for you!
 
-#### DIY - minimal deployment example
+### DIY - minimal deployment example
 
 A minimalistic hand-crafted example deployment could look something like this:
 ```yaml
@@ -155,7 +155,7 @@ stringData:
 
 -----
 
-### ytt and kapp
+## ytt and kapp
 
 To deploy via [ytt](https://carvel.dev/ytt/) and [kapp](https://carvel.dev/kapp/) instead of a simple manifest you can make use of the helper scripts provided under [kubernetes/build](/kubernetes/build):
 
