@@ -22,8 +22,8 @@ backman:
       enabled: true # requires cert-manager.io to be installed for ingress TLS support to be enabled
       cluster_issuer: "lets-encrypt" # requires a cluster-issuer name if TLS is enabled
 
-  username: "john" # basic-auth username
-  password: "doe" # basic-auth password
+  username: "john" # HTTP Basic Auth username
+  password: "doe" # HTTP Basic Auth password
 
   storage:
     s3:

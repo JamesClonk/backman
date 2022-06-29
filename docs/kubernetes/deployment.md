@@ -15,7 +15,7 @@ To deploy one of the simple deployment manifests:
 3. choose and edit `full.yml` or `minimal.yml` to your liking
 4. run `kubectl apply -f <filename.yml>`
 
-The manifest files found under [kubernetes/deploy](/kubernetes/deploy) have been generated with examples values through ytt templates. Please make sure to edit them first to adjust configuration values and service bindings, the **Secret**, **Ingress** and **NetworkPolicy** resources, etc.. The default values these contain will very likely *not* work for you!
+The manifest files found under [kubernetes/deploy](/kubernetes/deploy) have been generated with example values through ytt templates. Please make sure to edit them first to adjust configuration values and service bindings, the **Secret**, **Ingress** and **NetworkPolicy** resources, etc.. The default values these contain will very likely *not* work for you!
 
 #### DIY - minimal deployment example
 
@@ -81,7 +81,7 @@ spec:
         - mountPath: /backman/config.json
           name: backman-config
           subPath: config.json
-        # mount mysql example service binding under /bindings/my-rds-db, according to servicebinding.io spec
+        # mount mysql example service binding under /bindings/my-rds-db, according to servicebinding.io spec (https://servicebinding.io/spec/core/1.0.0/#workload-projection)
         - mountPath: /bindings/my-rds-db
           name: example-mysql-service-binding
       volumes:
@@ -138,7 +138,7 @@ kind: Secret
 metadata:
   name: example-mysql-service-binding
 type: Opaque
-stringData: # an example service binding, according to servicebinding.io spec
+stringData: # an example service binding, according to servicebinding.io spec (https://servicebinding.io/application-developer/)
   name: my-rds-db
   type: mysql
   provider: AWS RDS
@@ -157,6 +157,6 @@ To deploy via [ytt](https://carvel.dev/ytt/) and [kapp](https://carvel.dev/kapp/
 
 1. clone this repository
 2. go into the `kubernetes/build` folder
-3. edit `values.yml`.
+3. edit `values.yml`     
 	See [example_values_full.yml](/kubernetes/build/example_values_full.yml) for reference.
 4. run `./deploy.sh`

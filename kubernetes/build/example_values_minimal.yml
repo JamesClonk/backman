@@ -12,8 +12,8 @@ backman:
   ingress:
     enabled: false # generates a k8s nginx ingress resource if enabled
 
-  username: "john" # basic-auth username
-  password: "doe" # basic-auth password
+  username: "john" # HTTP Basic Auth username
+  password: "doe" # HTTP Basic Auth password
 
   storage:
     s3:
