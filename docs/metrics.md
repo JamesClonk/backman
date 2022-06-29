@@ -2,12 +2,19 @@
 
 backman exposes a set of metrics through its [Prometheus](https://prometheus.io/docs/introduction/overview/) `/metrics` endpoint.
 
-// TODO: explain necessary config options for metrics, enable/disable/expose/etc..
+The `/metrics` endpoint can be disabled entirely by setting `disable_metrics` to `true` if you do not want to make use of it (see [JSON configuration](/docs/configuration.md#json-properties)).
 
+The endpoint can also be made available without *HTTP Basic Auth* protection, by setting `unprotected_metrics` to `true`. 
+
+##### Kubernetes specific
+
+It is recommended to disable the *HTTP Basic Auth* protection specifically for the `/metrics` endpoint in a Kubernetes deployment, to allow Prometheus to scrape the endpoint without needing any custom configuration for credentials.
+
+For the same reason it also advisable to disable logging output for any HTTP request going to this endpoint by setting `disable_metrics_logging` to `true`, otherwise your container logs will be full of `/metrics` requests.
 
 ### Example `/metrics` output
 ```
-$ curl https://my-backman-app.my-domain.com/metrics
+$ curl https://my-backman-url/metrics
 
 # HELP backman_backup_files_total Number of backup files in total per service.
 # TYPE backman_backup_files_total gauge
@@ -80,8 +87,3 @@ backman_scheduler_backup_success_total 4
 # TYPE backman_scheduler_runs_total counter
 backman_scheduler_runs_total 4
 ```
-
-### Metric types
-
-// TODO: add overview documentation on exposed metrics, explain some stuff
-

@@ -94,7 +94,7 @@ A more comprehensive example of possible configuration options could look like t
 }
 ```
 
-backman can be secured through HTTP basic auth, with username and password provided either in the JSON configuration
+backman can be secured through *HTTP Basic Auth*, with a username and password provided either in the JSON configuration
 ```json
 {
 	"username": "http_basic_auth_user_abc",
@@ -106,15 +106,15 @@ or through the specific environment variables `$BACKMAN_USERNAME` and `$BACKMAN_
 ### JSON properties
 - `log_level`: optional, specifies log output level, can be *info*, *warn*, *debug*, *error*
 - `logging_timestamp`: optional, enable timestamping log output, not needed when deployed on Cloud Foundry
-- `username`: optional, HTTP basic auth username
-- `password`: optional, HTTP basic auth password
+- `username`: optional, *HTTP Basic Auth* username
+- `password`: optional, *HTTP Basic Auth* password
 - `disable_web`: optional, disable web interface and api
 - `disable_metrics`: optional, disable Prometheus metrics endpoint
 - `disable_restore`: optional, disable restore function on API and web. It can be used to mitigate damage in case backman credentials are leaked. Enable it just before you might need to restore.
 - `disable_metrics_logging`: optional, disables logging of HTTP requests towards /metrics endpoint
 - `disable_health_logging`: optional, disables logging of HTTP requests towards /healthz endpoint
-- `unprotected_metrics`: optional, disable HTTP basic auth protection for Prometheus /metrics endpoint
-- `unprotected_health`: optional, disable HTTP basic auth protection for /healthz endpoint
+- `unprotected_metrics`: optional, disable *HTTP Basic Auth* protection for Prometheus /metrics endpoint
+- `unprotected_health`: optional, disable *HTTP Basic Auth* protection for /healthz endpoint
 - `notifications.teams.webhook`: optional, setting a webhook URL will enable MS Teams notifications about backups
 - `notifications.teams.events`: optional, list of events to send a Teams notification for. Can be *backup-started*, *backup-success*, *backup-failed*. Sends a notification for all events if empty.
 - `s3.host`: optional, S3 hostname/endpoint to use, backman will try to find it within service instances if not specified

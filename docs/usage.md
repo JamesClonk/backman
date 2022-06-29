@@ -70,7 +70,7 @@ curl https://my-backman-url/healthz
 ```
 It should respond with `OK` and HTTP status code `200`. Anything else indicates a failed health check.
 
-You can disable logging output for any HTTP request going to the `/healthz` endpoint by setting `disable_health_logging` to `true` (see [JSON configuration](/docs/configuration.md#json-properties)), additionally you can also make the endpoint available without HTTP basic-auth protection, by setting `unprotected_metrics` to `true`. Both of these options are very useful in a Kubernetes deployment in order to not spam the container logs too much by using `/healthz` for a readiness or liveness probe.
+You can disable logging output for any HTTP request going to the `/healthz` endpoint by setting `disable_health_logging` to `true` (see [JSON configuration](/docs/configuration.md#json-properties)), additionally you can also make the endpoint available without *HTTP Basic Auth* protection, by setting `unprotected_metrics` to `true`. Both of these options are very useful in a Kubernetes deployment in order to not spam the container logs too much by using `/healthz` for a readiness or liveness probe.
 
 #### GET */metrics*
 
@@ -81,7 +81,7 @@ curl https://my-backman-url/metrics
 See [metrics documentation](/docs/metrics.md) for response format.
 
 The `/metrics` endpoint can be disabled by setting `disable_metrics` to `true` (see [JSON configuration](/docs/configuration.md#json-properties)).
-The endpoint can also be made available without HTTP basic-auth protection, by setting `unprotected_metrics` to `true`. This is useful in Kubernetes deployments to allow Prometheus to scrape the endpoint without needing custom configuration for the credentials. For the same reason it also possible to disable logging output for any HTTP request going to the `/metrics` endpoint by setting `disable_metrics_logging` to `true`.
+The endpoint can also be made available without *HTTP Basic Auth* protection, by setting `unprotected_metrics` to `true`. This is useful in Kubernetes deployments to allow Prometheus to scrape the endpoint without needing custom configuration for the credentials. For the same reason it also possible to disable logging output for any HTTP request going to the `/metrics` endpoint by setting `disable_metrics_logging` to `true`.
 
 ## On-demand backup with Cloud Foundry tasks
 
