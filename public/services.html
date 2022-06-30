@@ -1,20 +1,20 @@
 {{ template "_header.html" . }}
 
-{{ range $label, $services := .Services }}
+{{ range $type, $services := .Services }}
 <div class="row flex-items-md-center margin-top-4">
 	<div class="table table--responsive table--highlight">
 		<h3 class="table__title">
-			<a class="link" href="/services/{{ $label }}">
-				<img class="link" src="/images/svgs/{{ ToLower (ServiceType $label).String }}.svg" width="64px" height="64px" />
+			<a class="link" href="/services/{{ $type }}">
+				<img class="link" src="/images/svgs/{{ ToLower (ServiceType $type).String }}.svg" width="64px" height="64px" />
 			</a>
-			{{ ServiceType $label }}
+			{{ ServiceType $type }}
 		</h3>
 		<div class="table__wrapper">
 			<table data-init="auto">
 				<thead>
 					<tr>
 						<th>Name</th>
-						<th>Plan</th>
+						<th>Provider / Plan</th>
 						<th>Backup Schedule</th>
 						<th>Retention Policy</th>
 						<th>Timeout Duration</th>
@@ -24,11 +24,11 @@
 				<tbody>
 					{{ range $service := $services }}
 					<tr>
-						<td><a class="link" href="/service/{{ $service.Label }}/{{ $service.Name }}">{{ $service.Name }}</a></td>
-						<td>{{ $service.Plan }}</td>
+						<td><a class="link" href="/service/{{ $service.Binding.Type }}/{{ $service.Name }}">{{ $service.Name }}</a></td>
+						<td>{{ if and $service.Binding.Provider $service.Binding.Plan }}{{ $service.Binding.Provider }} / {{ $service.Binding.Plan }}{{ else }}{{ if $service.Binding.Provider }}{{ $service.Binding.Provider }}{{ else }}{{ $service.Binding.Plan }}{{ end }}{{ end }}</td>
 						<td>{{ $service.Schedule }}</td>
 						<td>{{ $service.Retention.Days }} days / {{ $service.Retention.Files }} files</td>
-						<td>{{ Duration $service.Timeout }}</td>
+						<td>{{ Duration $service.Timeout.Duration }}</td>
 					</tr>
 					{{ end }}
 				</tbody>

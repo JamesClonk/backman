@@ -4,13 +4,17 @@ import (
 	"crypto/tls"
 	"net"
 	"net/http"
-	"strings"
+	"sync"
 	"time"
 
-	cfenv "github.com/cloudfoundry-community/go-cfenv"
 	"github.com/minio/minio-go/v6"
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
+)
+
+var (
+	client Client
+	once   sync.Once
 )
 
 // Client is used interact with S3 storage
@@ -22,55 +26,32 @@ type Client struct {
 	SecretKey  string
 }
 
-func New(app *cfenv.App) *Client {
-	// setup minio/s3 client
-	var s3Service cfenv.Service
-	if len(config.Get().S3.ServiceName) > 0 { // determine s3 service via provided service name
-		s, err := app.Services.WithName(config.Get().S3.ServiceName)
-		if err != nil {
-			log.Fatalf("could not get s3 service [%s] from VCAP environment: %v", config.Get().S3.ServiceName, err)
-		}
-		s3Service = *s
+func Get() *Client {
+	once.Do(func() {
+		client = *new()
+	})
+	return &client
+}
 
-	} else { // determine s3 service via provided service label
-		var s3Services []cfenv.Service
-		var err error
-
-		s3Services, err = app.Services.WithLabel(config.Get().S3.ServiceLabel)
-		if err != nil && strings.Contains(err.Error(), "no services with label") {
-			s3Services, err = app.Services.WithLabel("dynstrg-2") // try common fallback
-		}
-		if err != nil && strings.Contains(err.Error(), "no services with label") {
-			s3Services, err = app.Services.WithLabel("dynstrg-3") // try another fallback
-		}
-		if err != nil && strings.Contains(err.Error(), "no services with label") {
-			s3Services, err = app.Services.WithLabel("s3") // try another fallback
-		}
-		if err != nil {
-			log.Fatalf("could not get s3 service from VCAP environment: %v", err)
-		}
-		if len(s3Services) != 1 {
-			log.Fatalf("there must be exactly one defined S3 service, but found %d instead", len(s3Services))
-		}
-		s3Service = s3Services[0]
+func new() *Client {
+	// check if Config.S3.Host/AccessKey/SecretKey are set
+	if len(config.Get().S3.Host) == 0 ||
+		len(config.Get().S3.AccessKey) == 0 ||
+		len(config.Get().S3.SecretKey) == 0 {
+		log.Fatalf("could not find S3 credentials in configuration")
 	}
 
-	bucketName := config.Get().S3.BucketName
-	if len(bucketName) == 0 { // fallback to service binding's name
-		bucketName = s3Service.Name
-	}
-	if len(bucketName) == 0 {
+	if len(config.Get().S3.BucketName) == 0 {
 		log.Fatalln("bucket name for S3 storage is not configured properly")
 	}
 
-	endpoint, _ := s3Service.CredentialString("accessHost")
-	accessKeyID, _ := s3Service.CredentialString("accessKey")
-	secretAccessKey, _ := s3Service.CredentialString("sharedSecret")
-	useSSL := !config.Get().S3.DisableSSL
-
-	minioClient, err := minio.NewV4(endpoint, accessKeyID, secretAccessKey, useSSL)
+	minioClient, err := minio.NewV4(
+		config.Get().S3.Host,
+		config.Get().S3.AccessKey,
+		config.Get().S3.SecretKey,
+		!config.Get().S3.DisableSSL)
 	if err != nil {
-		log.Fatalf("%v", err)
+		log.Fatalf("could not initialize S3 client: %v", err)
 	}
 
 	if config.Get().S3.SkipSSLVerification {
@@ -92,26 +73,26 @@ func New(app *cfenv.App) *Client {
 	}
 
 	// check if bucket exists and is accessible and if not create it, or fail
-	exists, errBucketExists := minioClient.BucketExists(bucketName)
+	exists, errBucketExists := minioClient.BucketExists(config.Get().S3.BucketName)
 	if errBucketExists == nil && exists {
-		log.Infof("S3 bucket [%s] found", bucketName)
+		log.Infof("S3 bucket [%s] found", config.Get().S3.BucketName)
 	} else {
-		if err := minioClient.MakeBucket(bucketName, ""); err != nil {
-			log.Fatalf("S3 bucket [%s] could not be created: %v", bucketName, err)
-			exists, errBucketExists := minioClient.BucketExists(bucketName)
+		if err := minioClient.MakeBucket(config.Get().S3.BucketName, ""); err != nil {
+			log.Fatalf("S3 bucket [%s] could not be created: %v", config.Get().S3.BucketName, err)
+			exists, errBucketExists := minioClient.BucketExists(config.Get().S3.BucketName)
 			if errBucketExists != nil || exists {
-				log.Fatalf("S3 bucket [%s] is not accessible: %v", bucketName, err)
+				log.Fatalf("S3 bucket [%s] is not accessible: %v", config.Get().S3.BucketName, err)
 			}
 		} else {
-			log.Infof("new S3 bucket [%s] was successfully created", bucketName)
+			log.Infof("new S3 bucket [%s] was successfully created", config.Get().S3.BucketName)
 		}
 	}
 
 	return &Client{
 		Client:     minioClient,
-		BucketName: bucketName,
-		Endpoint:   endpoint,
-		AccessKey:  accessKeyID,
-		SecretKey:  secretAccessKey,
+		BucketName: config.Get().S3.BucketName,
+		Endpoint:   config.Get().S3.Host,
+		AccessKey:  config.Get().S3.AccessKey,
+		SecretKey:  config.Get().S3.SecretKey,
 	}
 }

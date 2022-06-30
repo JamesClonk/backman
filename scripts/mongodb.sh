@@ -10,7 +10,11 @@ fi
 echo $PWD
 
 # =============================================================================================
-source .env
+unset BACKMAN_CONFIG
+unset VCAP_SERVICES
+source _fixtures/env_for_mongodb # use BACKMAN_CONFIG and VCAP_SERVICES, layered with _fixtures/config_with_bindings.json
+# this will test reading the mongodb service binding from VCAP_SERVICES, and the S3 credentials from config.json
+# also it will read the mongodb service binding with label set to "user-provided", and correctly guess it to be of type mongodb thanks to URI parsing
 
 # =============================================================================================
 retry() {
@@ -42,8 +46,8 @@ echo "testing mongodb integration ..."
 sleep 5
 # starting backman
 killall backman || true
-./backman 2>&1 &
-sleep 5
+./backman -config _fixtures/config_with_bindings.json 2>&1 &
+sleep 10
 
 set -x
 if [ $(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:9990) != "401" ]; then
@@ -54,6 +58,11 @@ fi
 if [ $(curl -s -o /dev/null -w "%{http_code}" http://john:doe@127.0.0.1:9990) != "200" ]; then
 	echo "Should be authorized"
 	exit 1
+fi
+
+if [ $(curl -s -o /dev/null -w "%{http_code}" http://john:doe@127.0.0.1:9990/healthz) != "200" ]; then
+    echo "Should be OK"
+    exit 1
 fi
 
 if [ $(curl -s -o /dev/null -w "%{http_code}" http://john:doe@127.0.0.1:9990/api/v1/state/mongodb/my_mongodb) != "200" ]; then
@@ -103,4 +112,4 @@ mongo --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabas
 # delete backup
 curl -X DELETE http://john:doe@127.0.0.1:9990/api/v1/backup/mongodb/my_mongodb/${FILENAME}
 sleep 10
-curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/mongodb/my_mongodb | grep -v 'Filename'
+curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/mongodb/my_mongodb | grep -v "${FILENAME}"

@@ -6,8 +6,9 @@ import (
 	"net/url"
 
 	echo "github.com/labstack/echo/v4"
+	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
-	"github.com/swisscom/backman/service/util"
+	"github.com/swisscom/backman/service"
 )
 
 // swagger:route POST /api/v1/restore/{service_type}/{service_name}/{filename} restore restoreBackup
@@ -38,34 +39,36 @@ func (h *Handler) RestoreBackup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid filename: %v", err))
 	}
 
-	if !util.IsValidServiceType(serviceType) {
+	if !config.IsValidServiceType(serviceType) {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("unsupported service type: %s", serviceType))
 	}
 
-	cfService := h.Service.GetService(serviceType, serviceName)
-	if len(cfService.Name) == 0 {
+	serviceInstance := service.GetService(serviceType, serviceName)
+	if len(serviceInstance.Name) == 0 {
 		err := fmt.Errorf("could not find service [%s] to restore", serviceName)
 		log.Errorf("%v", err)
 		return c.JSON(http.StatusNotFound, err.Error())
 	}
 
-	targetService := util.Service{}
+	targetService := config.Service{}
 	if len(targetName) > 0 {
-		targetService = h.Service.GetService(serviceType, targetName)
+		targetService = service.GetService(serviceType, targetName)
 		if len(targetService.Name) == 0 {
 			err := fmt.Errorf("could not find target service [%s] to restore", targetName)
 			log.Errorf("%v", err)
 			return c.JSON(http.StatusNotFound, err.Error())
 		}
+	} else {
+		targetService = serviceInstance
 	}
 
 	go func() { // async
-		if err := h.Service.Restore(cfService, targetService, filename); err != nil {
+		if err := service.RestoreBackup(serviceInstance, targetService, filename); err != nil {
 			log.Errorf("requested restore for service [%s] failed: %v", serviceName, err)
 		}
 	}()
 	if len(targetService.Name) > 0 {
-		return c.JSON(http.StatusAccepted, targetService)
+		return c.JSON(http.StatusAccepted, getAPIService(targetService))
 	}
-	return c.JSON(http.StatusAccepted, cfService)
+	return c.JSON(http.StatusAccepted, getAPIService(serviceInstance))
 }

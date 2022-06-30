@@ -13,16 +13,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cloudfoundry-community/go-cfenv"
+	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/s3"
-	"github.com/swisscom/backman/service/util"
 	"github.com/swisscom/backman/state"
 )
 
 var esMutex = &sync.Mutex{}
 
-func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *cfenv.Service, filename string) error {
+func Backup(ctx context.Context, s3 *s3.Client, service config.Service, filename string) error {
 	state.BackupQueue(service)
 
 	// lock global elasticsearch mutex, only 1 backup/restore operation of this service-type is allowed to run in parallel
@@ -31,19 +30,9 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 
 	state.BackupStart(service, filename)
 
-	host, _ := binding.CredentialString("host")
-	username, _ := binding.CredentialString("full_access_username")
-	password, _ := binding.CredentialString("full_access_password")
-	if len(username) == 0 {
-		username, _ = binding.CredentialString("username")
-	}
-	if len(password) == 0 {
-		password, _ = binding.CredentialString("password")
-	}
-
-	u, _ := url.Parse(host)
-	connectstring := fmt.Sprintf("%s://%s:%s@%s", u.Scheme, url.PathEscape(username), url.PathEscape(password), u.Host)
-	objectPath := fmt.Sprintf("%s/%s/%s", service.Label, service.Name, filename)
+	u, _ := url.Parse(service.Binding.Host)
+	connectstring := fmt.Sprintf("%s://%s:%s@%s", u.Scheme, url.PathEscape(service.Binding.Username), url.PathEscape(service.Binding.Password), u.Host)
+	objectPath := fmt.Sprintf("%s/%s/%s", service.Binding.Type, service.Name, filename)
 
 	// prepare elasticdump command
 	var command []string
@@ -106,7 +95,12 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 
 			// gzipping stdout
 			pr, pw := io.Pipe()
+			defer pw.Close()
+
 			gw := gzip.NewWriter(pw)
+			defer gw.Close()
+			defer gw.Flush()
+
 			gw.Name = strings.TrimSuffix(filename, ".gz")
 			gw.ModTime = time.Now()
 			go func() {
@@ -127,8 +121,9 @@ func Backup(ctx context.Context, s3 *s3.Client, service util.Service, binding *c
 				log.Errorf("could not upload service backup [%s] to S3: %v", service.Name, err)
 				state.BackupFailure(service, filename)
 			}
+			time.Sleep(1 * time.Second) // wait pipe to be closed
 		}()
-		time.Sleep(2 * time.Second) // wait for upload goroutine to be ready
+		time.Sleep(3 * time.Second) // wait for upload goroutine to be ready
 
 		// capture and read stderr in case an error occurs
 		var errBuf bytes.Buffer

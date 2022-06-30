@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/swisscom/backman/service/util"
+	"github.com/swisscom/backman/config"
 )
 
 var (
@@ -12,18 +12,14 @@ var (
 	once         sync.Once
 )
 
-// swagger:response state
 type State struct {
-	Service   util.Service  `json:",omitempty"`
-	Operation string        `json:",omitempty"`
-	Status    string        `json:",omitempty"`
-	Filename  string        `json:",omitempty"`
-	At        time.Time     `json:",omitempty"`
-	Duration  time.Duration `json:",omitempty"`
+	Service   config.Service
+	Operation string
+	Status    string
+	Filename  string
+	At        time.Time
+	Duration  time.Duration
 }
-
-// swagger:response states
-type States []State
 
 type StateTracker struct {
 	*sync.RWMutex
@@ -55,7 +51,7 @@ func (st *StateTracker) List() []State {
 	return states
 }
 
-func (st *StateTracker) Get(service util.Service) (State, bool) {
+func (st *StateTracker) Get(service config.Service) (State, bool) {
 	st.RLock()
 	defer st.RUnlock()
 
@@ -63,14 +59,14 @@ func (st *StateTracker) Get(service util.Service) (State, bool) {
 	return state, ok
 }
 
-func (st *StateTracker) Delete(service util.Service) {
+func (st *StateTracker) Delete(service config.Service) {
 	st.Lock()
 	defer st.Unlock()
 
 	delete(st.state, service.Key())
 }
 
-func (st *StateTracker) Set(service util.Service, state State) {
+func (st *StateTracker) Set(service config.Service, state State) {
 	st.Lock()
 	defer st.Unlock()
 

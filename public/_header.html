@@ -54,12 +54,12 @@
 					<div class="nav__subnav">
 						<div class="container">
 							<div class="nav-section" id="navpoint-1">
-								{{ range $label, $services := .AllServices }}
+								{{ range $type, $services := .AllServices }}
 								<div class="nav-col">
-									<div class="nav-title">{{ $label }}</div>
+									<div class="nav-title">{{ $type }}</div>
 									<ul class="nav-items">
 										{{ range $service := $services }}
-										<li class="nav-item"><a class="nav-link" href="/service/{{ $service.Label }}/{{ $service.Name }}">{{ $service.Name }}</a></li>
+										<li class="nav-item"><a class="nav-link" href="/service/{{ $service.Binding.Type }}/{{ $service.Name }}">{{ $service.Name }}</a></li>
 										{{ end }}
 									</ul>
 								</div>
@@ -84,16 +84,16 @@
 											<span class="nav-link__text">Services</span>
 										</a>
 									</li>
-									{{ if gt (len .Service.Label) 0 }}
+									{{ if gt (len .Service.Binding.Type) 0 }}
 									<li class="nav-item menu-item menu-item-type-post_type menu-item-object-page">
-										<a href="/services/{{ .Service.Label }}" class="nav-link nav-link--header">
-											&gt;&gt;&nbsp;&nbsp;<span class="nav-link__text">{{ ServiceType .Service.Label }}</span>
+										<a href="/services/{{ .Service.Binding.Type }}" class="nav-link nav-link--header">
+											&gt;&gt;&nbsp;&nbsp;<span class="nav-link__text">{{ ServiceType .Service.Binding.Type }}</span>
 										</a>
 									</li>
 									{{ end }}
 									{{ if gt (len .Service.Name) 0 }}
 									<li class="nav-item menu-item menu-item-type-post_type menu-item-object-page">
-										<a href="/service/{{ .Service.Label }}/{{ .Service.Name }}" class="nav-link nav-link--header">
+										<a href="/service/{{ .Service.Binding.Type }}/{{ .Service.Name }}" class="nav-link nav-link--header">
 											&gt;&gt;&nbsp;&nbsp;<span class="nav-link__text">{{ .Service.Name }}</span>
 										</a>
 									</li>
@@ -108,12 +108,12 @@
 												<div class="nav__subnav">
 													<div class="nav-body">
 														<div class="nav-section">
-															{{ range $label, $services := .AllServices }}
+															{{ range $type, $services := .AllServices }}
 															<div class="nav-col">
-																<div class="nav-title">{{ $label }}</div>
+																<div class="nav-title">{{ $type }}</div>
 																<ul class="nav-items">
 																	{{ range $service := $services }}
-																	<li class="nav-item"><a class="nav-link" href="/service/{{ $service.Label }}/{{ $service.Name }}">{{ $service.Name }}</a></li>
+																	<li class="nav-item"><a class="nav-link" href="/service/{{ $service.Binding.Type }}/{{ $service.Name }}">{{ $service.Name }}</a></li>
 																	{{ end }}
 																</ul>
 															</div>

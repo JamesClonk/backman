@@ -1,0 +1,41 @@
+#@data/values
+---
+backman:
+  image: "jamesclonk/backman:latest"
+
+  pod_security_policy:
+    enabled: false  # generates a k8s pod-security-policy if enabled
+
+  network_policy:
+    enabled: false # generates a k8s network-policy if enabled
+
+  ingress:
+    enabled: false # generates a k8s nginx ingress resource if enabled
+
+  username: "john" # HTTP Basic Auth username
+  password: "doe" # HTTP Basic Auth password
+
+  storage:
+    s3:
+      bucket: "my-s3-bucket-for-backups" # s3 bucket name
+      host: "s3.amazonaws.com" # s3 hostname
+      key: "my-access-key" # s3 access key
+      secret: "my-secret-key" # s3 secret key
+
+  # services require: name, type, provider, credentials, schedule, timeout and retention
+  services:
+  # service type 'mysql' requires credentials: host, port, database, username and password
+  - name: "my-mysql"
+    type: "mysql"
+    provider: "AWS RDS"
+    credentials:
+      host: "mysql.domain"
+      port: 3306
+      database: "mysql_db"
+      username: "mysql_user"
+      password: "mysql_passwd"
+    schedule: "1 2 3 4 5 *"
+    timeout: "2h"
+    retention:
+      files: 66
+      days: 33

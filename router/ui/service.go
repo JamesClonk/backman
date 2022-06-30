@@ -7,8 +7,9 @@ import (
 	"sort"
 
 	echo "github.com/labstack/echo/v4"
+	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
-	"github.com/swisscom/backman/service/util"
+	"github.com/swisscom/backman/service"
 )
 
 func (h *Handler) ServicesHandler(c echo.Context) error {
@@ -16,15 +17,15 @@ func (h *Handler) ServicesHandler(c echo.Context) error {
 
 	serviceType := c.Param("service_type")
 	if len(serviceType) > 0 {
-		if !util.IsValidServiceType(serviceType) {
+		if !config.IsValidServiceType(serviceType) {
 			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("unsupported service type: %s", serviceType))
 		}
 
 		// reduce services list to specific type only
-		page.Services = make(map[string][]util.Service)
+		page.Services = make(map[string][]config.Service)
 		page.Services[serviceType] = page.AllServices[serviceType]
-		page.Service.Label = serviceType
-		page.Title = util.ParseServiceType(serviceType).String()
+		page.Service.Binding.Type = serviceType
+		page.Title = config.ParseServiceType(serviceType).String()
 	}
 
 	return c.Render(http.StatusOK, "services.html", page)
@@ -42,7 +43,7 @@ func (h *Handler) ServiceHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid request - service_type and service_name are required!")
 	}
 
-	if !util.IsValidServiceType(serviceType) {
+	if !config.IsValidServiceType(serviceType) {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("unsupported service type: %s", serviceType))
 	}
 
@@ -58,7 +59,7 @@ func (h *Handler) ServiceHandler(c echo.Context) error {
 	}
 
 	// get backups for service
-	backups, err := h.Service.GetBackups(serviceType, serviceName)
+	backups, err := service.GetBackups(serviceType, serviceName)
 	if err != nil {
 		log.Errorf("%v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("could not read service backups from S3: %v", err))

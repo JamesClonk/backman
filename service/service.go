@@ -3,188 +3,185 @@ package service
 import (
 	"fmt"
 	"math/rand"
-	"sync"
+	"net"
+	"net/url"
+	"regexp"
+	"strconv"
+	"strings"
 	"time"
 
-	cfenv "github.com/cloudfoundry-community/go-cfenv"
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
-	"github.com/swisscom/backman/s3"
+	"github.com/swisscom/backman/service/elasticsearch"
+	"github.com/swisscom/backman/service/mongodb"
 	"github.com/swisscom/backman/service/mysql"
 	"github.com/swisscom/backman/service/postgres"
 	"github.com/swisscom/backman/service/redis"
-	"github.com/swisscom/backman/service/util"
 	"github.com/swisscom/backman/state"
 )
-
-var (
-	service *Service
-	once    sync.Once
-)
-
-// Service is used interact with services and dump/restore backups
-type Service struct {
-	App      *cfenv.App
-	S3       *s3.Client
-	Services []util.Service
-}
 
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 }
 
-func new(app *cfenv.App, s3 *s3.Client) *Service {
-	return &Service{
-		App: app,
-		S3:  s3,
-	}
-}
+func Init() {
+	mergeServiceBindings() // find and merge SERVICE_BINDING_ROOT/<service> into config.Services
+	mergeVCAPServices()    // find and merge VCAP_SERVICES into config.Services
 
-func Get() *Service {
-	once.Do(func() {
-		app, err := cfenv.Current()
-		if err != nil {
-			log.Fatalf("%v", err)
-		}
-		s3 := s3.New(app)
-
-		service = new(app, s3)
-		service.parseServices()
-	})
-	return service
-}
-
-func (s *Service) parseServices() {
-	s.Services = make([]util.Service, 0)
-
-	for _, services := range s.App.Services {
-		for _, service := range services {
-			// exclude S3 storage service, don't try to parse it as a service for backups
-			if service.Name == config.Get().S3.ServiceName ||
-				(service.Label == config.Get().S3.ServiceLabel && service.Label != "user-provided") {
-				continue
-			}
-
-			// if it is an unrecognized type/label or user-provided service
-			// then try to figure out if it can be identified as a supported service type
-			if !util.IsValidServiceType(service.Label) || service.Label == "user-provided" {
-				// can it be identified as a custom postgres binding?
-				if postgres.IsPostgresBinding(&service) {
-					service.Label = "postgres"
-				} else if mysql.IsMySQLBinding(&service) { // or a mysql binding?
-					service.Label = "mysql"
-				} else if redis.IsRedisBinding(&service) { // or a redis binding?
-					service.Label = "redis"
-				} else {
-					// try to guess it via service tags as a last resort
-					var identified bool
-					for _, tag := range service.Tags {
-						if util.IsValidServiceType(tag) {
-							identified = true
-							service.Label = tag
-							break
-						}
-					}
-					if !identified {
-						log.Errorf("unsupported service type [%s]: could not identify [%s]", service.Label, service.Name)
-						continue // cannot handle this service binding
-					}
-				}
-			}
-
-			// read timeout for service
-			timeout := config.Get().Services[service.Name].Timeout
-			if timeout.Seconds() <= 1 {
-				timeout.Duration = 1 * time.Hour // default
-			}
-
-			// read crontab schedule for service
-			schedule := config.Get().Services[service.Name].Schedule
-			if len(schedule) == 0 {
-				// create a random schedule for daily backup as a fallback
-				schedule = fmt.Sprintf("%d %d %d * * *", rand.Intn(59), rand.Intn(59), rand.Intn(23))
-			}
-
-			// read retention days & files, with defaults as fallback
-			retentionDays := config.Get().Services[service.Name].Retention.Days
-			retentionFiles := config.Get().Services[service.Name].Retention.Files
-			if retentionDays <= 0 {
-				retentionDays = 31 // default
-			}
-			if retentionFiles <= 0 {
-				retentionFiles = 100 // default
-			}
-
-			newService := util.Service{
-				Name:     service.Name,
-				Label:    service.Label,
-				Plan:     service.Plan,
-				Tags:     service.Tags,
-				Timeout:  timeout.Duration,
-				Schedule: schedule,
-				Retention: util.Retention{
-					Days:  retentionDays,
-					Files: retentionFiles,
-				},
-				DirectS3:                config.Get().Services[service.Name].DirectS3,
-				DisableColumnStatistics: config.Get().Services[service.Name].DisableColumnStatistics,
-				LogStdErr:               config.Get().Services[service.Name].LogStdErr,
-				ForceImport:             config.Get().Services[service.Name].ForceImport,
-				LocalBackupPath:         config.Get().Services[service.Name].LocalBackupPath,
-				IgnoreTables:            config.Get().Services[service.Name].IgnoreTables,
-				BackupOptions:           config.Get().Services[service.Name].BackupOptions,
-				RestoreOptions:          config.Get().Services[service.Name].RestoreOptions,
-			}
-			s.Services = append(s.Services, newService)
-		}
-	}
+	validateServices() // final validation of all service instances in config.Services, enrich default values
 
 	// setup service metrics
-	for _, service := range s.Services {
+	for _, service := range config.Get().Services {
 		// init prometheus state metrics to 0
 		state.BackupInit(service)
 		state.RestoreInit(service)
 
 		// init backup files state & metrics in background
-		go func(label, name string) {
-			_, _ = s.GetBackups(label, name)
-		}(service.Label, service.Name)
+		go func(serviceType, name string) {
+			_, _ = GetBackups(serviceType, name)
+		}(service.Binding.Type, service.Name)
 	}
 
-	log.Debugf("services loaded: %+v", s.Services)
+	log.Debugf("services loaded: %+v", config.Get().Services)
 }
 
-func (s *Service) GetServices(serviceType, serviceName string) []util.Service {
-	services := make([]util.Service, 0)
+func validateServices() {
+	for serviceName, service := range config.Get().Services {
+		// remove services without binding type, they are useless to us / invalid
+		if len(service.Binding.Type) == 0 {
+			log.Errorf("ignoring invalid service [%s], there is no service type defined", serviceName)
+			delete(config.Get().Services, serviceName)
+			continue
+		}
+
+		// enrich service bindings, try to figure out additional properties by parsing URI
+		service.Binding = enrichBinding(service.Binding)
+
+		// validate binding credentials for known service types
+		// each of them knows best themselves what they need or require
+		validBinding := true
+		switch service.Type() {
+		case config.Elasticsearch:
+			validBinding = elasticsearch.VerifyBinding(service)
+		case config.MongoDB:
+			validBinding = mongodb.VerifyBinding(service)
+		case config.MySQL:
+			validBinding = mysql.VerifyBinding(service)
+		case config.Postgres:
+			validBinding = postgres.VerifyBinding(service)
+		case config.Redis:
+			validBinding = redis.VerifyBinding(service)
+		}
+		if !validBinding {
+			log.Errorf("service binding for [%s] is not valid", serviceName)
+			delete(config.Get().Services, serviceName)
+			continue
+		}
+
+		service.Name = serviceName // service name must be the same as map-key
+
+		// read timeout for service
+		if service.Timeout.Seconds() <= 1 {
+			service.Timeout.Duration = 1 * time.Hour // default
+		}
+
+		// read crontab schedule for service
+		if len(service.Schedule) == 0 {
+			// create a random schedule for daily backup as a fallback
+			service.Schedule = fmt.Sprintf("%d %d %d * * *", rand.Intn(59), rand.Intn(59), rand.Intn(23))
+		}
+
+		// read retention days & files, with defaults as fallback
+		if service.Retention.Days <= 0 {
+			service.Retention.Days = 31 // default
+		}
+		if service.Retention.Files <= 0 {
+			service.Retention.Files = 100 // default
+		}
+
+		// write values back
+		config.Get().Services[serviceName] = service
+	}
+}
+
+func enrichBinding(binding config.ServiceBinding) config.ServiceBinding {
+	// figure out hostname & port from host if still missing
+	if binding.Port == 0 {
+		if len(binding.Host) > 0 && strings.Contains(binding.Host, ":") {
+			if u, err := url.Parse(binding.Host); err == nil {
+				binding.Host = u.Hostname()
+				binding.Port, _ = strconv.Atoi(u.Port())
+			}
+		}
+	}
+
+	// figure out credentials from URI if missing
+	if len(binding.URI) > 0 && strings.Contains(binding.URI, "://") {
+		if u, err := url.Parse(binding.URI); err == nil {
+			// set username and password if missing
+			if len(binding.Username) == 0 {
+				binding.Username = u.User.Username()
+			}
+			if len(binding.Password) == 0 {
+				p, _ := u.User.Password()
+				binding.Password = p
+			}
+
+			// set host and port too if still missing
+			h, p, _ := net.SplitHostPort(u.Host)
+			if len(binding.Host) == 0 {
+				binding.Host = h
+			}
+			if binding.Port == 0 {
+				binding.Port, _ = strconv.Atoi(p)
+			}
+
+			// set database if not defined yet but can be found in URI
+			if len(binding.Database) == 0 {
+				binding.Database = strings.TrimPrefix(u.Path, "/")
+				rx := regexp.MustCompile(`([^\?]*)\?.*`) // trim connection options
+				binding.Database = rx.ReplaceAllString(binding.Database, "${1}")
+			}
+		}
+	}
+
+	return binding
+}
+
+func GetServices(serviceType, serviceName string) []config.Service {
+	services := make([]config.Service, 0)
+
 	if len(serviceName) > 0 {
 		// list only a specific service binding
-		for _, service := range s.Services {
+		for _, service := range config.Get().Services {
 			if service.Name == serviceName {
 				services = append(services, service)
 				break
 			}
 		}
-
 	} else if len(serviceType) > 0 {
 		// list services only for a specific service type
-		for _, service := range s.Services {
-			if service.Label == serviceType {
+		for _, service := range config.Get().Services {
+			if service.Binding.Type == serviceType {
 				services = append(services, service)
 			}
 		}
-
 	} else {
 		// list all services
-		return s.Services
+		for _, service := range config.Get().Services {
+			services = append(services, service)
+		}
 	}
+
 	return services
 }
 
-func (s *Service) GetService(serviceType, serviceName string) util.Service {
-	for _, service := range s.Services {
-		if service.Name == serviceName && service.Label == serviceType {
+func GetService(serviceType, serviceName string) config.Service {
+	// find and return the specific service instance
+	for _, service := range config.Get().Services {
+		if service.Name == serviceName && service.Binding.Type == serviceType {
 			return service
 		}
 	}
-	return util.Service{}
+	return config.Service{}
 }

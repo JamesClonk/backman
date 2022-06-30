@@ -9,14 +9,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/cloudfoundry-community/go-cfenv"
+	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/s3"
-	"github.com/swisscom/backman/service/util"
 	"github.com/swisscom/backman/state"
 )
 
-func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *cfenv.Service, objectPath string) error {
+func Restore(ctx context.Context, s3 *s3.Client, service config.Service, target config.Service, objectPath string) error {
 	state.RestoreQueue(service)
 
 	// lock global mongodb mutex, only 1 backup of this service-type is allowed to run in parallel
@@ -26,13 +25,11 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 	filename := filepath.Base(objectPath)
 	state.RestoreStart(service, filename)
 
-	uri, _ := binding.CredentialString("uri")
-
 	// prepare mongorestore command
 	var command []string
 	command = append(command, "mongorestore")
 	command = append(command, "--uri")
-	command = append(command, uri)
+	command = append(command, service.Binding.URI)
 	command = append(command, "--gzip")
 	command = append(command, "--archive")
 	command = append(command, service.RestoreOptions...)

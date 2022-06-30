@@ -13,8 +13,8 @@ var (
 	logger *logrus.Logger
 )
 
-func init() {
-	logger = newLogger(os.Stdout)
+func Init() {
+	logger = newLogger(os.Stdout) // initialize logger
 }
 
 func newLogger(writer io.Writer) *logrus.Logger {

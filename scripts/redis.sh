@@ -10,7 +10,12 @@ fi
 echo $PWD
 
 # =============================================================================================
-source .env
+# do not source any env vars at all for this test, we rely entirely on _fixtures/config_with_bindings.json
+unset BACKMAN_CONFIG
+unset VCAP_SERVICES
+unset SERVICE_BINDING_ROOT
+export PORT="9990"
+# this will test reading the redis service binding entirely from config.json, as well as the S3 credentials
 
 # =============================================================================================
 retry() {
@@ -45,8 +50,8 @@ echo "testing redis integration ..."
 sleep 5
 # starting backman
 killall backman || true
-./backman 2>&1 &
-sleep 5
+./backman -config _fixtures/config_with_bindings.json 2>&1 &
+sleep 10
 
 set -x
 if [ $(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:9990) != "401" ]; then
@@ -57,6 +62,11 @@ fi
 if [ $(curl -s -o /dev/null -w "%{http_code}" http://john:doe@127.0.0.1:9990) != "200" ]; then
 	echo "Should be authorized"
 	exit 1
+fi
+
+if [ $(curl -s -o /dev/null -w "%{http_code}" http://john:doe@127.0.0.1:9990/healthz) != "200" ]; then
+    echo "Should be OK"
+    exit 1
 fi
 
 if [ $(curl -s -o /dev/null -w "%{http_code}" http://john:doe@127.0.0.1:9990/api/v1/state/redis-2/my-redis) != "200" ]; then
@@ -107,4 +117,4 @@ redis-cli -h 127.0.0.1 -a 'very-secret' GET blibb | grep howdy
 # delete backup
 curl -X DELETE http://john:doe@127.0.0.1:9990/api/v1/backup/redis-2/my-redis/${FILENAME}
 sleep 10
-curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/redis-2/my-redis | grep -v 'Filename'
+curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/redis-2/my-redis | grep -v "${FILENAME}"
