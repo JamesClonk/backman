@@ -11,14 +11,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/cloudfoundry-community/go-cfenv"
+	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/s3"
-	"github.com/swisscom/backman/service/util"
 	"github.com/swisscom/backman/state"
 )
 
-func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *cfenv.Service, objectPath string) error {
+func Restore(ctx context.Context, s3 *s3.Client, service config.Service, target config.Service, objectPath string) error {
 	state.RestoreQueue(service)
 
 	// lock global elasticsearch mutex, only 1 backup/restore operation of this service-type is allowed to run in parallel
@@ -28,18 +27,12 @@ func Restore(ctx context.Context, s3 *s3.Client, service util.Service, binding *
 	filename := filepath.Base(objectPath)
 	state.RestoreStart(service, filename)
 
-	host, _ := binding.CredentialString("host")
-	username, _ := binding.CredentialString("full_access_username")
-	password, _ := binding.CredentialString("full_access_password")
-	if len(username) == 0 {
-		username, _ = binding.CredentialString("username")
-	}
-	if len(password) == 0 {
-		password, _ = binding.CredentialString("password")
-	}
-
-	u, _ := url.Parse(host)
-	connectstring := fmt.Sprintf("%s://%s:%s@%s", u.Scheme, url.PathEscape(username), url.PathEscape(password), u.Host)
+	u, _ := url.Parse(target.Binding.Host)
+	connectstring := fmt.Sprintf("%s://%s:%s@%s",
+		u.Scheme,
+		url.PathEscape(target.Binding.Username),
+		url.PathEscape(target.Binding.Password),
+		u.Host)
 
 	// prepare elasticsearch restore command
 	var command []string

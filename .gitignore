@@ -30,7 +30,9 @@ _testmain.go
 .glide/
 
 # ---------
-.env_*
+.env
+.env*
+.example*
 accounts.zip
 accounts.json
 testfile.dat
@@ -41,6 +43,9 @@ appcloud-backman-app
 backman-app
 backman
 /tmp
-_fixtures/*
+_fixtures/output/*
+_fixtures/env_private
 /.idea/
 snyk.sarif
+trivy.sarif
+*.sarif

@@ -10,20 +10,18 @@ import (
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/log"
 	"github.com/swisscom/backman/service"
-	"github.com/swisscom/backman/service/util"
 )
 
 // Handler holds all objects and configurations used across Web-UI requests
 type Handler struct {
-	Service  *service.Service
-	Services map[string][]util.Service
+	Services map[string][]config.Service
 }
 
 type Page struct {
 	Title       string
-	Service     util.Service
-	Services    map[string][]util.Service
-	AllServices map[string][]util.Service
+	Service     config.Service
+	Services    map[string][]config.Service
+	AllServices map[string][]config.Service
 	Backup      service.Backup
 	Backups     []service.Backup
 	Error       struct {
@@ -34,24 +32,32 @@ type Page struct {
 }
 
 func New() *Handler {
-	s := service.Get()
-
-	services := make(map[string][]util.Service)
-	for _, s := range s.Services {
-		if _, exists := services[s.Label]; !exists {
-			services[s.Label] = make([]util.Service, 0)
+	services := make(map[string][]config.Service)
+	for _, s := range config.Get().Services {
+		if _, exists := services[s.Binding.Type]; !exists {
+			services[s.Binding.Type] = make([]config.Service, 0)
 		}
-		services[s.Label] = append(services[s.Label], s)
+		services[s.Binding.Type] = append(services[s.Binding.Type], s)
 	}
 
 	return &Handler{
-		Service:  s,
 		Services: services,
 	}
 }
 
 func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	g := e.Group("")
+
+	// don't show timestamp unless specifically configured
+	format := `remote_ip="${remote_ip}", host="${host}", method=${method}, uri=${uri}, user_agent="${user_agent}", ` +
+		`status=${status}, error="${error}", latency_human="${latency_human}", bytes_out=${bytes_out}` + "\n"
+	if config.Get().LoggingTimestamp {
+		format = `time="${time_rfc3339}", ` + format
+	}
+	// add logger middlerware
+	g.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: format,
+	}))
 
 	// secure routes with HTTP BasicAuth
 	username := config.Get().Username

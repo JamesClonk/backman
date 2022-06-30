@@ -7,12 +7,14 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/swisscom/backman/config"
 	"github.com/swisscom/backman/router/api"
+	"github.com/swisscom/backman/router/health"
 	"github.com/swisscom/backman/router/metrics"
 	"github.com/swisscom/backman/router/ui"
 )
 
 type Router struct {
 	echo    *echo.Echo
+	health  *health.Handler
 	metrics *metrics.Handler
 	api     *api.Handler
 	ui      *ui.Handler
@@ -28,27 +30,20 @@ func New() *Router {
 	// middlewares
 	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(middleware.Secure())
-
-	// don't show timestamp unless specifically configured
-	format := `remote_ip="${remote_ip}", host="${host}", method=${method}, uri=${uri}, user_agent="${user_agent}", ` +
-		`status=${status}, error="${error}", latency_human="${latency_human}", bytes_out=${bytes_out}` + "\n"
-	if config.Get().LoggingTimestamp {
-		format = `time="${time_rfc3339}", ` + format
-	}
-	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: format,
-	}))
-
 	//e.Use(middleware.Recover()) // don't recover, let platform deal with panics
 	e.Use(middleware.Static("static"))
 
 	// setup router
 	r := &Router{
 		echo:    e,
+		health:  health.New(),
 		metrics: metrics.New(),
 		api:     api.New(),
 		ui:      ui.New(),
 	}
+
+	// setup health route
+	r.health.RegisterRoutes(r.echo)
 
 	if !config.Get().DisableMetrics {
 		// setup metrics route
@@ -68,5 +63,5 @@ func New() *Router {
 }
 
 func (r *Router) Start() error {
-	return r.echo.Start(fmt.Sprintf(":%d", r.api.App.Port))
+	return r.echo.Start(fmt.Sprintf(":%d", config.Get().Port))
 }

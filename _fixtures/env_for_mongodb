@@ -1,0 +1,150 @@
+export PORT=9990
+export USER=vcap
+
+export BACKMAN_CONFIG='{
+  "log_level": "debug",
+  "logging_timestamp": true,
+  "username": "john",
+  "password": "doe",
+  "disable_web": false,
+  "disable_metrics": false,
+  "disable_restore": false,
+  "disable_metrics_logging": false,
+  "disable_health_logging": true,
+  "unprotected_metrics": true,
+  "unprotected_health": true,
+  "s3": {
+    "disable_ssl": true,
+    "encryption_key":"a_super_strong_example_key",
+    "bucket_name": "my-database-backups",
+    "service_label": "dynstrg"
+  },
+  "services": {
+    "my_mongodb": {
+      "schedule": "0 0 2 * * *",
+      "log_stderr": true
+    },
+    "mongodb-for-backend": {
+      "schedule": "0 0 2 * * *",
+      "retention": {
+        "files": 500
+      }
+    },
+    "my-elasticsearch": {
+      "schedule": "0 0 2 * * *",
+      "direct_s3": false
+    },
+    "my_mysql_db": {
+      "schedule": "0 0 2 * * *",
+      "timeout": "35m",
+      "force_import": true
+    },
+    "my_postgres_db": {
+      "schedule": "0 0 2 * * *",
+      "timeout": "2h",
+      "retention": {
+        "days": 15,
+        "files": 10
+      },
+      "local_backup_path": "./_fixtures/output/"
+    },
+    "other_postgres_db": {
+      "schedule": "0 0 2 * * *",
+      "timeout": "2h15m",
+      "retention": {
+        "files": 500
+      }
+    }
+  }
+}'
+
+export CF_INSTANCE_GUID=e5d1bf0f-7b51-4ff8-7621-9f20
+export VCAP_APPLICATION='{
+  "application_id": "fa05c1a9-0fc1-4fbd-bae1-139850dec7a3",
+  "application_name": "backman",
+  "application_uris": [
+    "appcloud-backman-app.example.com",
+    "backman-app.example.com",
+    "backman.example.com"
+  ],
+  "application_version": "fb8fbcc6-8d58-479e-bcc7-3b4ce5a7f0ca",
+  "cf_api": "https://api.example.com",
+  "limits": {
+    "disk": 1024,
+    "fds": 16384,
+    "mem": 256
+  },
+  "name": "backman",
+  "organization_id": "c0134bad-97a9-468d-ab9d-e97547e3aed5",
+  "organization_name": "my-org",
+  "space_id": "06450c72-4669-4dc6-8096-45f9777db68a",
+  "space_name": "my-space",
+  "uris": [
+    "appcloud-backman-app.example.com",
+    "backman-app.example.com",
+    "backman.example.com"
+  ],
+  "version": "fb8fbcc6-8d58-479e-bcc7-3b4ce5a7f0ca"
+}'
+
+export VCAP_SERVICES='{
+"this_field_is_actually_irrelevant":[{
+  "credentials": {
+    "uri": "mongodb://mongoadmin:super-secret@127.0.0.1:27017",
+    "host": "127.0.0.1",
+    "port": 27017,
+    "name": "my_mongodb",
+    "database": "my-db",
+    "username": "mongoadmin",
+    "password": "super-secret"
+  },
+  "syslog_drain_url": null,
+  "volume_mounts": [],
+  "label": "user-provided",
+  "provider": null,
+  "plan": "usage",
+  "name": "my_mongodb",
+  "tags": [
+    "mangodb",
+    "mongodb"
+  ]
+},{
+  "credentials": {
+    "uri": "mongodb://mongoadmin:super-secret@127.0.0.1:27017",
+    "host": "127.0.0.1",
+    "port": 27017,
+    "name": "other_mongodb",
+    "database": "my-db",
+    "username": "mongoadmin",
+    "password": "super-secret"
+  },
+  "syslog_drain_url": null,
+  "volume_mounts": [],
+  "label": "mongodbent",
+  "provider": null,
+  "plan": "usage",
+  "name": "some other mangodb!",
+  "tags": [
+    "mangodb",
+    "mongodb"
+  ]
+}],
+"redis": [{
+  "binding_name": null,
+  "credentials": {
+   "host": "127.0.0.1",
+   "master_port": 6379,
+   "password": "very-secret",
+   "port": 6379
+  },
+  "instance_name": "my-redis",
+  "label": "redis-2",
+  "name": "my-redis",
+  "plan": "small",
+  "provider": null,
+  "syslog_drain_url": null,
+  "tags": [
+   "redis"
+  ],
+  "volume_mounts": []
+}]}'

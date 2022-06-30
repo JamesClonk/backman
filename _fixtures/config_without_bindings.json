@@ -1,0 +1,52 @@
+{
+	"log_level": "info",
+	"logging_timestamp": false,
+	"disable_web": false,
+	"disable_metrics": false,
+	"disable_restore": false,
+	"disable_metrics_logging": false,
+	"disable_health_logging": false,
+	"unprotected_metrics": false,
+	"unprotected_health": true,
+	"username": "john",
+	"password": "doe",
+	"s3": {
+		"service_label": "dynstrg",
+		"bucket_name": "my-database-backups",
+		"disable_ssl": true
+	},
+	"services": {
+		"my-elasticsearch": {
+			"schedule": "0 0 6 * * *",
+			"direct_s3": true
+		},
+		"my_postgres_db": {
+			"schedule": "0 0 2 * * *",
+			"timeout": "2h",
+			"retention": {
+				"days": 60,
+				"files": 250
+			},
+			"local_backup_path": "./_fixtures/output//"
+		},
+		"my_mysql_db": {
+			"schedule": "0 0 2 * * *",
+			"timeout": "35m",
+			"force_import": true
+		},
+		"other_postgres_db": {
+			"schedule": "1 2 3 * * *",
+			"timeout": "2h15m"
+		},
+		"my_mongodb": {
+			"schedule": "0 0 4 * * *",
+			"log_stderr": true
+		},
+		"mongodb-for-backend": {
+			"schedule": "0 45 5 * * *",
+			"retention": {
+				"files": 500
+			}
+		}
+	}
+}
