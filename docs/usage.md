@@ -5,7 +5,7 @@
 ##### Cloud Foundry specific
 1. Login to Cloud Foundry
 2. Create a service instance of an S3-compatible object storage
-3. Modify the provided `manifest.yml`, specify your service instance(s)
+3. Modify the provided [`manifest.yml`](/manifest.yml), specify your service instance(s)
 4. Configure backman through the environment variable `$BACKMAN_CONFIG` (see `manifest.yml` example)
 5. Run `cf push`
 
