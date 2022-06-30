@@ -62,7 +62,7 @@ applications:
     BACKMAN_PASSWORD: ((password)) # optional, password for HTTP Basic Auth
     # BACKMAN_ENCRYPTION_KEY: "" #  optional, data-at-rest-encryption for backups stored on S3
 
-    # consult /docs/configuration.md and /docs/cloudfoundry/configuration.md for more details
+    # consult /docs/configuration.md and /docs/cloudfoundry/configuration.md for more details on $BACKMAN_CONFIG
     # please edit the "services" section below before deploying backman, those are just examples and not meant to be used!
     BACKMAN_CONFIG: |
       {
