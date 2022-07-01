@@ -11,6 +11,25 @@ import (
 	"github.com/swisscom/backman/service"
 )
 
+// swagger:operation POST /api/v1/restore/{service_type}/{service_name}/{filename}/{target_name} restoreBackupToTarget
+// Triggers a restore of a given service backup to a specific target service.
+//
+// ---
+// operationId: restoreBackupToTarget
+// produces:
+// - application/json
+// responses:
+//   '202':
+//     description: Service
+//     schema:
+//       $ref: '#/definitions/Service'
+// schemes:
+// - http
+// - https
+// summary: Triggers a restore of a given service backup to a specific target service.
+// tags:
+// - restore
+
 // swagger:route POST /api/v1/restore/{service_type}/{service_name}/{filename} restore restoreBackup
 // Triggers a restore for given service.
 //
@@ -20,7 +39,7 @@ import (
 // schemes: http, https
 //
 // responses:
-//   202: service
+//   202: Service
 func (h *Handler) RestoreBackup(c echo.Context) error {
 	serviceType := c.Param("service_type")
 	serviceName, err := url.QueryUnescape(c.Param("service_name"))
