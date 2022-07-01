@@ -68,20 +68,20 @@ spec:
             port: 8080
         volumeMounts:
         - mountPath: /backman/config.json
-          name: backman-secret
+          name: backman-configuration
           subPath: config.json
 #@ for idx in range(len(data.values.backman.services)):
 #@   service = data.values.backman.services[idx]
         - mountPath: #@ "/bindings/" + service.name
-          name: #@ service.name
+          name: #@ service.name.lower().strip().replace(" ","-").replace("_","-")
 #@ end
       volumes:
-      - name: backman-secret
+      - name: backman-configuration
         secret:
           secretName: backman
 #@ for idx in range(len(data.values.backman.services)):
 #@   service = data.values.backman.services[idx]
-      - name: #@ service.name
+      - name: #@ service.name.lower().strip().replace(" ","-").replace("_","-")
         secret:
-          secretName: #@ service.name
+          secretName: #@ service.name.lower().strip().replace(" ","-").replace("_","-")
 #@ end
