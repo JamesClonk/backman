@@ -5,27 +5,6 @@
 #@ if len(data.values.backman.services) == 0:
 #@  assert.fail("backman.services are missing or invalid")
 #@ end
-#@ for idx in range(len(data.values.backman.services)):
-#@   service = data.values.backman.services[idx]
-#@   if len(service.name) == 0:
-#@     assert.fail("backman.services[" + str(idx) + "].name is missing")
-#@   end
-#@   if len(service.type) == 0:
-#@     assert.fail("backman.services[" + str(idx) + "].type is missing")
-#@   end
-#@   if len(service.schedule) == 0:
-#@     assert.fail("backman.services[" + str(idx) + "].schedule is missing")
-#@   end
-#@   if len(service.timeout) == 0:
-#@     assert.fail("backman.services[" + str(idx) + "].timeout is missing")
-#@   end
-#@   if service.retention.days <= 0:
-#@     assert.fail("backman.services[" + str(idx) + "].retention.days is missing")
-#@   end
-#@   if service.retention.files <= 0:
-#@     assert.fail("backman.services[" + str(idx) + "].retention.files is missing")
-#@   end
-#@ end
 
 ---
 apiVersion: apps/v1
