@@ -302,4 +302,60 @@ ignore:
     - '*':
         reason: Not applicable
         expires: 2099-09-09T00:00:00.000Z
+  SNYK-UPSTREAM-NODE-2946729:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UPSTREAM-NODE-2946727:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UPSTREAM-NODE-2946723:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UPSTREAM-NODE-2946428:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UPSTREAM-NODE-2946427:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UPSTREAM-NODE-2946423:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-OPENSSL-2941372:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-GNUPG2-2940666:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2835632:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-MYSQL80-2956821:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2948955:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2948949:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2948825:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-NODEJS-2948907:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
 patch: {}
