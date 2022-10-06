@@ -398,4 +398,12 @@ ignore:
     - '*':
         reason: Not applicable
         expires: 2099-09-09T00:00:00.000Z
+  SNYK-UPSTREAM-NODE-3035792:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UPSTREAM-NODE-3035795:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
 patch: {}
