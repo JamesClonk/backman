@@ -358,4 +358,52 @@ ignore:
     - '*':
         reason: Not applicable
         expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-SQLITE3-3012501:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2993995:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2993203:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2965958:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2944002:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2935216:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-VIM-2935210:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-POSTGRESQL12-2980572:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-ZLIB-2975631:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-SQLITE3-2994021:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UPSTREAM-NODE-3035792:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UPSTREAM-NODE-3035795:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
 patch: {}
