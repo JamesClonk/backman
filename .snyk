@@ -406,4 +406,60 @@ ignore:
     - '*':
         reason: Not applicable
         expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-MYSQL80-3055802:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-MYSQL80-3055857:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-MYSQL80-3055912:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-MYSQL80-3056023:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-MYSQL80-3056188:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-MYSQL80-3056243:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-MYSQL80-3056353:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-MYSQL80-3056408:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-MYSQL80-3056518:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-MYSQL80-3056573:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-MYSQL80-3056683:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-MYSQL80-3056738:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-MYSQL80-3056903:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
+  SNYK-UBUNTU2004-MYSQL80-3056958:
+    - '*':
+        reason: Not applicable
+        expires: 2099-09-09T00:00:00.000Z
 patch: {}
