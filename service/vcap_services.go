@@ -145,6 +145,9 @@ func parseVCAPServices() ([]config.Service, error) {
 				if len(binding.Host) == 0 {
 					binding.Host = binding.URI
 				}
+				if len(binding.URI) == 0 {
+					binding.URI = binding.Host
+				}
 
 			case config.MongoDB:
 				port, _ := vcapService.CredentialString("port")

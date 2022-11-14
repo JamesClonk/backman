@@ -30,7 +30,9 @@ func Backup(ctx context.Context, s3 *s3.Client, service config.Service, filename
 
 	state.BackupStart(service, filename)
 
-	u, _ := url.Parse(service.Binding.Host)
+	u, _ := url.Parse(service.Binding.URI)
+	log.Debugf("elasticsearch: preparing connectstring for [%s://%s]", u.Scheme, u.Host)
+
 	connectstring := fmt.Sprintf("%s://%s:%s@%s", u.Scheme, url.PathEscape(service.Binding.Username), url.PathEscape(service.Binding.Password), u.Host)
 	objectPath := fmt.Sprintf("%s/%s/%s", service.Binding.Type, service.Name, filename)
 
