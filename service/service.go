@@ -57,6 +57,9 @@ func validateServices() {
 		// enrich service bindings, try to figure out additional properties by parsing URI
 		service.Binding = enrichBinding(service.Binding)
 
+		// service name must be the same as map-key
+		service.Name = serviceName
+
 		// validate binding credentials for known service types
 		// each of them knows best themselves what they need or require
 		validBinding := true
@@ -77,8 +80,6 @@ func validateServices() {
 			delete(config.Get().Services, serviceName)
 			continue
 		}
-
-		service.Name = serviceName // service name must be the same as map-key
 
 		// read timeout for service
 		if service.Timeout.Seconds() <= 1 {
