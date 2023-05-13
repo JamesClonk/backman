@@ -37,6 +37,26 @@ func Restore(ctx context.Context, s3 *s3.Client, service config.Service, target 
 	var command []string
 	command = append(command, "psql")
 	command = append(command, "--quiet")
+
+	// ssl/tls
+	if len(service.Binding.SSL.ClientCertPath) > 0 {
+		command = append(command, "sslcert="+service.Binding.SSL.ClientCertPath)
+	}
+
+	if len(service.Binding.SSL.ClientKeyPath) > 0 {
+		command = append(command, "sslkey="+service.Binding.SSL.ClientKeyPath)
+	}
+
+	if len(service.Binding.SSL.CACertPath) > 0 {
+		command = append(command, "sslrootcert="+service.Binding.SSL.CACertPath)
+	}
+
+	if service.Binding.SSL.VerifyServerCert {
+		command = append(command, "sslmode=verify-ca")
+	} else {
+		command = append(command, "sslmode=require")
+	}
+
 	command = append(command, service.RestoreOptions...)
 	command = append(command, target.Binding.Database)
 

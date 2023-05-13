@@ -39,6 +39,23 @@ func Backup(ctx context.Context, s3 *s3.Client, service config.Service, filename
 	command = append(command, "--archive")
 	command = append(command, service.BackupOptions...)
 
+	// ssl/tls
+	if len(service.Binding.SSL.PEMKeyPath) > 0 || len(service.Binding.SSL.CACertPath) > 0 {
+		command = append(command, "--ssl")
+	}
+
+	if len(service.Binding.SSL.PEMKeyPath) > 0 {
+		command = append(command, "--sslPEMKeyFile="+service.Binding.SSL.PEMKeyPath)
+
+		if len(service.Binding.SSL.PEMKeyPassword) > 0 {
+			command = append(command, "--sslPEMKeyPassword='"+service.Binding.SSL.PEMKeyPassword+"'")
+		}
+	}
+
+	if len(service.Binding.SSL.CACertPath) > 0 {
+		command = append(command, "--sslCAFile="+service.Binding.SSL.CACertPath)
+	}
+
 	log.Debugf("executing mongodb backup command: %v", strings.Join(command, " "))
 	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
 

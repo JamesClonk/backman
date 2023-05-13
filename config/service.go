@@ -24,6 +24,16 @@ type Service struct {
 	// order of precedence: SERVICE_BINDING_ROOT > VCAP_SERVICES > Config.Services.Binding
 	Binding ServiceBinding `json:"service_binding"` // optional
 }
+
+type SSLConfiguration struct {
+	ClientCertPath   string
+	CACertPath       string
+	ClientKeyPath    string
+	PEMKeyPassword   string
+	PEMKeyPath       string
+	VerifyServerCert bool
+}
+
 type ServiceBinding struct {
 	Type     string
 	Provider string
@@ -34,6 +44,7 @@ type ServiceBinding struct {
 	Username string
 	Password string
 	Database string
+	SSL      SSLConfiguration
 }
 type ServiceRetention struct {
 	Days  int

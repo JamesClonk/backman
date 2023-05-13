@@ -16,6 +16,15 @@ var (
 	configFile string = "config.json"
 )
 
+type SSLConfig struct {
+	CACertPath       string `json:"ca_cert_path"`
+	ClientCertPath   string `json:"client_cert_path"`
+	ClientKeyPath    string `json:"client_key_path"`
+	PEMKeyPassword   string `json:"pem_key_password"`
+	PEMKeyPath       string `json:"pem_key_path"`
+	VerifyServerCert bool   `json:"verify_server_cert"`
+}
+
 type Config struct {
 	Port                  int
 	LogLevel              string `json:"log_level"`
@@ -34,6 +43,7 @@ type Config struct {
 	Services              map[string]Service
 	ServiceBindingRoot    string `json:"service_binding_root"`
 	Foreground            bool
+	SSL                   SSLConfig `json:"ssl"`
 }
 
 type S3Config struct {
@@ -245,6 +255,26 @@ func new() *Config {
 			}
 			if len(serviceConfig.Binding.Database) > 0 {
 				mergedServiceConfig.Binding.Database = serviceConfig.Binding.Database
+			}
+
+			// ssl/tls
+			if len(serviceConfig.Binding.SSL.CACertPath) > 0 {
+				mergedServiceConfig.Binding.SSL.CACertPath = serviceConfig.Binding.SSL.CACertPath
+			}
+			if len(serviceConfig.Binding.SSL.ClientCertPath) > 0 {
+				mergedServiceConfig.Binding.SSL.ClientCertPath = serviceConfig.Binding.SSL.ClientCertPath
+			}
+			if len(serviceConfig.Binding.SSL.ClientKeyPath) > 0 {
+				mergedServiceConfig.Binding.SSL.ClientKeyPath = serviceConfig.Binding.SSL.ClientKeyPath
+			}
+			if len(serviceConfig.Binding.SSL.PEMKeyPassword) > 0 {
+				mergedServiceConfig.Binding.SSL.PEMKeyPassword = serviceConfig.Binding.SSL.PEMKeyPassword
+			}
+			if len(serviceConfig.Binding.SSL.PEMKeyPath) > 0 {
+				mergedServiceConfig.Binding.SSL.PEMKeyPath = serviceConfig.Binding.SSL.PEMKeyPath
+			}
+			if serviceConfig.Binding.SSL.VerifyServerCert {
+				mergedServiceConfig.Binding.SSL.VerifyServerCert = serviceConfig.Binding.SSL.VerifyServerCert
 			}
 
 			config.Services[serviceName] = mergedServiceConfig
