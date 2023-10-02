@@ -50,6 +50,24 @@ func Backup(ctx context.Context, s3 *s3.Client, service config.Service, filename
 	command = append(command, strconv.Itoa(service.Binding.Port))
 	command = append(command, "-u")
 	command = append(command, service.Binding.Username)
+
+	// ssl/tls
+	if len(service.Binding.SSL.ClientCertPath) > 0 {
+		command = append(command, "--ssl-cert="+service.Binding.SSL.ClientCertPath)
+	}
+
+	if len(service.Binding.SSL.CACertPath) > 0 {
+		command = append(command, "--ssl-ca="+service.Binding.SSL.CACertPath)
+	}
+
+	if len(service.Binding.SSL.ClientKeyPath) > 0 {
+		command = append(command, "--ssl-key="+service.Binding.SSL.ClientKeyPath)
+	}
+
+	if service.Binding.SSL.VerifyServerCert {
+		command = append(command, "--ssl-verify-server-cert")
+	}
+
 	if len(service.Binding.Database) > 0 {
 		command = append(command, "--no-create-db")
 		command = append(command, service.Binding.Database)
