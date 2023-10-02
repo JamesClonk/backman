@@ -65,8 +65,6 @@ func Backup(ctx context.Context, s3 *s3.Client, service config.Service, filename
 
 	if service.Binding.SSL.VerifyServerCert {
 		command = append(command, "sslmode=verify-ca")
-	} else {
-		command = append(command, "sslmode=require")
 	}
 
 	command = append(command, service.BackupOptions...)
