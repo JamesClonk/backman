@@ -137,6 +137,16 @@ func enrichBinding(binding config.ServiceBinding) config.ServiceBinding {
 				binding.Port, _ = strconv.Atoi(p)
 			}
 
+			// set well-known port based on scheme if still missing
+			if binding.Port == 0 {
+				if strings.EqualFold(u.Scheme, "https") {
+					binding.Port = 443
+				}
+				if strings.EqualFold(u.Scheme, "http") {
+					binding.Port = 80
+				}
+			}
+
 			// set database if not defined yet but can be found in URI
 			if len(binding.Database) == 0 {
 				binding.Database = strings.TrimPrefix(u.Path, "/")
