@@ -8,12 +8,10 @@ import (
 	"github.com/swisscom/backman/config"
 )
 
-func init() {
-	_ = os.Chdir("../")
-}
-
 func Test_Service_MergeVCAPServices(t *testing.T) {
 	config.SetConfigFile("_fixtures/config_without_bindings.json")
+
+	os.Unsetenv("SERVICE_BINDING_ROOT")
 
 	c := config.Get()
 	mergeVCAPServices()
