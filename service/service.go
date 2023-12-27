@@ -129,22 +129,12 @@ func enrichBinding(binding config.ServiceBinding) config.ServiceBinding {
 			}
 
 			// set host and port too if still missing
-			h, p, _ := net.SplitHostPort(u.Host)
+			h, p, _ := net.SplitHostPort(canonicalHost(u))
 			if len(binding.Host) == 0 {
 				binding.Host = h
 			}
 			if binding.Port == 0 {
 				binding.Port, _ = strconv.Atoi(p)
-			}
-
-			// set well-known port based on scheme if still missing
-			if binding.Port == 0 {
-				if strings.EqualFold(u.Scheme, "https") {
-					binding.Port = 443
-				}
-				if strings.EqualFold(u.Scheme, "http") {
-					binding.Port = 80
-				}
 			}
 
 			// set database if not defined yet but can be found in URI
@@ -195,4 +185,19 @@ func GetService(serviceType, serviceName string) config.Service {
 		}
 	}
 	return config.Service{}
+}
+
+// canonicalHost returns url.Host but always with a ":port" suffix
+// adapted from net/http/transport canonicalAddr
+func canonicalHost(url *url.URL) string {
+	portMap := map[string]string{
+		"http":  "80",
+		"https": "443",
+	}
+	addr := url.Hostname()
+	port := url.Port()
+	if port == "" {
+		port = portMap[url.Scheme]
+	}
+	return net.JoinHostPort(addr, port)
 }
