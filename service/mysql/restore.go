@@ -41,6 +41,24 @@ func Restore(ctx context.Context, s3 *s3.Client, service config.Service, target 
 	command = append(command, strconv.Itoa(target.Binding.Port))
 	command = append(command, "-u")
 	command = append(command, target.Binding.Username)
+
+	// ssl/tls
+	if len(service.Binding.SSL.ClientCertPath) > 0 {
+		command = append(command, "--ssl-cert="+service.Binding.SSL.ClientCertPath)
+	}
+
+	if len(service.Binding.SSL.CACertPath) > 0 {
+		command = append(command, "--ssl-ca="+service.Binding.SSL.CACertPath)
+	}
+
+	if len(service.Binding.SSL.ClientKeyPath) > 0 {
+		command = append(command, "--ssl-key="+service.Binding.SSL.ClientKeyPath)
+	}
+
+	if service.Binding.SSL.VerifyServerCert {
+		command = append(command, "--ssl-verify-server-cert")
+	}
+
 	// https://stackoverflow.com/questions/11263018/mysql-ignore-errors-when-importing/25771417#25771417
 	if service.ForceImport {
 		command = append(command, "--force")

@@ -87,6 +87,12 @@ A more comprehensive example of possible configuration options could look like t
 				"username": "my-db-user",
 				"Password": "db-pass",
 				"database": "dbname-to-backup",
+				"ssl": {
+					"ca_cert_path": "/path/to/ca-cert.pem",
+					"client_cert_path": "/path/to/client-cert.pem",
+					"client_key_path": "/path/to/client-key.pem",
+					"verify_server_cert": true
+				}
 			}
 		}
 		...
@@ -127,6 +133,12 @@ or through the specific environment variables `$BACKMAN_USERNAME` and `$BACKMAN_
 - `s3.service_type`: optional, defines which service type or label backman will look for in service instances to find the S3-compatible object storage
 - `s3.bucket_name`: optional, bucket to use on S3 storage, backman will use service-instance/binding-name if not configured
 - `s3.encryption_key`: optional, defines the key which will be used to encrypt and decrypt backups as they are stored on the S3 can also be passed as an environment variable with the name `$BACKMAN_ENCRYPTION_KEY`
+- `ssl.ca_cert_path`: optional, the path to the CA certificate (MySQL, PostgreSQL and MongoDB only)
+- `ssl.client_cert_path`: optional, the path to the client certificate (MySQL and PostgreSQL only)
+- `ssl.client_key_path`: optional, the path to the client key (MySQL and PostgreSQL only)
+- `ssl.pem_key_password`: optional, the password for the PEM Key (MongoDB only)
+- `ssl.pem_key_path`: optional, the path to the PEM Key (MongoDB only)
+- `ssl.verify_server_cert`: optional, whether to verify the server certificate (MySQL and PostgreSQL only)
 
 > **Note**: Usage of `s3.encryption_key` is not backward compatible! Backups generated without or with a different encryption key than before cannot be downloaded or restored anymore.
 
@@ -180,7 +192,13 @@ Here's an example with S3 (for backup storage) and 2 services with explicitely c
 				"username": "admin",
 				"password": "d44b5e36-7c3f-433a-b244-3e8d2a8e2e22",
 				"port": 5432,
-				"database": "productdb"
+				"database": "productdb",
+				"ssl": {
+					"ca_cert_path": "/path/to/ca-cert.pem",
+					"client_cert_path": "/path/to/client-cert.pem",
+					"client_key_path": "/path/to/client-key.pem",
+					"verify_server_cert": true
+				}
 			}
 		},
 		"cookie-cache": {

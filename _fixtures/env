@@ -87,9 +87,9 @@ export VCAP_SERVICES='{
 "elasticsearch":[{
   "binding_name": null,
   "credentials": {
-   "full_access_password": "yolo",
+   "full_access_password": "0Really-Yes%5-xyz(+abc",
    "full_access_username": "yolo",
-   "host": "https://yolo.elasticsearch.lyra-836.appcloud.swisscom.com",
+   "host": "https://0c061730-1b19-424b-8efd-349fd40957a0.yolo.elasticsearch.lyra-836.appcloud.swisscom.com:443",
    "kibana_read_only_password": "yolo",
    "kibana_read_only_username": "yolo",
    "kibana_system_password": "yolo",

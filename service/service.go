@@ -57,6 +57,9 @@ func validateServices() {
 		// enrich service bindings, try to figure out additional properties by parsing URI
 		service.Binding = enrichBinding(service.Binding)
 
+		// service name must be the same as map-key
+		service.Name = serviceName
+
 		// validate binding credentials for known service types
 		// each of them knows best themselves what they need or require
 		validBinding := true
@@ -77,8 +80,6 @@ func validateServices() {
 			delete(config.Get().Services, serviceName)
 			continue
 		}
-
-		service.Name = serviceName // service name must be the same as map-key
 
 		// read timeout for service
 		if service.Timeout.Seconds() <= 1 {
@@ -128,7 +129,7 @@ func enrichBinding(binding config.ServiceBinding) config.ServiceBinding {
 			}
 
 			// set host and port too if still missing
-			h, p, _ := net.SplitHostPort(u.Host)
+			h, p, _ := net.SplitHostPort(canonicalHost(u))
 			if len(binding.Host) == 0 {
 				binding.Host = h
 			}
@@ -184,4 +185,19 @@ func GetService(serviceType, serviceName string) config.Service {
 		}
 	}
 	return config.Service{}
+}
+
+// canonicalHost returns url.Host but always with a ":port" suffix
+// adapted from net/http/transport canonicalAddr
+func canonicalHost(url *url.URL) string {
+	portMap := map[string]string{
+		"http":  "80",
+		"https": "443",
+	}
+	addr := url.Hostname()
+	port := url.Port()
+	if port == "" {
+		port = portMap[url.Scheme]
+	}
+	return net.JoinHostPort(addr, port)
 }

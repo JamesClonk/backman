@@ -27,7 +27,9 @@ func Restore(ctx context.Context, s3 *s3.Client, service config.Service, target 
 	filename := filepath.Base(objectPath)
 	state.RestoreStart(service, filename)
 
-	u, _ := url.Parse(target.Binding.Host)
+	u, _ := url.Parse(target.Binding.URI)
+	log.Debugf("elasticsearch: preparing connectstring for [%s://%s]", u.Scheme, u.Host)
+
 	connectstring := fmt.Sprintf("%s://%s:%s@%s",
 		u.Scheme,
 		url.PathEscape(target.Binding.Username),

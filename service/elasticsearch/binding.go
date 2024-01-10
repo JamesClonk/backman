@@ -12,6 +12,14 @@ func VerifyBinding(service config.Service) bool {
 		log.Errorf("service binding for [%s] is missing property: [host]", service.Name)
 		valid = false
 	}
+	if service.Binding.Port == 0 {
+		log.Errorf("service binding for [%s] is missing property: [port]", service.Name)
+		valid = false
+	}
+	if len(service.Binding.URI) == 0 {
+		log.Errorf("service binding for [%s] is missing property: [uri]", service.Name)
+		valid = false
+	}
 	if len(service.Binding.Username) == 0 {
 		log.Errorf("service binding for [%s] is missing property: [username]", service.Name)
 		valid = false
