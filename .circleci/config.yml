@@ -14,7 +14,7 @@ jobs:
   build:
     docker:
     # primary image for building app
-    - image: cimg/go:1.16-node
+    - image: cimg/go:1.21-node
 
     # service images available at `host: localhost`
     - image: circleci/postgres:12-alpine
@@ -79,16 +79,6 @@ jobs:
           chmod +x jq
           sudo mv jq /usr/local/bin/jq
 
-    # postgres integration tests
-    - run:
-        name: install Postgres client v12
-        command: |
-          sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt buster-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-          sudo apt-get update
-          sudo apt-get -y install postgresql-client-12
-    - run: make postgres-test
-
     - run:
         name: install Postgres client v15
         command: |
@@ -97,16 +87,6 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install postgresql-client-15
     - run: make postgres-test
-
-    # mongodb integration tests
-    - run:
-        name: install MongoDB client v5
-        command: |
-          wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
-          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
-          sudo apt-get update
-          sudo apt-get install -y mongodb-database-tools=100.5.1 mongodb-org-tools=5.0.5 mongodb-org-shell=5.0.5
-    - run: make mongodb-test
 
     - run:
         name: install MongoDB client v7
