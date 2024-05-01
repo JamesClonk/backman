@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM --platform=linux/amd64 ubuntu:22.04
 
 ARG package_args='--allow-downgrades --allow-remove-essential --allow-change-held-packages --no-install-recommends'
 RUN echo "debconf debconf/frontend select noninteractive" | debconf-set-selections && \
@@ -17,7 +17,7 @@ WORKDIR /go/src/github.com/swisscom/backman
 COPY . .
 RUN go build -o backman
 
-FROM ubuntu:20.04
+FROM --platform=linux/amd64 ubuntu:22.04
 LABEL maintainer="JamesClonk <jamesclonk@jamesclonk.ch>"
 
 ARG package_args='--allow-downgrades --allow-remove-essential --allow-change-held-packages --no-install-recommends'
@@ -27,13 +27,16 @@ RUN echo "debconf debconf/frontend select noninteractive" | debconf-set-selectio
   apt-get -y $package_args dist-upgrade && \
   apt-get -y $package_args install curl wget ca-certificates gnupg tzdata
 
-RUN curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
-  echo "deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main" > /etc/apt/sources.list.d/pgdg.list
-RUN wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - && \
-  echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" > /etc/apt/sources.list.d/mongodb-org-5.0.list
+RUN sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt jammy-pgdg main" > /etc/apt/sources.list.d/pgdg.list' \
+  && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+RUN curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | \
+  gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg \
+   --dearmor && \
+   echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | \
+   tee /etc/apt/sources.list.d/mongodb-org-7.0.list
 RUN curl -sL https://deb.nodesource.com/setup_lts.x | bash -
 RUN apt-get -y $package_args update && \
-  apt-get -y $package_args install mysql-client postgresql-client-12 mongodb-database-tools=100.5.4 mongodb-org-tools=5.0.13 mongodb-org-shell=5.0.13 redis-tools nodejs openssh-server bash vim-tiny && \
+  apt-get -y $package_args install mysql-client postgresql-client-15 mongodb-database-tools=100.9.0 mongodb-org-tools=7.0.7 mongodb-org-shell=7.0.7 redis-tools nodejs openssh-server bash vim-tiny && \
   apt-get clean && \
   find /usr/share/doc/*/* ! -name copyright | xargs rm -rf && \
   rm -rf \
