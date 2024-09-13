@@ -1,4 +1,4 @@
-# github.com/atc0005/go-teams-notify/v2 v2.6.0
+# github.com/atc0005/go-teams-notify/v2 v2.13.0
 ## explicit
 github.com/atc0005/go-teams-notify/v2
 # github.com/beorn7/perks v1.0.1
@@ -101,7 +101,7 @@ github.com/robfig/cron
 # github.com/sirupsen/logrus v1.8.1
 ## explicit
 github.com/sirupsen/logrus
-# github.com/stretchr/testify v1.7.0
+# github.com/stretchr/testify v1.9.0
 ## explicit
 github.com/stretchr/testify/assert
 # github.com/valyala/bytebufferpool v1.0.0
@@ -176,5 +176,4 @@ google.golang.org/protobuf/types/known/timestamppb
 ## explicit
 gopkg.in/ini.v1
 # gopkg.in/yaml.v3 v3.0.1
-## explicit
 gopkg.in/yaml.v3
