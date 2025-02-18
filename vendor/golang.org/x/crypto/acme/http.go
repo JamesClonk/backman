@@ -12,9 +12,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math/big"
 	"net/http"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"time"
@@ -156,7 +157,7 @@ func (c *Client) get(ctx context.Context, url string, ok resOkay) (*http.Respons
 	}
 }
 
-// postAsGet is POST-as-GET, a replacement for GET in RFC8555
+// postAsGet is POST-as-GET, a replacement for GET in RFC 8555
 // as described in https://tools.ietf.org/html/rfc8555#section-6.3.
 // It makes a POST request in KID form with zero JWS payload.
 // See nopayload doc comments in jws.go.
@@ -271,8 +272,26 @@ func (c *Client) httpClient() *http.Client {
 }
 
 // packageVersion is the version of the module that contains this package, for
-// sending as part of the User-Agent header. It's set in version_go112.go.
+// sending as part of the User-Agent header.
 var packageVersion string
+
+func init() {
+	// Set packageVersion if the binary was built in modules mode and x/crypto
+	// was not replaced with a different module.
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		return
+	}
+	for _, m := range info.Deps {
+		if m.Path != "golang.org/x/crypto" {
+			continue
+		}
+		if m.Replace == nil {
+			packageVersion = m.Version
+		}
+		break
+	}
+}
 
 // userAgent returns the User-Agent header value. It includes the package name,
 // the module version (if available), and the c.UserAgent value (if set).
@@ -310,7 +329,7 @@ func isRetriable(code int) bool {
 func responseError(resp *http.Response) error {
 	// don't care if ReadAll returns an error:
 	// json.Unmarshal will fail in that case anyway
-	b, _ := ioutil.ReadAll(resp.Body)
+	b, _ := io.ReadAll(resp.Body)
 	e := &wireError{Status: resp.StatusCode}
 	if err := json.Unmarshal(b, e); err != nil {
 		// this is not a regular error response:

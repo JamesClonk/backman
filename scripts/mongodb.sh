@@ -37,7 +37,7 @@ retry() {
 
 # =============================================================================================
 echo "waiting on mongodb ..."
-retry 10 mongo --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --quiet --eval 'db.runCommand("ping").ok'
+retry 10 mongosh --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --quiet --eval 'db.runCommand("ping").ok'
 echo "mongodb is up!"
 
 # =============================================================================================
@@ -72,7 +72,7 @@ fi
 curl -s http://john:doe@127.0.0.1:9990/api/v1/state/mongodb/my_mongodb | grep '"Status":"idle"'
 
 # write to mongodb
-mongo --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin <<EOF
+mongosh --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin <<EOF
 db.inventory.insertMany([
    { item: "my_backup_item_a", status: "test" },
    { item: "my_backup_item_b", status: "test" }
@@ -87,15 +87,15 @@ sleep 15
 curl -s http://john:doe@127.0.0.1:9990/api/v1/state/mongodb/my_mongodb | grep '"Operation":"backup"' | grep '"Status":"success"'
 
 # read from mongodb
-mongo --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.find( { status: "test" } );' | grep 'my_backup_item_a'
-mongo --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.find( { status: "test" } );' | grep 'my_backup_item_b'
+mongosh --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.find( { status: "test" } );' | grep 'my_backup_item_a'
+mongosh --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.find( { status: "test" } );' | grep 'my_backup_item_b'
 
 # delete from mongodb
-mongo --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.deleteMany( { item: "my_backup_item_a" } );'
-mongo --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.insert({ item: "my_backup_item_c", status: "test" });'
+mongosh --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.deleteMany( { item: "my_backup_item_a" } );'
+mongosh --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.insert({ item: "my_backup_item_c", status: "test" });'
 sleep 2
-mongo --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.find( { status: "test" } );' | grep 'my_backup_item_c'
-mongo --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.find( { status: "test" } );' | grep -v 'my_backup_item_a'
+mongosh --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.find( { status: "test" } );' | grep 'my_backup_item_c'
+mongosh --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.find( { status: "test" } );' | grep -v 'my_backup_item_a'
 
 # trigger restore
 FILENAME=$(curl -s http://john:doe@127.0.0.1:9990/api/v1/backup/mongodb/my_mongodb | jq -r .Files[0].Filename)
@@ -105,9 +105,9 @@ sleep 15
 curl -s http://john:doe@127.0.0.1:9990/api/v1/state/mongodb/my_mongodb | grep '"Operation":"restore"' | grep '"Status":"success"'
 
 # read from mongodb
-mongo --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.find( { status: "test" } );' | grep -v 'my_backup_item_c'
-mongo --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.find( { status: "test" } );' | grep 'my_backup_item_a'
-mongo --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.find( { status: "test" } );' | grep 'my_backup_item_b'
+mongosh --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.find( { status: "test" } );' | grep -v 'my_backup_item_c'
+mongosh --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.find( { status: "test" } );' | grep 'my_backup_item_a'
+mongosh --host 127.0.0.1 -u 'mongoadmin' -p 'super-secret' --authenticationDatabase admin --eval 'db.inventory.find( { status: "test" } );' | grep 'my_backup_item_b'
 
 # delete backup
 curl -X DELETE http://john:doe@127.0.0.1:9990/api/v1/backup/mongodb/my_mongodb/${FILENAME}
