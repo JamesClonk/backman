@@ -7,6 +7,7 @@ package acme
 import (
 	"crypto"
 	"crypto/x509"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -288,7 +289,7 @@ type Directory struct {
 	// KeyChangeURL allows to perform account key rollover flow.
 	KeyChangeURL string
 
-	// Term is a URI identifying the current terms of service.
+	// Terms is a URI identifying the current terms of service.
 	Terms string
 
 	// Website is an HTTP or HTTPS URL locating a website
@@ -297,7 +298,7 @@ type Directory struct {
 
 	// CAA consists of lowercase hostname elements, which the ACME server
 	// recognises as referring to itself for the purposes of CAA record validation
-	// as defined in RFC6844.
+	// as defined in RFC 6844.
 	CAA []string
 
 	// ExternalAccountRequired indicates that the CA requires for all account-related
@@ -440,7 +441,7 @@ func DomainIDs(names ...string) []AuthzID {
 
 // IPIDs creates a slice of AuthzID with "ip" identifier type.
 // Each element of addr is textual form of an address as defined
-// in RFC1123 Section 2.1 for IPv4 and in RFC5952 Section 4 for IPv6.
+// in RFC 1123 Section 2.1 for IPv4 and in RFC 5952 Section 4 for IPv6.
 func IPIDs(addr ...string) []AuthzID {
 	a := make([]AuthzID, len(addr))
 	for i, v := range addr {
@@ -527,6 +528,16 @@ type Challenge struct {
 	// when this challenge was used.
 	// The type of a non-nil value is *Error.
 	Error error
+
+	// Payload is the JSON-formatted payload that the client sends
+	// to the server to indicate it is ready to respond to the challenge.
+	// When unset, it defaults to an empty JSON object: {}.
+	// For most challenges, the client must not set Payload,
+	// see https://tools.ietf.org/html/rfc8555#section-7.5.1.
+	// Payload is used only for newer challenges (such as "device-attest-01")
+	// where the client must send additional data for the server to validate
+	// the challenge.
+	Payload json.RawMessage
 }
 
 // wireChallenge is ACME JSON challenge representation.
