@@ -34,7 +34,7 @@ func Backup(ctx context.Context, s3 *s3.Client, service config.Service, filename
 	command = append(command, "--uri")
 	command = append(command, service.Binding.URI)
 	command = append(command, "--readPreference")
-	command = append(command, "secondary")
+	command = append(command, service.ReadPreference)
 	command = append(command, "--gzip")
 	command = append(command, "--archive")
 	command = append(command, service.BackupOptions...)

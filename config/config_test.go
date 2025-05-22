@@ -32,6 +32,7 @@ func Test_Config_GetWithoutBindings(t *testing.T) {
 	assert.Equal(t, "0 45 0/4 * * *", c.Services["mongodb-for-backend"].Schedule) // from .env, overriding config.json
 	assert.Equal(t, 500, c.Services["mongodb-for-backend"].Retention.Files)       // from .env, overriding config.json
 	assert.Equal(t, "1 2 3 * * *", c.Services["other_postgres_db"].Schedule)      // from config.json
+	assert.Equal(t, "secondary", c.Services["my_mongodb"].ReadPreference)         // from config.json
 }
 
 func Test_Config_GetWithBindings(t *testing.T) {
@@ -62,4 +63,5 @@ func Test_Config_GetWithBindings(t *testing.T) {
 	assert.Equal(t, "very-secret", c.Services["my-redis"].Binding.Password) // from config.json
 	assert.Equal(t, "127.0.0.1", c.Services["my-redis"].Binding.Host)       // from config.json
 	assert.Equal(t, 6379, c.Services["my-redis"].Binding.Port)              // from config.json
+	assert.Equal(t, "primary", c.Services["my_mongodb"].ReadPreference)     // from config.json
 }

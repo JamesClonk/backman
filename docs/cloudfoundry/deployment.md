@@ -97,7 +97,8 @@ applications:
             "retention": {
               "files": 500
             },
-            restore_options: [
+            "read_preference": "secondaryPreferred",
+            "restore_options": [
               "--drop"
             ]
           }
