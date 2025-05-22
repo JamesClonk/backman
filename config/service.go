@@ -16,6 +16,7 @@ type Service struct {
 	DisableColumnStatistics bool             `json:"disable_column_statistics"`
 	LogStdErr               bool             `json:"log_stderr"`
 	ForceImport             bool             `json:"force_import"`
+	ReadPreference          string           `json:"read_preference"`
 	LocalBackupPath         string           `json:"local_backup_path"`
 	IgnoreTables            []string         `json:"ignore_tables"`
 	BackupOptions           []string         `json:"backup_options"`

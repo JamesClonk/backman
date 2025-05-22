@@ -218,6 +218,9 @@ func new() *Config {
 			if serviceConfig.ForceImport {
 				mergedServiceConfig.ForceImport = serviceConfig.ForceImport
 			}
+			if len(serviceConfig.ReadPreference) > 0 {
+				mergedServiceConfig.ReadPreference = serviceConfig.ReadPreference
+			}
 			if len(serviceConfig.LocalBackupPath) > 0 {
 				mergedServiceConfig.LocalBackupPath = serviceConfig.LocalBackupPath
 			}
@@ -313,6 +316,14 @@ func new() *Config {
 	// use s3 encryption key from env if defined
 	if os.Getenv(BackmanEnvEncryptionKey) != "" {
 		config.S3.EncryptionKey = os.Getenv(BackmanEnvEncryptionKey)
+	}
+
+	// set mongodump default readPreference to "secondary" for backwards-compatibility if not yet set
+	for serviceName, serviceConfig := range config.Services {
+		if len(serviceConfig.ReadPreference) == 0 {
+			serviceConfig.ReadPreference = "secondary"
+			config.Services[serviceName] = serviceConfig
+		}
 	}
 
 	// use teams webhook url from env if defined

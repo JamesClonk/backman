@@ -20,7 +20,8 @@
 			"schedule": "0 0 2 * * *"
 		},
 		"my_mongodb": {
-			"schedule": "0 0 2 * * *"
+			"schedule": "0 0 2 * * *",
+			"read_preference": "primary"
 		},
 		"my_postgres_db": {
 			"schedule": "0 0 2 * * *",
